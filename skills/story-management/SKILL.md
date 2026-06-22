@@ -70,9 +70,6 @@ Create a new user story from scratch or from a feature description.
 9. **Update Backlog**
    Add story to `product/context/backlog.md`
 
-10. **Record Timing**
-    Run: `./scripts/append-timing.sh "/story-write" "{iteration}" {duration} '{"story_id": "STORY-XXX"}'`
-
 ### Mode 2: Refine Existing Story
 
 Improve an existing story's clarity, scope, or structure.
@@ -104,9 +101,6 @@ Improve an existing story's clarity, scope, or structure.
 6. **Update Metadata**
    - Set "Last Updated" date
    - Keep "Created" date unchanged
-
-7. **Record Timing**
-    Run: `./scripts/append-timing.sh "/story-refine" "{iteration}" {duration} '{"story_id": "STORY-XXX"}'`
 
 ### Mode 3: Enhance Acceptance Criteria
 
@@ -143,9 +137,6 @@ Add or improve acceptance criteria for an existing story.
 
 5. **Update Story File**
    Append new AC to existing criteria
-
-6. **Record Timing**
-    Run: `./scripts/append-timing.sh "/story-ac" "{iteration}" {duration} '{"story_id": "STORY-XXX"}'`
 
 ### Mode 4: Align Stories to Sources (batch create + update)
 
@@ -294,12 +285,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
     - Create/update `product/iterations/{iteration}/stories/stories-index.md` from the worker receipts (id, title, priority, epic, size, `ac_count`) plus a priority-distribution summary — one writer building the index, not N workers racing on it. Do not re-read the story bodies; the receipts carry what the index needs.
     - Update `product/context/backlog.md` — ID, title, priority, iteration, and epic (if any) for each story.
 
-14. **[assemble] Record timing**
-    ```bash
-    ./scripts/append-timing.sh "/story-align" "{iteration}" {duration} '{"stories_created": N, "stories_updated": U, "epics_created": E, "story_ids": [...], "template": "llm-dev", "granularity": "standard"}'
-    ```
-
-15. **[assemble] Report results**
+14. **[assemble] Report results**
     - Stories created vs updated, epic count (0 if flat), priority distribution, total effort estimate, duration.
     - For seed, build the report from the worker receipts (not by re-reading the bodies) and note any `split_suspected` flags the PM should revisit.
     - Which stories carry prototype references.

@@ -80,7 +80,7 @@ On `failed` the worker returns the failure mode in `notes` and leaves the repo u
 ## What this worker does NOT do
 
 - **No breakdown planning.** Deciding how many stories exist, the split rationale, numbering, and the epic-or-flat decision all happen in the main thread's plan phase. This worker receives a settled stub.
-- **No index, no backlog, no timing.** Assembling `stories-index.md`, updating `product/context/backlog.md`, and `append-timing.sh` are the main thread's assemble phase — one writer touching those shared files, not N workers racing on them.
+- **No index, no backlog.** Assembling `stories-index.md` and updating `product/context/backlog.md` are the main thread's assemble phase — one writer touching those shared files, not N workers racing on them.
 - **No splitting or merging.** One stub → one story. Coarse-stub re-planning goes back to the caller via `split_suspected`.
 - **No PM-facing approval steps.** Workers are non-interactive. The plan was approved before fan-out; anything ambiguous comes back as `precondition-unresolved`.
 - **No Miro.** Story authoring never touches a board. This worker has no Miro MCP. Rendering the map is `board-builder`'s job, sequenced by the caller after seed.

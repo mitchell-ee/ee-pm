@@ -167,13 +167,7 @@ Write `product/context/opportunity-solution-tree/inbox/{iteration-slug}-candidat
 
 If no adjacent opportunities surfaced, write a file with an explicit "no candidates this iteration" note so there's a record.
 
-### 10. Record timing
-
-```bash
-./scripts/append-timing.sh "/synth" "{iteration}" {duration_seconds} '{"themes_identified": N, "candidates": M}'
-```
-
-### 11. Report results
+### 10. Report results
 
 Tell the user:
 - Synthesis primary output path and summary (themes, pain points per persona).
