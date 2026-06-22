@@ -26,7 +26,7 @@ fi
 
 # Get script directory to find project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Navigate from .claude/skills/discovery-synthesis/scripts/ to project root (4 levels up)
+# Navigate from .claude/skills/<skill>/scripts/ to project root (4 levels up)
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 TIMING_LOG="$PROJECT_ROOT/product/metrics/timing-log.jsonl"
 
