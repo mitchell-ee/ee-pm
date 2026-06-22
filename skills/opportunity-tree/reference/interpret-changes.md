@@ -10,7 +10,7 @@ The rules below define what counts as a change, what the diff looks like, and wh
 
 - **Sidecar (baseline)** — `miro-metadata.json` from the last successful render (create or refresh). Authoritative for `ref_id ↔ miro_id` identity, `parent_ref` structure, and last-known content/position.
 - **Board shapes (current)** — read via `layout_read` (official Miro MCP) with the `board_id` from the sidecar. It returns the full top-level item list on every call — each shape with id, content, position, size, and fill color. There is no incremental read: `layout_read` returns the full board every call, so absorb always works from a complete board snapshot (this is what §2.4's full-board-read requirement relies on). The workflow below is fetch-agnostic — any read mechanism that yields items keyed by id with content, position, size, and fill color works in place of `layout_read`.
-- **Board connectors (current)** — read via `.claude/scripts/read-connectors.sh <board_id>`. The Miro layout DSL has no connector type, so absorb drops one level and hits Miro's REST API directly. Auth via the `MIRO_ACCESS_TOKEN` environment variable (see `docs/miro-setup.md`).
+- **Board connectors (current)** — read via `${CLAUDE_PLUGIN_ROOT}/scripts/read-connectors.sh <board_id>`. The Miro layout DSL has no connector type, so absorb drops one level and hits Miro's REST API directly. Auth via the `MIRO_ACCESS_TOKEN` environment variable (see `docs/miro-setup.md`).
 
 Sidecar nodes carry `ref_id`. Board shapes carry `miro_id`. The link is the `miro_id` recorded in the sidecar plus the ref_id segment parsed from the shape's content — both must agree, and disagreement is a flag (§4).
 
@@ -262,7 +262,7 @@ The skill always runs propose-only first and asks before accepting. There is no 
 
 Flags exist because absorb cannot resolve an ambiguity by itself. They are not the end of the story — they are the start of a short conversation. After absorb writes the propose-only diff, the skill walks each flag with the PM and, where the resolution is mechanical, applies the fix to the board itself. Repo files only change once flags are resolved.
 
-Board writes use the **native toolchain** (CLAUDE.md §4): shape content / fill / position changes go through the official MCP's `mcp__miro-official__layout_update`; connector create / update / delete go through `.claude/scripts/write-connectors.sh` (the layout DSL has no connector type). `layout_update` re-serializes the entire board to DSL on each call — story-map item 17 documents a parser bug triggered by literal `\n` in sticky content, but OST shapes use `<br />` line breaks and don't trip it.
+Board writes use the **native toolchain** (CLAUDE.md §4): shape content / fill / position changes go through the official MCP's `mcp__miro-official__layout_update`; connector create / update / delete go through `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` (the layout DSL has no connector type). `layout_update` re-serializes the entire board to DSL on each call — story-map item 17 documents a parser bug triggered by literal `\n` in sticky content, but OST shapes use `<br />` line breaks and don't trip it.
 
 ### Resolution table
 

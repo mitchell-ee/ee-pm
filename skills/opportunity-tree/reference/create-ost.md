@@ -212,7 +212,7 @@ MCP. The main thread never calls `mcp__miro-official__*` directly.
   rejected), and write any defaults `layout_read` returns (e.g. `border_opacity`)
   explicitly. `layout_create` returns each item's ID — record it as the node's
   `miro_id` in the sidecar.
-- **Create edges** with `.claude/scripts/write-connectors.sh create <board_id> <from_id>
+- **Create edges** with `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh create <board_id> <from_id>
   <to_id> --shape curved` — the layout DSL has no connector type. One connector per
   parent-child edge.
 - **Reposition / re-content nodes** (refresh, absorb-accept) with

@@ -10,9 +10,12 @@
 
 set -e
 
-# Get script directory to find project root
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+# Resolve the user's project root. As a bundled plugin script this file lives
+# in the plugin cache, not the user's repo, so climbing up from the script
+# location won't reach product/. Prefer CLAUDE_PROJECT_DIR (set by the harness);
+# fall back to the current working directory, which is the project root when a
+# skill invokes this script.
+PROJECT_ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
 
 ITERATIONS_DIR="$PROJECT_ROOT/product/iterations"
 
