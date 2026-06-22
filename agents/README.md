@@ -48,7 +48,7 @@ Canonical diagram + rationale: see this repo's README for the architecture diagr
 
 ### Worker agent inventory
 
-Workers live flat in `.claude/agents/` (agent discovery is non-recursive). Each is single-purpose, model-matched, and never spawns its own workers (no `Agent` tool).
+Workers live flat in `agents/` (agent discovery is non-recursive). Each is single-purpose, model-matched, and never spawns its own workers (no `Agent` tool).
 
 | Worker | Model | Owns | MCP scope |
 |---|---|---|---|

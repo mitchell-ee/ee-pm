@@ -196,4 +196,4 @@ These don't affect absorb's structural pass but constrain refresh-mode and infor
 - Transparent fill needs both `fill=#ffffff fill_opacity=0.0` explicit.
 - `layout_update` re-serializes the *whole* board to DSL — a sticky with a literal `\n` in content kills every `layout_update` on the board. Fall back to REST PATCH (`PATCH /v2/boards/{id}/sticky_notes/{item_id}`) for problem stickies; re-canonicalize to the `<p>...</p><p>...</p>` form to clear the limitation permanently.
 
-See `.claude/skills/assumption-map/SKILL.md` §"Known DSL limitations and canonical write forms" for the authoritative list.
+See `skills/assumption-map/SKILL.md` §"Known DSL limitations and canonical write forms" for the authoritative list.

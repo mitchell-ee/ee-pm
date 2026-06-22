@@ -125,7 +125,7 @@ A typical live workshop touches one or more of these segments:
 
 ## Handoff payload
 
-Schema: `.claude/agents/README.md` § "Cross-agent handoff payload".
+Schema: `agents/README.md` § "Cross-agent handoff payload".
 
 As the live workshop router, this skill is usually the *initiator* of cross-agent handoffs and the *receiver* on return. It threads board IDs and iteration state across phases so the next router doesn't re-derive them.
 
@@ -152,4 +152,4 @@ As the live workshop router, this skill is usually the *initiator* of cross-agen
 - `CLAUDE.md` — project-level instructions and scope.
 - `product/README.md` — product tree orientation.
 - `product/context/opportunity-solution-tree/README.md` — OST orientation.
-- `.claude/skills/README.md` — skill inventory and adaptation notes.
+- `skills/README.md` — skill inventory and adaptation notes.

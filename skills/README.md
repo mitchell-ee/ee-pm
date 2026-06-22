@@ -1,6 +1,6 @@
 # Skills
 
-The skill pack for the Visual Collaboration with AI workflow. Each skill is self-contained. **Router skills** load into the main thread and organize the others by PM phase; **capability skills** do one artifact type each. The router skills know which capability skill to invoke at which phase — see `.claude/agents/README.md` for the full shape.
+The skill pack for the Visual Collaboration with AI workflow. Each skill is self-contained. **Router skills** load into the main thread and organize the others by PM phase; **capability skills** do one artifact type each. The router skills know which capability skill to invoke at which phase — see `agents/README.md` for the full shape.
 
 ## Router skills
 

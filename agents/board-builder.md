@@ -40,7 +40,7 @@ If any of those are missing or ambiguous, the worker **stops and returns a "prec
 
 1. Loads the named skill via the `Skill` tool. The skill's create-mode or refresh-mode procedure owns the layout math, colors, fonts, and connector wiring.
 2. Reads repo state per the skill's input contract (story frontmatter, sidecar JSON, README backbone, etc.).
-3. Builds the board via `mcp__miro-official__layout_create` (or `layout_update` for refresh). Connectors via `.claude/skills/<skill>/scripts/write-connectors.sh` where the skill calls for them.
+3. Builds the board via `mcp__miro-official__layout_create` (or `layout_update` for refresh). Connectors via `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` where the skill calls for them.
 4. Writes the sidecar JSON atomically (write to `.tmp`, rename) to the path the skill specifies.
 5. Verifies by reading the board back via `layout_read` and reconciling shape count + ref_id presence against the sidecar.
 

@@ -67,7 +67,7 @@ None. The prototyping surfaces are non-MCP and human-mediated; the `claude-desig
 
 ## Handoff payload
 
-Schema: `.claude/agents/README.md` § "Cross-agent handoff payload".
+Schema: `agents/README.md` § "Cross-agent handoff payload".
 
 **Consumes** (from `story-shaping` or interactive thread):
 - `iteration_slug`, `scope`
@@ -89,7 +89,7 @@ No `boards.*` fields apply (non-MCP surface).
 ## Related resources
 
 - `CLAUDE.md` — your design system's rules entrypoints and component-selection order (e.g. Equal Experts' Kuat).
-- `.claude/agents/README.md` — why prototyping is its own router (and the fallback collapse path if legibility forces three).
-- `.claude/skills/claude-design/SKILL.md` — primary surface.
-- `.claude/skills/magic-patterns/SKILL.md` — stretch comparison surface.
+- `agents/README.md` — why prototyping is its own router (and the fallback collapse path if legibility forces three).
+- `skills/claude-design/SKILL.md` — primary surface.
+- `skills/magic-patterns/SKILL.md` — stretch comparison surface.
 - your design system's rules/tokens directory — e.g. if using Equal Experts' Kuat, `node_modules/@equal-experts/kuat-core/agent-docs/README.md` (the Kuat bundle index).

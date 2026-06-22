@@ -81,7 +81,7 @@ The main thread never calls `mcp__miro-official__*` directly while following thi
 
 ## Handoff payload
 
-Schema: `.claude/agents/README.md` § "Cross-agent handoff payload".
+Schema: `agents/README.md` § "Cross-agent handoff payload".
 
 **Consumes** (from `discovery`, `workshop-facilitator`, or interactive thread):
 - `iteration_slug`, `scope`
@@ -103,5 +103,5 @@ Schema: `.claude/agents/README.md` § "Cross-agent handoff payload".
 ## Related resources
 
 - `CLAUDE.md` — project scope and principles.
-- `.claude/agents/README.md` — why story-shaping is split from discovery.
-- `.claude/skills/README.md` — skill inventory.
+- `agents/README.md` — why story-shaping is split from discovery.
+- `skills/README.md` — skill inventory.

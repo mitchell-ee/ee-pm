@@ -33,7 +33,7 @@ If any field is missing or the board / sidecar don't reconcile (board_id from si
 ## What the worker does
 
 1. Loads the named skill's absorb-mode reference (`interpret-changes.md` for OST; `read-board-state.md` + `interpret-changes.md` for story-map).
-2. Reads the current board via `mcp__miro-official__layout_read` (shapes / stickies / frames / lines) and `.claude/skills/<skill>/scripts/read-connectors.sh` (connectors). The skill's read step owns the parse rules.
+2. Reads the current board via `mcp__miro-official__layout_read` (shapes / stickies / frames / lines) and `${CLAUDE_PLUGIN_ROOT}/scripts/read-connectors.sh` (connectors). The skill's read step owns the parse rules.
 3. Computes the structural diff against the sidecar per the skill's detection rules (identity, content, structural, new nodes, deletions, detachments, flags).
 4. Generates the semantic interpretation pass where the skill calls for one (story-map Task C; OST §2/§4 flags).
 5. Writes the result as a single markdown document at the invocation's `output` path, in the diff format the skill specifies. Format includes a top section listing every flag the PM must resolve before accept-mode can run.

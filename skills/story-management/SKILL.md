@@ -206,7 +206,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
    - Use "As a [persona], I want [action], so that [benefit]" framing for the stub's `intent` — general personas matching `product/context/personas.md`.
    - Maintain traceability: every stub records its solution + opportunity + source theme (and a story-map activity once a map exists) in `source_refs`.
 
-   Each stub carries exactly the fields the `story-writer` invocation contract names (`.claude/agents/story-writer.md`): `story_id`, `slug`, `title`, `personas`, `activity`, `priority`, `type`, `epic`, `intent`, `source_refs`. A stub is cheap — one to two lines of intent plus metadata — which is why the whole stub list fits in the main thread without bloat.
+   Each stub carries exactly the fields the `story-writer` invocation contract names (`agents/story-writer.md`): `story_id`, `slug`, `title`, `personas`, `activity`, `priority`, `type`, `epic`, `intent`, `source_refs`. A stub is cheap — one to two lines of intent plus metadata — which is why the whole stub list fits in the main thread without bloat.
 
 7a. **[plan] Detect flows the prototype surfaced that no story covers** (only when `prototypes/` is among the sources)
    A prototype almost always builds or gestures at flows beyond what the seed stories named — and its handoff often *flags* them explicitly as out of scope. Read the prototype's handoff README and `cd-metadata.json` (and CD-notes if present), then:
@@ -255,7 +255,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
 9–12. **[fan-out] Expand each approved stub into a full story file — in parallel**
     This is the per-story expansion (acceptance criteria, priority/size, prototype refs, save) that used to run inline and bloat the context. In **seed**, the main thread (following the `story-shaping` router) **spawns one `story-writer` worker per stub**, backgrounded, in waves of ~10 — issuing the batch as parallel spawns in a single message so they actually run concurrently rather than serializing.
 
-    Each worker receives one fully-resolved stub (the invocation contract in `.claude/agents/story-writer.md`) plus the shared `template` / `granularity` / `iteration` run parameters, loads `story-management` **Mode 1**, and:
+    Each worker receives one fully-resolved stub (the invocation contract in `agents/story-writer.md`) plus the shared `template` / `granularity` / `iteration` run parameters, loads `story-management` **Mode 1**, and:
     - generates Given-When-Then acceptance criteria — happy path, error/failure, edge, non-functional (performance, accessibility, security); referencing prototype screens inline when `prototype_refs` are present (see [reference/acceptance-criteria-format.md](reference/acceptance-criteria-format.md));
     - assigns priority (from the stub) and size (via the sizing guidelines below);
     - writes the story file atomically to `product/iterations/{iteration}/stories/story-{NNN}-{slug}.md` with the frontmatter below;

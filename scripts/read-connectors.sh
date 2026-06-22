@@ -20,7 +20,7 @@
 #   }
 #
 # Usage: read-connectors.sh <board_id>
-# Example: .claude/scripts/read-connectors.sh <BOARD_ID>
+# Example: scripts/read-connectors.sh <BOARD_ID>
 
 set -euo pipefail
 

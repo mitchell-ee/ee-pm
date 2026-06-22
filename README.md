@@ -39,7 +39,7 @@ Work is organized by **how a PM adopts it**, not by tool. Each phase is a *route
                ▼                              ▼
 ┌──────────────────────────────┐   ┌──────────────────────────────┐
 │  Phase-router SKILLS         │   │  Worker AGENTS (leaves)      │
-│  .claude/skills/             │   │  .claude/agents/             │
+│  skills/                     │   │  agents/                     │
 │   workshop-facilitator       │   │   board-builder       (MCP)  │
 │   discovery                  │   │   absorb-interpreter  (MCP)  │
 │   story-shaping              │   │   board-writer        (MCP)  │
@@ -59,26 +59,31 @@ Work is organized by **how a PM adopts it**, not by tool. Each phase is a *route
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Routing lives in the main thread (as a loaded skill) because subagents can't spawn other subagents. See `.claude/agents/README.md` for the full worker inventory, model-matching rationale, and the two-call approval split.
+Routing lives in the main thread (as a loaded skill) because subagents can't spawn other subagents. See `agents/README.md` for the full worker inventory, model-matching rationale, and the two-call approval split.
 
 ## Getting started
 
-1. **Pick your LLM coding environment.** The skills and agents are written for an environment that supports a skill/agent model and tool delegation. The conventions and prompts are the portable core — adapt the harness-specific glue (agent frontmatter, MCP registration) to your tool.
-2. **Connect Miro.** See [`docs/miro-setup.md`](docs/miro-setup.md) — the board workers use the official hosted Miro MCP (OAuth at connect), plus thin REST scripts for connectors.
-3. **Bring your design system.** The prototyping skills reference a design system for any UI decision. They ship with Equal Experts' Kuat as a worked example; point them at your own design-system rules and your own Claude Design linked project.
-4. **Scaffold a project.** Use `framework-setup` once, then `iteration-setup` per iteration. Your PM artifacts live under `product/` (empty scaffold included).
+This repo is a **Claude Code plugin** (`vcw`). Skills install namespaced as `/vcw:<skill>`.
 
-## Repo layout
+1. **Install the plugin.** Point your Claude Code at this repo — `claude --plugin-dir /path/to/visual-collab-workflow` for local use, or install it from a marketplace. (The skills and conventions are the portable core; if you use a different LLM coding environment, adapt the harness glue — agent frontmatter, MCP registration — to your tool.)
+2. **Scaffold your project.** Run `/vcw:setup` once. It creates the `product/` artifact tree and adds the workflow conventions to your project's `CLAUDE.md`. It's non-destructive and safe to run in an existing repo — it reports what it'll do and never overwrites your files.
+3. **Connect Miro.** See [`docs/miro-setup.md`](docs/miro-setup.md) — the board workers use the official hosted Miro MCP (OAuth at connect), plus thin REST scripts for connectors.
+4. **Bring your design system.** The prototyping skills reference a design system for any UI decision. They ship with Equal Experts' Kuat as a worked example; point them at your own design-system rules and your own Claude Design linked project.
+5. **Work iteratively.** Run `/vcw:framework-setup` once to establish product context, then `/vcw:iteration-setup` per iteration. Your PM artifacts live under `product/`.
+
+## Plugin layout
 
 ```
-.claude/
-├── skills/        router skills + capability skills
-└── agents/        worker agents (+ README with the architecture detail)
+.claude-plugin/
+└── plugin.json    plugin manifest (name: vcw)
+skills/            router skills + capability skills (incl. setup)
+agents/            worker agents (+ README with the architecture detail)
+scripts/           shared Miro REST helpers (connectors, board copy)
 docs/
 └── miro-setup.md  connect the hosted Miro MCP
-product/           your PM artifacts (empty scaffold)
-CLAUDE.md          project instructions for the LLM
 ```
+
+`/vcw:setup` generates `product/` and the conventions block in `CLAUDE.md` **in your project**, not here.
 
 ## What's portable, what you swap
 
