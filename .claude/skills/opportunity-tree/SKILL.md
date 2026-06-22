@@ -26,7 +26,7 @@ Five modes: **create**, **refresh**, **absorb**, **analyze**, **promote-from-inb
 ## Required tools
 
 - Official Miro MCP at `mcp.miro.com`: `mcp__miro-official__layout_create` (build the board + nodes), `mcp__miro-official__layout_read` (round-trip read for absorb), `mcp__miro-official__layout_update` (refresh-mode node moves / content / fill), `mcp__miro-official__context_get` (board metadata).
-- `scripts/write-connectors.sh` (create / update / delete) and `scripts/read-connectors.sh` for tree edges — the layout DSL has **no connector type**, so connectors go through these thin REST helpers. Auth via the `MIRO_ACCESS_TOKEN` environment variable (see `docs/miro-setup.md`).
+- `.claude/scripts/write-connectors.sh` (create / update / delete) and `.claude/scripts/read-connectors.sh` for tree edges — the layout DSL has **no connector type**, so connectors go through these thin REST helpers. Auth via the `MIRO_ACCESS_TOKEN` environment variable (see `docs/miro-setup.md`).
 - Filesystem access to `product/context/opportunity-solution-tree/` and its sidecar `miro-metadata.json`.
 
 **Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`discovery`) spawns the worker, the worker loads this skill. The `analyze` and `promote-from-inbox` modes are file-side only (no board mutation) and can run without a board worker. See the canonical write forms in `reference/create-ost.md` and `reference/interpret-changes.md` so create output is diff-stable against `layout_read`.

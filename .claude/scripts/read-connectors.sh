@@ -20,7 +20,7 @@
 #   }
 #
 # Usage: read-connectors.sh <board_id>
-# Example: .claude/skills/opportunity-tree/scripts/read-connectors.sh <BOARD_ID>
+# Example: .claude/scripts/read-connectors.sh <BOARD_ID>
 
 set -euo pipefail
 

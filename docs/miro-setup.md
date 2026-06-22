@@ -23,11 +23,11 @@ This covers everything Miro's layout DSL handles: frames, stickies, shapes, text
 
 ## 2. A Miro REST token (connectors)
 
-Miro's layout DSL has **no connector type**, so the parent→child edges in an opportunity solution tree (and any cross-board connector) go through thin REST scripts bundled under the `opportunity-tree` skill:
+Miro's layout DSL has **no connector type**, so the parent→child edges in an opportunity solution tree (and any cross-board connector) go through thin REST scripts in `.claude/scripts/` (shared by all three board skills):
 
-- `.claude/skills/opportunity-tree/scripts/read-connectors.sh <board_id>`
-- `.claude/skills/opportunity-tree/scripts/write-connectors.sh create|update|delete <board_id> …`
-- `.claude/skills/opportunity-tree/scripts/miro-copy-board.sh <source_board_id> <new_name>` (board copies, handy for absorb validation)
+- `.claude/scripts/read-connectors.sh <board_id>`
+- `.claude/scripts/write-connectors.sh create|update|delete <board_id> …`
+- `.claude/scripts/miro-copy-board.sh <source_board_id> <new_name>` (board copies, handy for absorb validation)
 
 These hit `api.miro.com` directly and authenticate with a **Miro REST access token** read from the environment:
 

@@ -29,4 +29,4 @@ The skill pack for the Visual Collaboration with AI workflow. Each skill is self
 
 ## The Miro three-piece pattern
 
-`opportunity-tree`, `assumption-map`, and `story-map` all follow the same build → collaborate → read-back → interpret loop, and share the connector REST scripts bundled under `opportunity-tree/scripts/`. `opportunity-tree` is therefore a required sibling of the other two board skills. See `docs/miro-setup.md` for the Miro auth paths.
+`opportunity-tree`, `assumption-map`, and `story-map` all follow the same build → collaborate → read-back → interpret loop. The shared Miro REST scripts they use (`read-connectors.sh`, `write-connectors.sh`, `miro-copy-board.sh`) live in `.claude/scripts/`, so each board skill is independently liftable — no skill depends on another. See `docs/miro-setup.md` for the Miro auth paths.

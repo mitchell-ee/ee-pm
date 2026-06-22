@@ -40,7 +40,7 @@ Stories are compared on three axes: position (activity column + swim lane), the 
 
 ## Step 2: Fetch current board
 
-Call `layout_read` (official Miro MCP) with the `board_id` from the sidecar. It returns the full top-level item list — stickies, text, shapes (rounded rectangles in particular), frames — each with ID, position, content, and fill color. Story maps carry no connectors, so no connector read is needed; if a future map adds them, `.claude/skills/opportunity-tree/scripts/read-connectors.sh` covers that gap.
+Call `layout_read` (official Miro MCP) with the `board_id` from the sidecar. It returns the full top-level item list — stickies, text, shapes (rounded rectangles in particular), frames — each with ID, position, content, and fill color. Story maps carry no connectors, so no connector read is needed; if a future map adds them, `.claude/scripts/read-connectors.sh` covers that gap.
 
 The workflow below is fetch-agnostic: any read mechanism that yields items keyed by ID with position, content, and fill color works in place of `layout_read`.
 
