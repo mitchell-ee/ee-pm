@@ -262,7 +262,7 @@ The skill always runs propose-only first and asks before accepting. There is no 
 
 Flags exist because absorb cannot resolve an ambiguity by itself. They are not the end of the story — they are the start of a short conversation. After absorb writes the propose-only diff, the skill walks each flag with the PM and, where the resolution is mechanical, applies the fix to the board itself. Repo files only change once flags are resolved.
 
-Board writes use the **native toolchain** (CLAUDE.md §4): shape content / fill / position changes go through the official MCP's `mcp__miro-official__layout_update`; connector create / update / delete go through `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` (the layout DSL has no connector type). `layout_update` re-serializes the entire board to DSL on each call — story-map item 17 documents a parser bug triggered by literal `\n` in sticky content, but OST shapes use `<br />` line breaks and don't trip it.
+Board writes use the **native toolchain** (the official Miro MCP plus REST connector scripts): shape content / fill / position changes go through the official MCP's `mcp__miro-official__layout_update`; connector create / update / delete go through `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` (the layout DSL has no connector type). `layout_update` re-serializes the entire board to DSL on each call — story-map item 17 documents a parser bug triggered by literal `\n` in sticky content, but OST shapes use `<br />` line breaks and don't trip it.
 
 ### Resolution table
 

@@ -1,7 +1,0 @@
-{
-  "name": "visual-collab-workflow",
-  "version": "0.1.0",
-  "description": "Portable skills and agents for LLM-assisted, human-led visual collaboration in product management.",
-  "license": "MIT",
-  "dependencies": {}
-}
