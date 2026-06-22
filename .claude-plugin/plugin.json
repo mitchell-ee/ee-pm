@@ -3,6 +3,10 @@
   "displayName": "Visual Collaboration with AI",
   "version": "0.1.0",
   "description": "Portable skills and agents for LLM-assisted, human-led visual collaboration in product management — opportunity trees, assumption maps, story maps, prototypes.",
+  "author": {
+    "name": "Mike Mitchell",
+    "email": "mike.mitchell@equalexperts.com"
+  },
   "license": "MIT",
   "keywords": ["product-management", "miro", "discovery", "story-mapping", "prototyping"]
 }

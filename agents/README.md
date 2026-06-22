@@ -1,6 +1,10 @@
+---
+description: Architecture notes for the Visual Collaboration with AI worker agents — not a spawnable agent. Documents the worker inventory, model-matching rationale, and the two-call approval split.
+---
+
 # Agents
 
-Agents are personas + tool allowlists + system prompts that the main Claude thread can delegate to. Skills are stateless capabilities; agents are *who is invoking them and why*. This README documents the intended agent shape for the Visual Collaboration with AI workflow so it can be copied into the shareable plugin repo.
+Agents are personas + tool allowlists + system prompts that the main Claude thread can delegate to. Skills are stateless capabilities; agents are *who is invoking them and why*. This README documents the agent shape for the Visual Collaboration with AI workflow.
 
 ## Design rule
 
