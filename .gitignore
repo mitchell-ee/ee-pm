@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+*.log
+
+# Local LLM-environment state (not part of the portable workflow)
+.claude/checkpoint.md
+.claude/settings.local.json
+.claude/projects/
+
+# Local Miro tokens / secrets — never commit
+.env
+*.tokens.json
