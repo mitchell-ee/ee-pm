@@ -80,10 +80,15 @@ skills/            router skills + capability skills (incl. setup)
 agents/            worker agents (+ README with the architecture detail)
 scripts/           shared Miro REST helpers (connectors, board copy)
 docs/
-└── miro-setup.md  connect the hosted Miro MCP
+├── miro-setup.md           connect the hosted Miro MCP
+└── adding-a-board-type.md  extend the workflow with a new Miro artifact
 ```
 
 `/vcw:setup` generates `product/` and the conventions block in `CLAUDE.md` **in your project**, not here.
+
+## Extending
+
+To add a fourth Miro board type (beyond opportunity tree, assumption map, and story map) that follows the same build → collaborate → read-back → interpret loop, see [`docs/adding-a-board-type.md`](docs/adding-a-board-type.md).
 
 ## What's portable, what you swap
 
