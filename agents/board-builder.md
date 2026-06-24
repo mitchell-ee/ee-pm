@@ -36,6 +36,15 @@ notes:    <one-line freeform PM intent>
 
 If any of those are missing or ambiguous, the worker **stops and returns a "precondition unresolved" message** rather than guessing. The caller must re-ask the PM and re-invoke.
 
+## Preflight: confirm Miro auth before building
+
+Before touching the board, verify the hosted Miro MCP is actually reachable. If the `mcp__miro-official__*` tools are absent (they return "No such tool available"), the MCP either isn't wired (see setup §5) or its OAuth-at-connect flow hasn't been completed yet. **Do not** start a partial build. Instead distinguish two cases and return `status: auth-required`:
+
+- **Interactive session:** the OAuth consent can be completed now. Return a message telling the caller the MCP needs a one-time browser authorization, and that re-invoking after consent will succeed.
+- **Non-interactive session (background/headless run):** no browser handoff is possible. Return: *"Miro hosted-MCP OAuth requires an interactive session; the consent flow can't run in a background job. Authorize once interactively (run any board operation, or `/vcw:setup` §7), then re-invoke — background runs work thereafter."*
+
+This converts the opaque "No such tool available" failure into an actionable instruction. The connector REST scripts are a separate path: if they fail, it's a missing/expired `MIRO_ACCESS_TOKEN` (run `miro-fresh-token.sh` / `miro-oauth-bootstrap.sh`), not an MCP-consent problem — name which path failed.
+
 ## What the worker does
 
 1. Loads the named skill via the `Skill` tool. The skill's create-mode or refresh-mode procedure owns the layout math, colors, fonts, and connector wiring.
@@ -49,7 +58,7 @@ If any of those are missing or ambiguous, the worker **stops and returns a "prec
 The worker returns a single structured block to the caller. The caller relays only what the PM needs (a board URL plus a one-line summary).
 
 ```
-status:        ok | failed | precondition-unresolved
+status:        ok | failed | precondition-unresolved | auth-required
 artifact:      <from invocation>
 mode:          <from invocation>
 board_id:      <miro_id>

@@ -30,6 +30,10 @@ notes:    <one-line PM intent, e.g. "after Friday workshop">
 
 If any field is missing or the board / sidecar don't reconcile (board_id from sidecar doesn't match invocation), the worker stops and returns `precondition-unresolved` rather than guessing.
 
+## Preflight: confirm Miro auth before reading
+
+Before reading the board, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` rather than a partial diff. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/vcw:setup` §7), then re-invoke."* If instead the connector REST read fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (a separate path — run `miro-fresh-token.sh`), not MCP consent; name which path failed.
+
 ## What the worker does
 
 1. Loads the named skill's absorb-mode reference (`interpret-changes.md` for OST; `read-board-state.md` + `interpret-changes.md` for story-map).
@@ -41,7 +45,7 @@ If any field is missing or the board / sidecar don't reconcile (board_id from si
 ## Final message
 
 ```
-status:           ok | failed | precondition-unresolved
+status:           ok | failed | precondition-unresolved | auth-required
 artifact:         <from invocation>
 board_id:         <miro_id>
 diff_path:        <output path>

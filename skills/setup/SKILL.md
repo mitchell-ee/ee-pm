@@ -37,6 +37,10 @@ Check, without modifying anything:
   - Is `miro-official` already a configured MCP server? (`claude mcp get miro-official` succeeds, or a `<root>/.mcp.json` declares it.)
   - Do project-local copies of the three board workers already exist at `<root>/.claude/agents/{board-builder,absorb-interpreter,board-writer}.md`? If so, read the `vcw-source-version:` stamp in each (see §5) and compare against the installed plugin version (`.claude-plugin/plugin.json:version`).
   - If neither is present, Miro MCP is **not wired** — the board workers will silently lack `mcp__miro-official__*` and fall back to raw REST. Plan to offer wiring in §5.
+- **Connector token automation (§6):** detect, without modifying anything, whether the REST-token lifecycle is already installed:
+  - Are the token scripts present at `<root>/.claude/scripts/{miro-token-lib,miro-fresh-token,miro-oauth-bootstrap,miro-verify}.sh`?
+  - Does `<root>/.claude/settings.local.json` contain a `SessionStart` hook referencing `miro-fresh-token.sh`?
+  - If both are present, the token path is wired — skip §6. If only some are present, plan to install the missing pieces. Note that the actual token file (`~/.config/<project>/miro-tokens.json`) is outside the repo; its presence/validity is checked by §7's verify, not here.
 
 ### 2. Plan and report (dry run)
 
@@ -95,20 +99,53 @@ Present the tradeoff and ask the PM to pick one route (default: **A**):
 - Route B: create `<root>/.mcp.json` if absent; if it exists, **merge** the `miro-official` key into its `mcpServers` object without disturbing other servers. Never overwrite an existing `miro-official` entry without asking.
 - Route C: write nothing.
 
-Regardless of route, both auth paths from `docs/miro-setup.md` still apply: the hosted MCP uses OAuth-at-connect; the connector REST scripts use `MIRO_ACCESS_TOKEN`.
+Regardless of route, both auth paths from `docs/miro-setup.md` still apply: the hosted MCP uses OAuth-at-connect; the connector REST scripts use `MIRO_ACCESS_TOKEN`. The next two steps automate that second path and verify both.
 
-### 6. Report and next steps
+### 6. Wire the connector REST token (auto-refresh)
+
+Opportunity-solution-tree connectors go through REST scripts (`write-connectors.sh` etc.) that read `MIRO_ACCESS_TOKEN` from the environment. Rather than have the PM hand-export a token that silently expires, setup installs the token-lifecycle scripts and a `SessionStart` hook that injects a freshly-refreshed token each session. Skip this step if §1 found the token automation already installed (the three `miro-*.sh` scripts present in `<root>/.claude/scripts/` **and** a `SessionStart` hook referencing `miro-fresh-token.sh` in `settings.local.json`).
+
+Story maps and assumption maps carry no connectors, so a PM who only uses those can decline this step — the hosted MCP alone suffices. Offer it, default **yes** for OST users.
+
+**Apply** (only after confirmation, non-destructively):
+
+1. **Copy the token scripts.** `mkdir -p <root>/.claude/scripts`; copy `miro-token-lib.sh`, `miro-fresh-token.sh`, `miro-oauth-bootstrap.sh`, and `miro-verify.sh` from the plugin's `scripts/` into `<root>/.claude/scripts/` **only if they don't already exist** (or on an approved re-sync). `chmod +x` the copies. Never overwrite without prompting.
+2. **Merge the SessionStart hook** into `<root>/.claude/settings.local.json` (create the file if absent; deep-merge the `hooks.SessionStart` array without disturbing existing hooks). The hook refreshes and exports the token:
+   ```json
+   {
+     "hooks": {
+       "SessionStart": [
+         { "hooks": [ {
+           "type": "command",
+           "command": "tok=\"$(\"$CLAUDE_PROJECT_DIR/.claude/scripts/miro-fresh-token.sh\" 2>/dev/null)\" && [ -n \"$tok\" ] && printf 'MIRO_ACCESS_TOKEN=%s\\n' \"$tok\" >> \"$CLAUDE_ENV_FILE\" || true",
+           "statusMessage": "Refreshing Miro REST token"
+         } ] }
+       ]
+     }
+   }
+   ```
+   The `|| true` and `2>/dev/null` keep a session with no token configured from failing to start — the hook is a no-op until bootstrap runs.
+3. **Resolve client credentials + bootstrap.** Tell the PM the scripts need a Miro app's `client_id`/`client_secret`, resolved via either `MIRO_CLIENT_ID`/`MIRO_CLIENT_SECRET` env vars or a `MIRO_OP_ITEM` 1Password reference (see `docs/miro-setup.md`). If they have them set, offer to run `<root>/.claude/scripts/miro-oauth-bootstrap.sh` now — it opens the Miro consent page once and writes the refreshable token file (`~/.config/<project>/miro-tokens.json`, 0600). If credentials aren't set yet, leave the scripts in place and tell the PM to run the bootstrap after exporting them. Never run bootstrap without confirmation (it opens a browser).
+
+### 7. Verify both auth paths
+
+After wiring, confirm the setup actually works rather than leaving the PM to discover a gap mid-board-build:
+
+- **REST token:** run `<root>/.claude/scripts/miro-verify.sh` and report its table (credentials resolvable, token file present, refresh works, not expired). If it exits non-zero, surface the blocking line.
+- **Hosted MCP:** the OAuth-at-connect flow is harness-owned and can't be probed from a shell. **In an interactive session**, offer to spawn the `board-builder` worker on a trivial read (`mcp__miro-official__context_get` against any board) to trigger the consent prompt now, while the PM is in setup mode, and confirm the tools resolve. **If the current session is non-interactive** (a background/headless run — no browser handoff is possible), do **not** spawn the probe; instead report clearly: *"Hosted-MCP OAuth needs an interactive session. Run a board operation once interactively to authorize; after that, background jobs work."* This replaces the opaque "No such tool available" failure with an actionable instruction.
+
+### 8. Report and next steps
 
 Summarize what was created, appended, or skipped. Then tell the PM the next steps:
 
-1. **Connect Miro** — see `docs/miro-setup.md` in the plugin. The board workers reach the official hosted Miro MCP via the route chosen in §5 (Route A: local agent copies; Route B: project `.mcp.json`); the first connection runs Miro OAuth in the browser. The connector REST scripts additionally use a `MIRO_ACCESS_TOKEN` environment variable. If §5 was skipped (Route C), the workers are REST-only until you re-run `/vcw:setup` and pick A or B.
+1. **Connect Miro** — see `docs/miro-setup.md` in the plugin. The board workers reach the official hosted Miro MCP via the route chosen in §5 (Route A: local agent copies; Route B: project `.mcp.json`); the first connection runs Miro OAuth in the browser (interactive session required). The connector REST token is now auto-managed if §6 was applied — the `SessionStart` hook refreshes and exports `MIRO_ACCESS_TOKEN` each session once you've run `miro-oauth-bootstrap.sh`. Run `miro-verify.sh` any time to check both paths. If §5 was skipped (Route C), the workers are REST-only until you re-run `/vcw:setup` and pick A or B.
 2. **Bring a design system** — the prototyping skills ship with Equal Experts' Kuat as a worked example; point them at your own design system to use it.
 3. **Establish product context** — run `/vcw:framework-setup` once.
 4. **Start an iteration** — run `/vcw:iteration-setup` per iteration.
 
 ## Notes
 
-- This skill writes only into the user's project — `product/`, `CLAUDE.md`, and (per §5, only with consent) `.claude/agents/` or `.mcp.json`. It never writes into the plugin's own directory.
-- Re-running is safe: a second run detects the installed block, the existing scaffold, and the §5 Miro wiring (including the `vcw-source-version` stamp on local agent copies) and skips or offers a re-sync rather than overwriting.
-- To uninstall: delete the block between `<!-- BEGIN vcw -->` and `<!-- END vcw -->` in `CLAUDE.md`; for Route A, delete the three copied agents from `.claude/agents/`; for Route B, remove the `miro-official` key from `.mcp.json`.
+- This skill writes only into the user's project — `product/`, `CLAUDE.md`, and (per §5–§6, only with consent) `.claude/agents/`, `.mcp.json`, `.claude/scripts/`, and `.claude/settings.local.json`. It never writes into the plugin's own directory. The token file it can create (`~/.config/<project>/miro-tokens.json`) lives outside the repo and is the user's own Miro grant — never committed.
+- Re-running is safe: a second run detects the installed block, the existing scaffold, the §5 Miro wiring (including the `vcw-source-version` stamp on local agent copies), and the §6 token automation (scripts + `SessionStart` hook), and skips or offers a re-sync rather than overwriting.
+- To uninstall: delete the block between `<!-- BEGIN vcw -->` and `<!-- END vcw -->` in `CLAUDE.md`; for Route A, delete the three copied agents from `.claude/agents/`; for Route B, remove the `miro-official` key from `.mcp.json`; for §6, delete the `miro-*.sh` scripts from `.claude/scripts/`, remove the `SessionStart` token hook from `settings.local.json`, and (optionally) delete `~/.config/<project>/miro-tokens.json`.
 - **Why §5 exists:** plugin-provided agents cannot carry agent-scoped MCP (Claude Code ignores `mcpServers` on plugin agents). Route A trades plugin-managed updates for main-thread token isolation; Route B trades token isolation for zero local copies. The PM owns that tradeoff per project.

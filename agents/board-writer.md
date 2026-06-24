@@ -30,6 +30,10 @@ notes:         <one-line PM intent>
 
 The `approvals` block carries the PM's answers for every flag in the diff (e.g., "identity-break OPP-07: typo, restore canonical"; "stale-prefix temp_id_42: strip and assign next ref"). The worker treats missing answers as `precondition-unresolved` — it does not invent defaults.
 
+## Preflight: confirm Miro auth before writing
+
+Before applying the diff, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` and **write nothing** (neither board nor repo), so a half-applied diff is impossible. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/vcw:setup` §7), then re-invoke."* If instead a connector REST write fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (run `miro-fresh-token.sh`), not MCP consent; name which path failed.
+
 ## What the worker does
 
 1. Loads the named skill's accept-mode reference (`accept-mode.md` for OST; the parallel accept reference for story-map once authored).
@@ -41,7 +45,7 @@ The `approvals` block carries the PM's answers for every flag in the diff (e.g.,
 ## Final message
 
 ```
-status:              ok | failed | precondition-unresolved
+status:              ok | failed | precondition-unresolved | auth-required
 artifact:            <from invocation>
 board_id:            <miro_id>
 flags_resolved:      <count>
