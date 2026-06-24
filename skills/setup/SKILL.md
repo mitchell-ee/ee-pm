@@ -33,6 +33,10 @@ Check, without modifying anything:
 - Does `<root>/product/` exist? If so, what's already in it — is it the empty scaffold, or does it hold real content (files/subdirs other than `context/`, `iterations/`, `README.md`)?
 - Does `<root>/product/context/` exist?
 - Does `<root>/product/iterations/` exist?
+- **Miro MCP wiring (for the board workers):** check how — or whether — the board workers (`board-builder`, `absorb-interpreter`, `board-writer`) can reach the official Miro MCP in this project. Detect, without modifying anything:
+  - Is `miro-official` already a configured MCP server? (`claude mcp get miro-official` succeeds, or a `<root>/.mcp.json` declares it.)
+  - Do project-local copies of the three board workers already exist at `<root>/.claude/agents/{board-builder,absorb-interpreter,board-writer}.md`? If so, read the `vcw-source-version:` stamp in each (see §5) and compare against the installed plugin version (`.claude-plugin/plugin.json:version`).
+  - If neither is present, Miro MCP is **not wired** — the board workers will silently lack `mcp__miro-official__*` and fall back to raw REST. Plan to offer wiring in §5.
 
 ### 2. Plan and report (dry run)
 
@@ -66,17 +70,45 @@ On approval, perform exactly the planned actions:
 
 Never use a destructive write on an existing file. Appending to `CLAUDE.md` means adding to the end, preserving everything above.
 
-### 5. Report and next steps
+### 5. Wire the board workers to Miro (MCP routing)
+
+The three board workers (`board-builder`, `absorb-interpreter`, `board-writer`) build and round-trip Miro boards through the **official Miro MCP** (`mcp__miro-official__*` at `https://mcp.miro.com/`). They declare it inline in their frontmatter (`mcpServers: miro-official`). This works **only when the agents are project-local** — for security, **Claude Code ignores the `mcpServers`, `hooks`, and `permissionMode` frontmatter fields on plugin-provided agents** (verified behavior; see Claude Code sub-agents docs). Because vcw ships these agents *in the plugin*, their inline `mcpServers` is silently dropped, and the workers fall back to raw REST — which builds boards but cannot do the `layout_read`-based `absorb`/`refresh` round-trip.
+
+There is no way to keep the MCP both plugin-managed **and** agent-scoped at once. So setup offers the PM a deliberate choice — skip this step entirely if §1 detected Miro MCP is already wired (a configured `miro-official` server, or up-to-date local agent copies).
+
+Present the tradeoff and ask the PM to pick one route (default: **A**):
+
+- **Route A — agent-scoped MCP (copy the 3 board workers local).** Keeps the (large) Miro MCP **off the main interactive thread** — its tool schemas load only inside the workers. Setup copies `board-builder.md`, `absorb-interpreter.md`, `board-writer.md` from the plugin's `agents/` into `<root>/.claude/agents/`, preserving their inline `mcpServers`. A project-local agent with the same `name:` overrides the plugin's. *Cost:* those three files become local overrides that don't auto-update with the plugin.
+  - **Version stamp + re-sync.** When copying, inject a `vcw-source-version: {plugin version}` line into each copied agent's frontmatter (just below `name:`). On a later `/vcw:setup` run, §1 compares this stamp to the installed plugin version; if the plugin is newer, report it and **offer to re-copy** (re-apply the override from the new plugin source). Never silently overwrite — always prompt.
+  - The first time a worker connects, the Miro MCP runs its OAuth-at-connect flow in the browser (the PM's own Miro account; nothing stored in the repo).
+
+- **Route B — project-scoped MCP (register `miro-official` globally for the project).** Agents stay **fully plugin-managed** (no local copies, auto-update with the plugin). Setup writes/merges `<root>/.mcp.json` with:
+  ```json
+  { "mcpServers": { "miro-official": { "type": "http", "url": "https://mcp.miro.com/" } } }
+  ```
+  *Cost:* the MCP loads into the **main thread** too, so its tool schemas consume main-thread context every turn. Choose this if main-thread token cost is acceptable and zero local agent copies is preferred.
+
+- **Route C — skip for now.** Do nothing. The board workers run REST-only: `create` works (boards build via the Miro REST API + `MIRO_ACCESS_TOKEN`), but `absorb`/`refresh` round-trips are unavailable until the PM wires the MCP (re-run `/vcw:setup` later to choose A or B).
+
+**Apply** the chosen route only after confirmation, non-destructively:
+- Route A: `mkdir -p <root>/.claude/agents`; copy only the three files **if they don't already exist** (or on an approved re-sync); add the `vcw-source-version` stamp. Never touch other agents.
+- Route B: create `<root>/.mcp.json` if absent; if it exists, **merge** the `miro-official` key into its `mcpServers` object without disturbing other servers. Never overwrite an existing `miro-official` entry without asking.
+- Route C: write nothing.
+
+Regardless of route, both auth paths from `docs/miro-setup.md` still apply: the hosted MCP uses OAuth-at-connect; the connector REST scripts use `MIRO_ACCESS_TOKEN`.
+
+### 6. Report and next steps
 
 Summarize what was created, appended, or skipped. Then tell the PM the next steps:
 
-1. **Connect Miro** — see `docs/miro-setup.md` in the plugin. The board workers use the official hosted Miro MCP (OAuth at connect); the connector REST scripts use a `MIRO_ACCESS_TOKEN` environment variable.
+1. **Connect Miro** — see `docs/miro-setup.md` in the plugin. The board workers reach the official hosted Miro MCP via the route chosen in §5 (Route A: local agent copies; Route B: project `.mcp.json`); the first connection runs Miro OAuth in the browser. The connector REST scripts additionally use a `MIRO_ACCESS_TOKEN` environment variable. If §5 was skipped (Route C), the workers are REST-only until you re-run `/vcw:setup` and pick A or B.
 2. **Bring a design system** — the prototyping skills ship with Equal Experts' Kuat as a worked example; point them at your own design system to use it.
 3. **Establish product context** — run `/vcw:framework-setup` once.
 4. **Start an iteration** — run `/vcw:iteration-setup` per iteration.
 
 ## Notes
 
-- This skill writes only into the user's project (`product/` and `CLAUDE.md`). It never writes into the plugin's own directory.
-- Re-running is safe: a second run detects the installed block and the existing scaffold and skips them.
-- To uninstall the conventions, the PM deletes the block between `<!-- BEGIN vcw -->` and `<!-- END vcw -->` in `CLAUDE.md`.
+- This skill writes only into the user's project — `product/`, `CLAUDE.md`, and (per §5, only with consent) `.claude/agents/` or `.mcp.json`. It never writes into the plugin's own directory.
+- Re-running is safe: a second run detects the installed block, the existing scaffold, and the §5 Miro wiring (including the `vcw-source-version` stamp on local agent copies) and skips or offers a re-sync rather than overwriting.
+- To uninstall: delete the block between `<!-- BEGIN vcw -->` and `<!-- END vcw -->` in `CLAUDE.md`; for Route A, delete the three copied agents from `.claude/agents/`; for Route B, remove the `miro-official` key from `.mcp.json`.
+- **Why §5 exists:** plugin-provided agents cannot carry agent-scoped MCP (Claude Code ignores `mcpServers` on plugin agents). Route A trades plugin-managed updates for main-thread token isolation; Route B trades token isolation for zero local copies. The PM owns that tradeoff per project.
