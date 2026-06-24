@@ -21,7 +21,7 @@ Structure (left-to-right). Opportunities nest — a single outcome can decompose
         └── Outcome ── ...
 ```
 
-Five modes: **create**, **refresh**, **absorb**, **analyze**, **promote-from-inbox** (`absorb` is the structural round-trip from Miro; `promote-from-inbox` is the file-side flow that moves candidates staged by iteration synthesis into the canonical tree).
+Six modes: **seed**, **create**, **refresh**, **absorb**, **analyze**, **promote-from-inbox** (`seed` authors the source MD files for a cold-start tree from scratch; `create` renders existing files to a board; `absorb` is the structural round-trip from Miro; `promote-from-inbox` is the file-side flow that moves candidates staged by iteration synthesis into the canonical tree).
 
 ## Required tools
 
@@ -29,7 +29,7 @@ Five modes: **create**, **refresh**, **absorb**, **analyze**, **promote-from-inb
 - `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` (create / update / delete) and `${CLAUDE_PLUGIN_ROOT}/scripts/read-connectors.sh` for tree edges — the layout DSL has **no connector type**, so connectors go through these thin REST helpers. Auth via the `MIRO_ACCESS_TOKEN` environment variable (see `docs/miro-setup.md`).
 - Filesystem access to `product/context/opportunity-solution-tree/` and its sidecar `miro-metadata.json`.
 
-**Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`discovery`) spawns the worker, the worker loads this skill. The `analyze` and `promote-from-inbox` modes are file-side only (no board mutation) and can run without a board worker. See the canonical write forms in `reference/create-ost.md` and `reference/interpret-changes.md` so create output is diff-stable against `layout_read`.
+**Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`discovery`) spawns the worker, the worker loads this skill. The `seed`, `analyze`, and `promote-from-inbox` modes are file-side only (no board mutation) and run without a board worker — `seed` fans out `opportunity-writer` workers; the others run in the main thread. See the canonical write forms in `reference/create-ost.md` and `reference/interpret-changes.md` so create output is diff-stable against `layout_read`.
 
 ## When to use this skill
 
@@ -206,19 +206,33 @@ Default x positions: root=0, outcome=480. Opportunity x is `480 + 480 + 320 × (
 
 ## Modes
 
-### 1. Create mode
+### 1. Seed mode
 
-Read all outcome / opportunity / solution / test files. Build topology in memory. Create the Miro board; add outcomes, then opportunities with connectors, then solutions, then tests. Save the sidecar `miro-metadata.json` and emit the board URL in chat.
+Authors the **source MD files** for a tree from scratch — the cold-start that every other mode presumes already exists. Seed produces files only; it never touches Miro. When the PM asks to "build the OST from scratch" or "create the initial opportunity tree," run seed first, then hand to create mode for the board.
+
+Seed is Torres-canonical: a fresh tree is **outcomes + an initial opportunity set**. Solutions and assumption tests are *not* authored in seed — they arrive later through iteration discovery (`promote-from-inbox`, `assumption-map`). Seeding solutions up front pre-commits to answers before the discovery that should produce them.
+
+Seed follows a **plan → fan-out → assemble** shape (the OST analogue of `story-shaping`'s seed). The plan phase is interactive and stays in the main thread; the expansion fans out:
+
+1. **Plan (main thread, interactive).** Settle the tree shape *with the PM*: which outcomes (with metric + target), which opportunities under each, how they nest, persona and evidence strength per opportunity. Assign canonical `OUTCOME-{NN}` / `OPP-{NN}` ref_ids and slugs. This is the judgment; it is not delegated. Confirm the set before fan-out. Answer the three "Open questions for the PM before building" below as part of this phase.
+2. **Fan-out (delegated, parallel).** For each settled node, the main thread spawns one `opportunity-writer` worker with the stub fully resolved in the prompt (see that agent's invocation contract). Workers run in parallel waves (~10 at a time), each writing one node file atomically and returning a one-line receipt. The node prose never returns to the main thread — only the receipts. The main thread never authors node bodies inline.
+3. **Assemble (main thread).** Collect receipts, verify the file set is complete and parent refs resolve, then hand off to **create mode** (via `board-builder`) to render the board. Seed itself writes no sidecar — the sidecar is born when create renders the board.
+
+If a worker returns `split_suspected` or `precondition-unresolved`, the main thread re-plans that one stub and re-spawns; the rest of the fan-out is unaffected.
+
+### 2. Create mode
+
+Read all outcome / opportunity / solution / test files — **they must already exist** (if starting from scratch, run seed mode first to author them). Build topology in memory. Create the Miro board; add outcomes, then opportunities with connectors, then solutions, then tests. Save the sidecar `miro-metadata.json` and emit the board URL in chat.
 
 **Follow `reference/create-ost.md` for the full layout algorithm** — orientation, columns, node content format (mandatory bold ref_id), the per-column within/cross pitch rule, centering and propagation, sidecar contract. Every render must conform; the rules in that file are non-negotiable defaults.
 
-### 2. Refresh mode
+### 3. Refresh mode
 
 Diff repo against sidecar. Add new nodes, update moved/edited ones, gray-out removed ones. Do NOT delete from Miro without approval.
 
 When recomputing positions for any new or moved node, re-run the full layout algorithm in `reference/create-ost.md` — same per-column pitch rule, same centering, same content format. Don't patch positions ad-hoc; the rule must hold globally after every refresh.
 
-### 3. Absorb mode (two-pass: structural diff, then semantic interpretation)
+### 4. Absorb mode (two-pass: structural diff, then semantic interpretation)
 
 **Structural diff pass** — read board; classify nodes against sidecar; detect:
 
@@ -235,7 +249,7 @@ When recomputing positions for any new or moved node, re-run the full layout alg
 
 See `reference/interpret-changes.md` (to be written).
 
-### 4. Analyze mode
+### 5. Analyze mode
 
 Powers the iteration-entry **selection moment**. Reads:
 
@@ -255,7 +269,7 @@ The PM decides. The skill's output is advisory — it does not commit a choice o
 
 Output format: a markdown summary shown in chat, plus optionally written to `product/context/opportunity-solution-tree/analyze-{YYYY-MM-DD}.md` when the PM asks for a durable record.
 
-### 5. Promote-from-inbox mode
+### 6. Promote-from-inbox mode
 
 Reads `product/context/opportunity-solution-tree/inbox/*-candidates.md` and walks the PM through each candidate interactively. For each candidate, offer three resolutions; default is **new opportunity**:
 

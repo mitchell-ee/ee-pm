@@ -14,6 +14,11 @@ These are instructions loaded into the main thread's context. The main thread fo
 ```
 PRODUCT-LEVEL (continuous)
 ──────────────────────────
+  Bootstrap (cold start)   opportunity-tree seed ─► create on Miro
+                           → main thread settles shape, spawns
+                             opportunity-writer per node (parallel),
+                             then board-builder for the board
+
   Strategic interviews ─► OST inbox ─► opportunity-tree
   (signals, field work)                (promote-from-inbox, refresh)
 
@@ -36,6 +41,7 @@ ITERATION (one cycle, bound to one opportunity)
 
 | Worker | When | Backgrounded |
 |---|---|---|
+| `opportunity-writer` (sonnet) | Bootstrap — OST seed: expand one settled outcome/opportunity stub → one node file (fanned out one-per-node, parallel) | yes |
 | `synthesis-worker` (opus) | Phase 2 — many transcripts → `synthesis.md` + inbox candidates | yes |
 | `board-builder` (sonnet) | Phase 3 / 4 — build or refresh OST / assumption-map on Miro | yes |
 | `absorb-interpreter` (opus) | Absorb mode — read board, compute propose-only diff | yes |
@@ -47,6 +53,7 @@ The main thread never calls `mcp__miro-official__*` directly while following thi
 
 | User intent | Phase | Skill to invoke |
 |---|---|---|
+| "Build the OST from scratch" / "Create the initial opportunity tree" / "Seed outcomes and opportunities" | Bootstrap | `opportunity-tree` (seed mode), then create mode |
 | "Start a new iteration on this opportunity" / "Spin up an iteration folder" | Setup | `iteration-setup` |
 | "Conduct an interview" / "format this transcript" | Capture | `interview-management` |
 | "Synthesize the interviews" / "what are the themes?" | Synthesis | `discovery-synthesis` |
@@ -70,6 +77,7 @@ The main thread never calls `mcp__miro-official__*` directly while following thi
 5. **Do not extract stories.** That is `story-shaping`. Hand off the chosen opportunity (slug + converged solution shape) and stop.
 6. **Preconditions are caller-passed.** Iteration slug, chosen opportunity, board IDs, scope (`product-context` vs `iteration:<slug>`), and any human-in-the-loop choices must be resolved before following this skill. If a required precondition is missing, ask the PM the specific question rather than guessing defaults.
 7. **Heavy units delegate to worker agents, backgrounded.** Transcript synthesis, board builds, absorb reads, and long-thread digests run as backgrounded worker subagents. The main thread's context stays thin — only routing, precondition checks, and worker-result relays.
+8. **Seed splits interactive shape from delegated expansion.** Building an OST from scratch is not one inline job. The main thread settles the tree *shape* with the PM — which outcomes, which opportunities, nesting, persona, evidence (the judgment). It then fans out one `opportunity-writer` per node to author the MD files in parallel, and delegates the board render to `board-builder` (create mode). The main thread never authors node bodies or builds the board inline. Seed authors outcomes + opportunities only; solutions and assumption tests arrive later via `promote-from-inbox` and `assumption-map`.
 
 ## Handoff payload
 

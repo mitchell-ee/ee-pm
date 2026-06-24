@@ -57,12 +57,13 @@ Workers live flat in `agents/` (agent discovery is non-recursive). Each is singl
 | Worker | Model | Owns | MCP scope |
 |---|---|---|---|
 | `story-writer` | Sonnet | Expand **one** approved story stub → one full story `.md` file. Fanned out one-per-stub in parallel during seed. | none |
+| `opportunity-writer` | Sonnet | Expand **one** approved tree-node stub (outcome or opportunity) → one node `.md` file. Fanned out one-per-node in parallel during OST seed. The OST analogue of `story-writer`. | none |
 | `board-builder` | Sonnet | Build / refresh a Miro board from a sidecar | Miro MCP (inline `mcpServers`) |
 | `absorb-interpreter` | Opus | Read a board, compute a propose-only diff, return diff path + flag count | Miro MCP (inline `mcpServers`) |
 | `board-writer` | Sonnet | Apply a PM-approved diff back to a Miro board | Miro MCP (inline `mcpServers`) |
 | `synthesis-worker` | Opus | Many interview transcripts → `synthesis.md` + OST inbox candidates | none |
 
-**`story-writer` is the one fan-out worker — the only worker spawned multiply in parallel.** Story emission is a *map*: stories are independent, each expands from its own stub into its own file, so the main thread (following `story-shaping`) spawns N workers as a parallel batch (single message, waves of ~10). Every other worker is spawned singly, for one of two reasons: it is gated on a single shared artifact (the board workers — one board, one sidecar, can't be parallelized without racing), or its value *is* seeing everything in one context (`synthesis-worker` is a *reduce* — splitting per-transcript would destroy the cross-cutting synthesis). The split that motivates `story-writer` is plan-vs-prose: the main thread keeps the breakdown plan (queryable "why"); the workers hold and shed the per-story AC prose (the file on disk is the record).
+**`story-writer` and `opportunity-writer` are the two fan-out workers — the only workers spawned multiply in parallel.** Both author independent files from settled stubs: a *map*. Story emission expands one stub per story; OST seed expands one node (outcome or opportunity) per file. In each case the main thread (following its router — `story-shaping` for stories, `discovery` for OST seed) spawns N workers as a parallel batch (single message, waves of ~10). Every other worker is spawned singly, for one of two reasons: it is gated on a single shared artifact (the board workers — one board, one sidecar, can't be parallelized without racing), or its value *is* seeing everything in one context (`synthesis-worker` is a *reduce* — splitting per-transcript would destroy the cross-cutting synthesis). The split that motivates both fan-out workers is plan-vs-prose: the main thread keeps the breakdown/tree plan (queryable "why"); the workers hold and shed the per-file prose (the file on disk is the record).
 
 **Miro MCP scoping principle:** the Miro MCP loads in only the three board workers above — never in the project-level `.mcp.json` (it has been deleted), never in a router skill, never directly in the main thread. Per-agent `mcpServers` frontmatter is the registration mechanism, paired with explicit `mcp__miro-official__*` entries in the worker's `tools:` allowlist (inline `mcpServers` alone is necessary but not sufficient when `tools:` is set). The main thread, following a router skill, delegates every Miro touch to one of the three workers.
 
@@ -71,7 +72,7 @@ Workers live flat in `agents/` (agent discovery is non-recursive). Each is singl
 Models are matched per worker to the cognitive load of the work. Router skills inherit the main thread's model — the cost knob is at the worker layer:
 
 - **Opus** for judgment-heavy workers: `absorb-interpreter` (semantic diffing) and `synthesis-worker` (theme extraction across many transcripts).
-- **Sonnet** for mechanical worker execution: `board-builder` and `board-writer` (deterministic skill execution), and `story-writer` (expanding a settled stub into AC — the judgment was spent in the main thread's plan phase, so the worker's job is mechanical).
+- **Sonnet** for mechanical worker execution: `board-builder` and `board-writer` (deterministic skill execution), and `story-writer` / `opportunity-writer` (expanding a settled stub into a well-formed file — the judgment was spent in the main thread's plan phase, so the worker's job is mechanical).
 
 A uniform model would either over-spend on mechanical board writes or under-resource semantic absorb interpretation. Per-worker matching avoids both.
 
