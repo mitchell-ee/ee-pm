@@ -4,10 +4,21 @@ description: Worker agent. Builds or refreshes a Miro board from repo state usin
 tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
 model: sonnet
 color: blue
-mcpServers:
-  - miro-official:
-      type: http
-      url: https://mcp.miro.com/
+# OPTIONAL OPTIMIZATION (disabled by default) — agent-scoped Miro MCP.
+# By default this plugin registers `miro-official` at the PROJECT level (in
+# .mcp.json), which loads the MCP's tool schemas onto the main interactive
+# thread every turn. To instead load the Miro MCP ONLY inside this worker
+# (keeping it off the main thread to save context tokens), copy this agent
+# file into your project's `.claude/agents/` and uncomment the block below.
+# It is left commented here because Claude Code IGNORES `mcpServers` on
+# plugin-provided agents for security — the inline block only takes effect on
+# a PROJECT-LOCAL copy. Trade-offs: the local copy stops auto-updating with the
+# plugin, and you must spawn the bare-named local agent (not `ee-pm:board-builder`)
+# and restart after copying. See docs/miro-setup.md → "Optional: agent-scoped MCP".
+# mcpServers:
+#   - miro-official:
+#       type: http
+#       url: https://mcp.miro.com/
 ---
 
 # Board Builder
@@ -41,7 +52,7 @@ If any of those are missing or ambiguous, the worker **stops and returns a "prec
 Before touching the board, verify the hosted Miro MCP is actually reachable. If the `mcp__miro-official__*` tools are absent (they return "No such tool available"), the MCP either isn't wired (see setup §5) or its OAuth-at-connect flow hasn't been completed yet. **Do not** start a partial build. Instead distinguish two cases and return `status: auth-required`:
 
 - **Interactive session:** the OAuth consent can be completed now. Return a message telling the caller the MCP needs a one-time browser authorization, and that re-invoking after consent will succeed.
-- **Non-interactive session (background/headless run):** no browser handoff is possible. Return: *"Miro hosted-MCP OAuth requires an interactive session; the consent flow can't run in a background job. Authorize once interactively (run any board operation, or `/vcw:setup` §7), then re-invoke — background runs work thereafter."*
+- **Non-interactive session (background/headless run):** no browser handoff is possible. Return: *"Miro hosted-MCP OAuth requires an interactive session; the consent flow can't run in a background job. Authorize once interactively (run any board operation, or `/ee-pm:setup` §7), then re-invoke — background runs work thereafter."*
 
 This converts the opaque "No such tool available" failure into an actionable instruction. The connector REST scripts are a separate path: if they fail, it's a missing/expired `MIRO_ACCESS_TOKEN` (run `miro-fresh-token.sh` / `miro-oauth-bootstrap.sh`), not an MCP-consent problem — name which path failed.
 

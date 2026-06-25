@@ -135,7 +135,7 @@ The worker agents and index enumerate the board types explicitly. A new skill is
 **Optional (prose, not load-bearing):**
 
 - Root `README.md` — the "three Miro artifacts" line.
-- `skills/setup/templates/claude-md-block.md` — only if the new board is a product-level artifact worth naming in the conventions block that `/vcw:setup` writes into a user's `CLAUDE.md`. The template names the routers and the storage convention but does **not** enumerate board types, so adding a type does not require users to re-run `/vcw:setup`.
+- `skills/setup/templates/claude-md-block.md` — only if the new board is a product-level artifact worth naming in the conventions block that `/ee-pm:setup` writes into a user's `CLAUDE.md`. The template names the routers and the storage convention but does **not** enumerate board types, so adding a type does not require users to re-run `/ee-pm:setup`.
 
 ---
 

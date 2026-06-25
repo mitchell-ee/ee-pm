@@ -1,6 +1,6 @@
-# Visual Collaboration with AI — Workflow
+# EE PM Workflow
 
-A repeatable, portable set of skills and agents for **LLM-assisted, human-led visual collaboration** in product management. It lets a PM and an LLM work together on the visual artifacts of discovery and delivery — opportunity solution trees, assumption maps, story maps, and prototypes — with the human leading and the LLM doing the heavy, mechanical, and synthesis-shaped work.
+A repeatable, portable set of skills and agents for **AI-assisted, human-led product management** across discovery and delivery. It lets a PM and an LLM work together end to end — interviews and synthesis, opportunity solution trees, assumption maps, story maps and stories, backlog, prototypes, and live workshop facilitation — with the human leading and the LLM doing the heavy, mechanical, and synthesis-shaped work. Several of these artifacts are visual surfaces (Miro boards, Claude Design prototypes) the PM and LLM round-trip together.
 
 This is **not a product or a packaged tool.** It's a set of conventions, prompts, and small scripts you adopt into your own LLM coding environment. The design goal is portability: bring your own LLM, your own Miro account, your own design system.
 
@@ -33,7 +33,7 @@ Work is organized by **how a PM adopts it**, not by tool. Each phase is a *route
 ```
 ┌───────────────────────────────────────────────────────────────┐
 │  Main thread (PM ↔ LLM)                                        │
-│  Holds: Agent tool · Skill tool · Read/Write/Bash · NO MCP     │
+│  Uses: Agent tool · Skill tool · Read/Write/Bash (no Miro MCP) │
 └──────────────┬──────────────────────────────┬─────────────────┘
                │ load a router skill          │ spawn a worker agent
                ▼                              ▼
@@ -47,7 +47,7 @@ Work is organized by **how a PM adopts it**, not by tool. Each phase is a *route
 │                              │   │   story-writer               │
 │  Route intent → invoke a     │   │  Single-purpose, model-      │
 │  capability skill + tell the │   │  matched, no nested spawn.   │
-│  main thread which worker    │   │  Miro MCP scoped to the 3    │
+│  main thread which worker    │   │  Miro MCP used by the 3      │
 │  to spawn                    │   │  board workers only.         │
 └──────────────┬───────────────┘   └──────────────────────────────┘
                │ invoke a capability skill
@@ -63,19 +63,19 @@ Routing lives in the main thread (as a loaded skill) because subagents can't spa
 
 ## Getting started
 
-This repo is a **Claude Code plugin** (`vcw`). Skills install namespaced as `/vcw:<skill>`.
+This repo is a **Claude Code plugin** (`ee-pm`). Skills install namespaced as `/ee-pm:<skill>`.
 
 1. **Install the plugin.** Point your Claude Code at this repo — `claude --plugin-dir /path/to/visual-collab-workflow` for local use, or install it from a marketplace. (The skills and conventions are the portable core; if you use a different LLM coding environment, adapt the harness glue — agent frontmatter, MCP registration — to your tool.)
-2. **Scaffold your project.** Run `/vcw:setup` once. It creates the `product/` artifact tree and adds the workflow conventions to your project's `CLAUDE.md`. It's non-destructive and safe to run in an existing repo — it reports what it'll do and never overwrites your files.
+2. **Scaffold your project.** Run `/ee-pm:setup` once. It creates the `product/` artifact tree and adds the workflow conventions to your project's `CLAUDE.md`. It's non-destructive and safe to run in an existing repo — it reports what it'll do and never overwrites your files.
 3. **Connect Miro.** See [`docs/miro-setup.md`](docs/miro-setup.md) — the board workers use the official hosted Miro MCP (OAuth at connect), plus thin REST scripts for connectors.
 4. **Bring your design system.** The prototyping skills reference a design system for any UI decision. They ship with Equal Experts' Kuat as a worked example; point them at your own design-system rules and your own Claude Design linked project.
-5. **Work iteratively.** Run `/vcw:framework-setup` once to establish product context, then `/vcw:iteration-setup` per iteration. Your PM artifacts live under `product/`.
+5. **Work iteratively.** Run `/ee-pm:framework-setup` once to establish product context, then `/ee-pm:iteration-setup` per iteration. Your PM artifacts live under `product/`.
 
 ## Plugin layout
 
 ```
 .claude-plugin/
-└── plugin.json    plugin manifest (name: vcw)
+└── plugin.json    plugin manifest (name: ee-pm)
 skills/            router skills + capability skills (incl. setup)
 agents/            worker agents (+ README with the architecture detail)
 scripts/           shared Miro REST helpers (connectors, board copy)
@@ -84,7 +84,7 @@ docs/
 └── adding-a-board-type.md  extend the workflow with a new Miro artifact
 ```
 
-`/vcw:setup` generates `product/` and the conventions block in `CLAUDE.md` **in your project**, not here.
+`/ee-pm:setup` generates `product/` and the conventions block in `CLAUDE.md` **in your project**, not here.
 
 ## Extending
 

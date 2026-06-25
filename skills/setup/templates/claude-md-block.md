@@ -1,7 +1,7 @@
-<!-- BEGIN vcw -->
-# Visual Collaboration with AI — workflow conventions
+<!-- BEGIN ee-pm -->
+# EE PM Workflow — workflow conventions
 
-This project uses the **Visual Collaboration with AI** plugin (`vcw`) — a portable workflow for LLM-assisted, human-led visual collaboration in product management. The conventions below tell the LLM how to work within it. The skills and worker agents are provided by the plugin and invoked as `/vcw:<skill>`.
+This project uses the **EE PM Workflow** plugin (`ee-pm`) — a portable workflow for AI-assisted, human-led product management across discovery and delivery. The conventions below tell the LLM how to work within it. The skills and worker agents are provided by the plugin and invoked as `/ee-pm:<skill>`.
 
 ## Guiding principles
 
@@ -45,4 +45,4 @@ If a UI need isn't covered by your loaded design-system rules, ask before improv
 - Plan before implementation; work iteratively, one section at a time.
 - When designing green-field capability (structural-diff reverse sync, semantic interpretation, board layout), propose the approach in markdown before committing to coordinate math or large code blocks.
 - Prefer reusing working skill content verbatim over rewriting for style.
-<!-- END vcw -->
+<!-- END ee-pm -->

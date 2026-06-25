@@ -5,10 +5,21 @@ tools: Read, Write, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mc
 model: opus
 effort: high
 color: green
-mcpServers:
-  - miro-official:
-      type: http
-      url: https://mcp.miro.com/
+# OPTIONAL OPTIMIZATION (disabled by default) — agent-scoped Miro MCP.
+# By default this plugin registers `miro-official` at the PROJECT level (in
+# .mcp.json), which loads the MCP's tool schemas onto the main interactive
+# thread every turn. To instead load the Miro MCP ONLY inside this worker
+# (keeping it off the main thread to save context tokens), copy this agent
+# file into your project's `.claude/agents/` and uncomment the block below.
+# It is left commented here because Claude Code IGNORES `mcpServers` on
+# plugin-provided agents for security — the inline block only takes effect on
+# a PROJECT-LOCAL copy. Trade-offs: the local copy stops auto-updating with the
+# plugin, and you must spawn the bare-named local agent (not `ee-pm:absorb-interpreter`)
+# and restart after copying. See docs/miro-setup.md → "Optional: agent-scoped MCP".
+# mcpServers:
+#   - miro-official:
+#       type: http
+#       url: https://mcp.miro.com/
 ---
 
 # Absorb Interpreter
@@ -32,7 +43,7 @@ If any field is missing or the board / sidecar don't reconcile (board_id from si
 
 ## Preflight: confirm Miro auth before reading
 
-Before reading the board, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` rather than a partial diff. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/vcw:setup` §7), then re-invoke."* If instead the connector REST read fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (a separate path — run `miro-fresh-token.sh`), not MCP consent; name which path failed.
+Before reading the board, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` rather than a partial diff. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/ee-pm:setup` §7), then re-invoke."* If instead the connector REST read fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (a separate path — run `miro-fresh-token.sh`), not MCP consent; name which path failed.
 
 ## What the worker does
 

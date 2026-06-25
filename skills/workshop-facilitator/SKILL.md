@@ -1,11 +1,11 @@
 ---
 name: workshop-facilitator
-description: Router skill that knows when to invoke the Visual Collaboration with AI capability skills during a PM workshop. Loads into the main thread's context when the user frames the request as a workshop phase ("let's pick what to work on next", "we're about to run focused discovery", "the team moved things on the board, can you absorb that?") rather than a specific capability skill.
+description: Router skill that knows when to invoke the EE PM Workflow capability skills during a PM workshop. Loads into the main thread's context when the user frames the request as a workshop phase ("let's pick what to work on next", "we're about to run focused discovery", "the team moved things on the board, can you absorb that?") rather than a specific capability skill.
 ---
 
 # Workshop Facilitator (router skill)
 
-Drives the full Visual Collaboration with AI loop — from a living product-level OST, through iteration selection, focused discovery, OST contribution, solution shaping, the story-map↔prototype loop, and engineering-ready stories. Doesn't do the artifact work itself; picks the right skill for the phase and hands off.
+Drives the full EE PM Workflow loop — from a living product-level OST, through iteration selection, focused discovery, OST contribution, solution shaping, the story-map↔prototype loop, and engineering-ready stories. Doesn't do the artifact work itself; picks the right skill for the phase and hands off.
 
 These are instructions loaded into the main thread's context. The main thread follows this routing guide; it does not run as a separate subagent. Worker spawns leave from the main thread directly.
 

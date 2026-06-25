@@ -16,4 +16,4 @@ product/
         └── decisions.md
 ```
 
-Run `/vcw:framework-setup` once to establish `context/`, then `/vcw:iteration-setup` per iteration to scaffold an iteration folder. Each Miro artifact keeps a `miro-metadata.json` sidecar next to it, recording the board ID and the shape/connector IDs the absorb pass diffs against.
+Run `/ee-pm:framework-setup` once to establish `context/`, then `/ee-pm:iteration-setup` per iteration to scaffold an iteration folder. Each Miro artifact keeps a `miro-metadata.json` sidecar next to it, recording the board ID and the shape/connector IDs the absorb pass diffs against.

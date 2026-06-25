@@ -1,12 +1,12 @@
 {
-  "name": "vcw",
-  "displayName": "Visual Collaboration with AI",
-  "version": "0.4.2",
-  "description": "Portable skills and agents for LLM-assisted, human-led visual collaboration in product management — opportunity trees, assumption maps, story maps, prototypes.",
+  "name": "ee-pm",
+  "displayName": "EE PM Workflow",
+  "version": "0.4.3",
+  "description": "Portable skills and agents for AI-assisted, human-led product management across discovery and delivery — interviews, synthesis, opportunity trees, assumption maps, story maps, stories, backlog, prototyping, and workshop facilitation.",
   "author": {
     "name": "Mike Mitchell",
     "email": "mike.mitchell@equalexperts.com"
   },
   "license": "MIT",
-  "keywords": ["product-management", "miro", "discovery", "story-mapping", "prototyping"]
+  "keywords": ["product-management", "discovery", "continuous-discovery", "opportunity-solution-tree", "story-mapping", "prototyping", "miro"]
 }

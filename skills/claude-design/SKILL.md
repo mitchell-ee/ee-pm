@@ -8,7 +8,7 @@ tags: [product-management, prototyping, claude-design, kuat]
 
 Round-trip workflow between repo-resident prototype specs and Claude Design (claude.ai/design). The skill encodes the four-piece pattern (sidecar markdown spec, create on the surface, absorb back, accept-flow discipline) on a non-MCP surface.
 
-This is the *adapted-shape* instantiation of the Visual Collaboration with AI pattern — same shape as `story-map` and `opportunity-tree`, different mechanics (no MCP, manual project setup in the browser, handoff via CD's built-in features).
+This is the *adapted-shape* instantiation of the EE PM Workflow pattern — same shape as `story-map` and `opportunity-tree`, different mechanics (no MCP, manual project setup in the browser, handoff via CD's built-in features).
 
 ## When to use this skill
 

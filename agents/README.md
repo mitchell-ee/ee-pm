@@ -1,10 +1,10 @@
 ---
-description: Architecture notes for the Visual Collaboration with AI worker agents — not a spawnable agent. Documents the worker inventory, model-matching rationale, and the two-call approval split.
+description: Architecture notes for the EE PM Workflow worker agents — not a spawnable agent. Documents the worker inventory, model-matching rationale, and the two-call approval split.
 ---
 
 # Agents
 
-Agents are personas + tool allowlists + system prompts that the main Claude thread can delegate to. Skills are stateless capabilities; agents are *who is invoking them and why*. This README documents the agent shape for the Visual Collaboration with AI workflow.
+Agents are personas + tool allowlists + system prompts that the main Claude thread can delegate to. Skills are stateless capabilities; agents are *who is invoking them and why*. This README documents the agent shape for the EE PM Workflow.
 
 ## Design rule
 
@@ -58,14 +58,16 @@ Workers live flat in `agents/` (agent discovery is non-recursive). Each is singl
 |---|---|---|---|
 | `story-writer` | Sonnet | Expand **one** approved story stub → one full story `.md` file. Fanned out one-per-stub in parallel during seed. | none |
 | `opportunity-writer` | Sonnet | Expand **one** approved tree-node stub (outcome or opportunity) → one node `.md` file. Fanned out one-per-node in parallel during OST seed. The OST analogue of `story-writer`. | none |
-| `board-builder` | Sonnet | Build / refresh a Miro board from a sidecar | Miro MCP (inline `mcpServers`) |
-| `absorb-interpreter` | Opus | Read a board, compute a propose-only diff, return diff path + flag count | Miro MCP (inline `mcpServers`) |
-| `board-writer` | Sonnet | Apply a PM-approved diff back to a Miro board | Miro MCP (inline `mcpServers`) |
+| `board-builder` | Sonnet | Build / refresh a Miro board from a sidecar | Miro MCP (project `.mcp.json`) |
+| `absorb-interpreter` | Opus | Read a board, compute a propose-only diff, return diff path + flag count | Miro MCP (project `.mcp.json`) |
+| `board-writer` | Sonnet | Apply a PM-approved diff back to a Miro board | Miro MCP (project `.mcp.json`) |
 | `synthesis-worker` | Opus | Many interview transcripts → `synthesis.md` + OST inbox candidates | none |
 
 **`story-writer` and `opportunity-writer` are the two fan-out workers — the only workers spawned multiply in parallel.** Both author independent files from settled stubs: a *map*. Story emission expands one stub per story; OST seed expands one node (outcome or opportunity) per file. In each case the main thread (following its router — `story-shaping` for stories, `discovery` for OST seed) spawns N workers as a parallel batch (single message, waves of ~10). Every other worker is spawned singly, for one of two reasons: it is gated on a single shared artifact (the board workers — one board, one sidecar, can't be parallelized without racing), or its value *is* seeing everything in one context (`synthesis-worker` is a *reduce* — splitting per-transcript would destroy the cross-cutting synthesis). The split that motivates both fan-out workers is plan-vs-prose: the main thread keeps the breakdown/tree plan (queryable "why"); the workers hold and shed the per-file prose (the file on disk is the record).
 
-**Miro MCP scoping principle:** the Miro MCP loads in only the three board workers above — never in the project-level `.mcp.json` (it has been deleted), never in a router skill, never directly in the main thread. Per-agent `mcpServers` frontmatter is the registration mechanism, paired with explicit `mcp__miro-official__*` entries in the worker's `tools:` allowlist (inline `mcpServers` alone is necessary but not sufficient when `tools:` is set). The main thread, following a router skill, delegates every Miro touch to one of the three workers.
+**Miro MCP registration:** by default the Miro MCP is registered at the **project level** in the project's `.mcp.json` (written by `/ee-pm:setup` §5). Only these three board workers actually *use* it — their `tools:` allowlists carry the explicit `mcp__miro-official__*` entries; the main thread and router skills never call the Miro tools directly, delegating every Miro touch to one of the three workers. The agents stay fully plugin-managed (no project-local copies) and auto-update with the plugin.
+
+Each board worker also ships an inline `mcpServers:` block **commented out** in its frontmatter. That block is an optional advanced optimization: copy the agent into a project's `.claude/agents/` and uncomment it to load the Miro MCP *only inside that worker* (off the main thread, saving context tokens). It's off by default because Claude Code ignores `mcpServers` frontmatter on plugin-provided agents for security — it only takes effect on a project-local copy — and the local copy then stops auto-updating and needs bare-named spawns + a restart. See `docs/miro-setup.md` → "Optional: agent-scoped MCP" for the full trade-off.
 
 ### Model-matching rationale
 

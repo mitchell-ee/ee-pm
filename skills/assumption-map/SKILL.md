@@ -8,7 +8,7 @@ tags: [product-management, visualization, miro, discovery, torres, assumption-ma
 
 Round-trip workflow between repo-resident assumption-test files and a Miro assumption map. The map plots each assumption on a 2×2 of *importance* × *evidence*; the high-importance / weak-evidence quadrant is the "test first" cluster. Tests are designed only for assumptions in that quadrant.
 
-This is the **third Miro instantiation** of the Visual Collaboration with AI four-piece pattern (sidecar + create + absorb + accept-flow), after `story-map` and `opportunity-tree`. Together with those two, this skill is evidence that the same three-piece visual pattern generalizes across Miro artifacts: same shape, three artifact types.
+This is the **third Miro instantiation** of the EE PM Workflow four-piece pattern (sidecar + create + absorb + accept-flow), after `story-map` and `opportunity-tree`. Together with those two, this skill is evidence that the same three-piece visual pattern generalizes across Miro artifacts: same shape, three artifact types.
 
 > **Status note (2026-05-17).** Native-toolchain spike PASSED — coordinate math, sticky colors, the axis-line-as-rectangle technique, axis-tip labels, title positioning, and the right-side legend all validated end-to-end on a native-toolchain spike board (see `product/_test/assumption-map/native-spike/findings.md` for the spike record and the 4 DSL gaps it surfaced). What remains: the per-phase absorb harness (mirroring `product/_test/{story-map,ost-absorb}/`) — until that lands, the absorb-mode interpretation rules in this file are still paper.
 

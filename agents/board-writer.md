@@ -4,10 +4,21 @@ description: Worker agent. Applies a PM-approved diff to a Miro board and writes
 tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
 model: sonnet
 color: orange
-mcpServers:
-  - miro-official:
-      type: http
-      url: https://mcp.miro.com/
+# OPTIONAL OPTIMIZATION (disabled by default) — agent-scoped Miro MCP.
+# By default this plugin registers `miro-official` at the PROJECT level (in
+# .mcp.json), which loads the MCP's tool schemas onto the main interactive
+# thread every turn. To instead load the Miro MCP ONLY inside this worker
+# (keeping it off the main thread to save context tokens), copy this agent
+# file into your project's `.claude/agents/` and uncomment the block below.
+# It is left commented here because Claude Code IGNORES `mcpServers` on
+# plugin-provided agents for security — the inline block only takes effect on
+# a PROJECT-LOCAL copy. Trade-offs: the local copy stops auto-updating with the
+# plugin, and you must spawn the bare-named local agent (not `ee-pm:board-writer`)
+# and restart after copying. See docs/miro-setup.md → "Optional: agent-scoped MCP".
+# mcpServers:
+#   - miro-official:
+#       type: http
+#       url: https://mcp.miro.com/
 ---
 
 # Board Writer
@@ -32,7 +43,7 @@ The `approvals` block carries the PM's answers for every flag in the diff (e.g.,
 
 ## Preflight: confirm Miro auth before writing
 
-Before applying the diff, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` and **write nothing** (neither board nor repo), so a half-applied diff is impossible. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/vcw:setup` §7), then re-invoke."* If instead a connector REST write fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (run `miro-fresh-token.sh`), not MCP consent; name which path failed.
+Before applying the diff, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` and **write nothing** (neither board nor repo), so a half-applied diff is impossible. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/ee-pm:setup` §7), then re-invoke."* If instead a connector REST write fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (run `miro-fresh-token.sh`), not MCP consent; name which path failed.
 
 ## What the worker does
 
