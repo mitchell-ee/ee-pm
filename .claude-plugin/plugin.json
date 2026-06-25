@@ -1,7 +1,7 @@
 {
   "name": "vcw",
   "displayName": "Visual Collaboration with AI",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Portable skills and agents for LLM-assisted, human-led visual collaboration in product management — opportunity trees, assumption maps, story maps, prototypes.",
   "author": {
     "name": "Mike Mitchell",
