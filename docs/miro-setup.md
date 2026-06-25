@@ -41,18 +41,25 @@ Rather than export a token by hand and re-issue it on every expiry, `/vcw:setup`
 
 ### Providing the app's client credentials
 
-The bootstrap and refresh scripts need a Miro app's `client_id`/`client_secret`. Create the app in the [Miro Developer settings](https://miro.com/app/settings/user-profile/apps), grant the board scopes, and install it to a **non-developer workspace** (developer-team boards carry a "Created with" watermark). Then make the credentials resolvable one of two ways:
+The bootstrap and refresh scripts need a Miro app's `client_id`/`client_secret`. Create the app in the [Miro Developer settings](https://miro.com/app/settings/user-profile/apps), grant the board scopes (`boards:read`, `boards:write`), and install it to a **non-developer workspace** (developer-team boards carry a "Created with" watermark). Then make the credentials resolvable one of three ways (`miro-token-lib.sh` checks them in this order; an env var or 1Password ref overrides the persisted file):
 
 ```sh
-# Option A — environment variables (portable default)
+# Option A — environment variables (transient; good for a one-off shell)
 export MIRO_CLIENT_ID="<client id>"
 export MIRO_CLIENT_SECRET="<client secret>"
 
 # Option B — 1Password (or any tool exposing the `op` CLI)
 export MIRO_OP_ITEM="op://<vault>/<item>"   # reads <item>/username and <item>/credential
+
+# Option C — persisted env file (the portable cross-session default; what /vcw:setup writes)
+#   ~/.config/<project>/miro-client.env  (mode 0600), two lines:
+#     MIRO_CLIENT_ID=<client id>
+#     MIRO_CLIENT_SECRET=<client secret>
 ```
 
-Optional overrides: `MIRO_TOKEN_FILE` (token path), `MIRO_PROJECT_NAME` (the `<project>` segment of the default path), `MIRO_REDIRECT_PORT` (OAuth callback port, default 8888), `MIRO_REFRESH_MARGIN_SEC` (refresh lead time, default 300), `MIRO_TEAM_ID` (so `miro-copy-board.sh` lands copies in a specific team).
+**Why persistence matters.** `miro-fresh-token.sh` resolves the client credentials on *every* session — it needs them to exchange the refresh token, not just once at bootstrap. A shell `export` does not survive to the next session, so Option A alone leaves the `SessionStart` hook unable to refresh next time (you'd see `miro-verify.sh` report "credentials not resolvable" after a restart). Option B (1Password) and Option C (the 0600 `miro-client.env`) both persist, which is why `/vcw:setup` writes one of them. `/vcw:setup` also notes that the freshly-installed agents and `SessionStart` hook only take effect after a session restart.
+
+Optional overrides: `MIRO_TOKEN_FILE` (token path), `MIRO_CLIENT_ENV_FILE` (persisted-credentials path), `MIRO_PROJECT_NAME` (the `<project>` segment of the default paths), `MIRO_REDIRECT_PORT` (OAuth callback port, default 8888), `MIRO_REFRESH_MARGIN_SEC` (refresh lead time, default 300), `MIRO_TEAM_ID` (so `miro-copy-board.sh` lands copies in a specific team).
 
 ### Manual fallback
 
