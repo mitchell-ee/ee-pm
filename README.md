@@ -65,7 +65,7 @@ Routing lives in the main thread (as a loaded skill) because subagents can't spa
 
 This repo is a **Claude Code plugin** (`ee-pm`). Skills install namespaced as `/ee-pm:<skill>`.
 
-1. **Install the plugin.** Point your Claude Code at this repo — `claude --plugin-dir /path/to/visual-collab-workflow` for local use, or install it from a marketplace. (The skills and conventions are the portable core; if you use a different LLM coding environment, adapt the harness glue — agent frontmatter, MCP registration — to your tool.)
+1. **Install the plugin.** Point your Claude Code at this repo — `claude --plugin-dir /path/to/ee-pm` for local use, or install it from a marketplace. (The skills and conventions are the portable core; if you use a different LLM coding environment, adapt the harness glue — agent frontmatter, MCP registration — to your tool.)
 2. **Scaffold your project.** Run `/ee-pm:setup` once. It creates the `product/` artifact tree and adds the workflow conventions to your project's `CLAUDE.md`. It's non-destructive and safe to run in an existing repo — it reports what it'll do and never overwrites your files.
 3. **Connect Miro.** See [`docs/miro-setup.md`](docs/miro-setup.md) — the board workers use the official hosted Miro MCP (OAuth at connect), plus thin REST scripts for connectors.
 4. **Bring your design system.** The prototyping skills reference a design system for any UI decision. They ship with Equal Experts' Kuat as a worked example; point them at your own design-system rules and your own Claude Design linked project.
