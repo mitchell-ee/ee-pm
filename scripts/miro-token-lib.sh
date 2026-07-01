@@ -9,7 +9,7 @@
 #      "op://Automation/Miro API Key"); reads <item>/username as the client_id
 #      and <item>/credential as the client_secret.
 #   3. A persisted env file at ~/.config/<project>/miro-client.env (mode 0600),
-#      holding MIRO_CLIENT_ID=… and MIRO_CLIENT_SECRET=… . This is what /vcw:setup
+#      holding MIRO_CLIENT_ID=… and MIRO_CLIENT_SECRET=… . This is what /ee-pm:setup
 #      writes so the credentials survive across sessions — the refresh script needs
 #      them on EVERY session, not just at bootstrap, and shell `export`s don't
 #      persist. Sourced last so an env var or 1Password ref still overrides it.
@@ -18,7 +18,7 @@
 # Token storage path:
 #   MIRO_TOKEN_FILE if set, else ~/.config/<project>/miro-tokens.json, where
 #   <project> is MIRO_PROJECT_NAME if set, else the basename of the git repo
-#   root, else "vcw". Tokens are the user's own Miro grant — never the repo.
+#   root, else "ee-pm". Tokens are the user's own Miro grant — never the repo.
 
 # Resolve the token file path. Echoes the path to stdout.
 miro_token_file() {
@@ -30,7 +30,7 @@ miro_token_file() {
   if [[ -z "$project" ]]; then
     project="$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || true)"
   fi
-  [[ -z "$project" ]] && project="vcw"
+  [[ -z "$project" ]] && project="ee-pm"
   printf '%s' "${HOME}/.config/${project}/miro-tokens.json"
 }
 
@@ -46,7 +46,7 @@ miro_client_env_file() {
   if [[ -z "$project" ]]; then
     project="$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || true)"
   fi
-  [[ -z "$project" ]] && project="vcw"
+  [[ -z "$project" ]] && project="ee-pm"
   printf '%s' "${HOME}/.config/${project}/miro-client.env"
 }
 
@@ -64,7 +64,7 @@ miro_resolve_client_creds() {
     _id="$(op read "${MIRO_OP_ITEM}/username" 2>/dev/null || true)"
     _secret="$(op read "${MIRO_OP_ITEM}/credential" 2>/dev/null || true)"
   else
-    # Persisted env file (what /vcw:setup writes for cross-session durability).
+    # Persisted env file (what /ee-pm:setup writes for cross-session durability).
     local _env_file
     _env_file="$(miro_client_env_file)"
     if [[ -r "$_env_file" ]]; then
@@ -86,7 +86,7 @@ Provide them one of three ways:
   • 1Password:   export MIRO_OP_ITEM="op://<vault>/<item>" (uses fields
                  username=client_id, credential=client_secret; needs the \`op\` CLI)
   • Persisted:   write MIRO_CLIENT_ID=… and MIRO_CLIENT_SECRET=… to
-                 ${_env_file_hint} (mode 0600). /vcw:setup writes this for you
+                 ${_env_file_hint} (mode 0600). /ee-pm:setup writes this for you
                  so credentials survive across sessions.
 
 Create the app + credentials at https://miro.com/app/settings/user-profile/apps

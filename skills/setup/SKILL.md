@@ -29,7 +29,7 @@ Work against the **user's project root** — `${CLAUDE_PROJECT_DIR}` if set, oth
 Check, without modifying anything:
 
 - Does `<root>/CLAUDE.md` exist?
-  - If it exists, does it already contain the line `<!-- BEGIN ee-pm -->` (or the legacy `<!-- BEGIN vcw -->` from an earlier install)? If so, the conventions block is already installed.
+  - If it exists, does it already contain the line `<!-- BEGIN ee-pm -->`? If so, the conventions block is already installed.
 - Does `<root>/product/` exist? If so, what's already in it — is it the empty scaffold, or does it hold real content (files/subdirs other than `context/`, `iterations/`, `README.md`)?
 - Does `<root>/product/context/` exist?
 - Does `<root>/product/iterations/` exist?
@@ -52,7 +52,7 @@ Build a plan from the detection results and **print it to the PM before writing 
   - Exists and holds unrelated content (not just the scaffold) → **ask first**: tell the PM what's already there and confirm it's the right place to add `context/` and `iterations/` before touching it. Never overwrite existing files.
 - **`CLAUDE.md`:**
   - Missing → plan to create it with the conventions block (`templates/claude-md-block.md`).
-  - Exists, already contains `<!-- BEGIN ee-pm -->` (or legacy `<!-- BEGIN vcw -->`) → **skip** (idempotent). Mention it's already installed.
+  - Exists, already contains `<!-- BEGIN ee-pm -->` → **skip** (idempotent). Mention it's already installed.
   - Exists, no block → plan to **append** the conventions block. Show the PM the exact block that will be appended (it's delimited by `<!-- BEGIN ee-pm -->` / `<!-- END ee-pm -->`, so it can be found and removed later). Never modify their existing content.
 
 If everything is already in place, say so and stop — there's nothing to do.
@@ -176,4 +176,4 @@ Summarize what was created, appended, or skipped. Then tell the PM the next step
 
 - This skill writes only into the user's project — `product/`, `CLAUDE.md`, and (per §5–§6, only with consent) `.mcp.json`, `.claude/scripts/`, and `.claude/settings.local.json`. It never writes into the plugin's own directory. The two files it can create under `~/.config/<project>/` — `miro-tokens.json` (the rotating Miro grant) and `miro-client.env` (the app's client_id/secret) — both live outside the repo at mode 0600 and are the user's own secrets — never committed.
 - Re-running is safe: a second run detects the installed block, the existing scaffold, the §5 `miro-official` registration, and the §6 token automation (scripts + `SessionStart` hook + resolvable credentials), and skips rather than overwriting.
-- To uninstall: delete the block between `<!-- BEGIN ee-pm -->` and `<!-- END ee-pm -->` (or the legacy `vcw` markers) in `CLAUDE.md`; remove the `miro-official` key from `.mcp.json`; for §6, delete the `miro-*.sh` scripts from `.claude/scripts/`, remove the `SessionStart` token hook from `settings.local.json`, and (optionally) delete `~/.config/<project>/miro-tokens.json` and `~/.config/<project>/miro-client.env`.
+- To uninstall: delete the block between `<!-- BEGIN ee-pm -->` and `<!-- END ee-pm -->` in `CLAUDE.md`; remove the `miro-official` key from `.mcp.json`; for §6, delete the `miro-*.sh` scripts from `.claude/scripts/`, remove the `SessionStart` token hook from `settings.local.json`, and (optionally) delete `~/.config/<project>/miro-tokens.json` and `~/.config/<project>/miro-client.env`.
