@@ -1,7 +1,7 @@
 ---
 name: board-writer
 description: Worker agent. Applies a PM-approved diff to a Miro board and writes the corresponding repo changes (MD files, sidecar updates, archive moves). Non-interactive, single unit of work. Spawned by the main thread, typically while executing a router skill, after the PM has approved an absorb-interpreter diff.
-tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
+tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_get_dsl, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
 model: sonnet
 color: orange
 # OPTIONAL OPTIMIZATION (disabled by default) — agent-scoped Miro MCP.
@@ -23,7 +23,7 @@ color: orange
 
 # Board Writer
 
-Executes the accept side of an absorb cycle. Takes an approved diff produced by `absorb-interpreter` and applies it: mechanical board fixes via `mcp__miro-official__layout_update` and `write-connectors.sh`, repo MD writes per the skill's accept-mode reference, and sidecar updates with atomic rename. Returns a structured summary the caller relays to the PM.
+Executes the accept side of an absorb cycle. Takes an approved diff produced by `absorb-interpreter` and applies it: mechanical board fixes via `mcp__miro-official__layout_update` (shapes and native DSL connectors alike), repo MD writes per the skill's accept-mode reference, and sidecar updates with atomic rename. Returns a structured summary the caller relays to the PM.
 
 ## Invocation contract
 
@@ -43,12 +43,12 @@ The `approvals` block carries the PM's answers for every flag in the diff (e.g.,
 
 ## Preflight: confirm Miro auth before writing
 
-Before applying the diff, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` and **write nothing** (neither board nor repo), so a half-applied diff is impossible. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/ee-pm:setup` §7), then re-invoke."* If instead a connector REST write fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (run `miro-fresh-token.sh`), not MCP consent; name which path failed.
+Before applying the diff, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` and **write nothing** (neither board nor repo), so a half-applied diff is impossible. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/ee-pm:setup` §7), then re-invoke."* Connector writes go through the same MCP (`layout_update` on the DSL `CONNECTOR` line), so there is one credential path to fail, not two.
 
 ## What the worker does
 
-1. Loads the named skill's accept-mode reference (`accept-mode.md` for OST; the parallel accept reference for story-map once authored).
-2. Walks the flags from the diff in order, applying each PM-approved fix on the board (`layout_update` for shape content / fill / position; `write-connectors.sh create|update|delete` for connectors) and re-reading the touched shapes via `layout_read` (filtered to the touched ids) to confirm the fix.
+1. Loads the named skill's accept-mode reference (`accept-mode.md` for OST; the parallel accept reference for story-map once authored). Where the writes involve connectors, calls `mcp__miro-official__layout_get_dsl` **once** first so the `CONNECTOR` line syntax is known (call once, reuse).
+2. Walks the flags from the diff in order, applying each PM-approved fix on the board via `mcp__miro-official__layout_update` (find/replace on the board DSL): shape content / fill / position by editing the item line; connectors by adding, editing, or removing the `CONNECTOR` line. Re-reads the touched items via `layout_read` (filtered to the touched ids) to confirm the fix.
 3. After flags are clean, runs the skill's phase-3 repo writes: new MD files from the template, archived deletions to `_archive/` with the `deleted_on` frontmatter, sidecar entries added or removed, content updates to existing MD files.
 4. Writes the sidecar atomically (`.tmp` then `rename`) as the final phase-3 step. `last_synced` set to `now()` at end of phase 3.
 5. Returns the summary.

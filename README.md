@@ -67,7 +67,7 @@ This repo is a **Claude Code plugin** (`ee-pm`). Skills install namespaced as `/
 
 1. **Install the plugin.** Point your Claude Code at this repo — `claude --plugin-dir /path/to/ee-pm` for local use, or install it from a marketplace. (The skills and conventions are the portable core; if you use a different LLM coding environment, adapt the harness glue — agent frontmatter, MCP registration — to your tool.)
 2. **Scaffold your project.** Run `/ee-pm:setup` once. It creates the `product/` artifact tree and adds the workflow conventions to your project's `CLAUDE.md`. It's non-destructive and safe to run in an existing repo — it reports what it'll do and never overwrites your files.
-3. **Connect Miro.** See [`docs/miro-setup.md`](docs/miro-setup.md) — the board workers use the official hosted Miro MCP (OAuth at connect), plus thin REST scripts for connectors.
+3. **Connect Miro.** See [`docs/miro-setup.md`](docs/miro-setup.md) — the board workers use the official hosted Miro MCP (OAuth at connect); it covers boards and connectors alike, so there's a single credential and no scripts to install.
 4. **Bring your design system.** The prototyping skills reference a design system for any UI decision. They ship with Equal Experts' Kuat as a worked example; point them at your own design-system rules and your own Claude Design linked project.
 5. **Work iteratively.** Run `/ee-pm:framework-setup` once to establish product context, then `/ee-pm:iteration-setup` per iteration. Your PM artifacts live under `product/`.
 
@@ -78,7 +78,6 @@ This repo is a **Claude Code plugin** (`ee-pm`). Skills install namespaced as `/
 └── plugin.json    plugin manifest (name: ee-pm)
 skills/            router skills + capability skills (incl. setup)
 agents/            worker agents (+ README with the architecture detail)
-scripts/           shared Miro REST helpers (connectors, board copy)
 docs/
 ├── miro-setup.md           connect the hosted Miro MCP
 └── adding-a-board-type.md  extend the workflow with a new Miro artifact
@@ -92,7 +91,7 @@ To add a fourth Miro board type (beyond opportunity tree, assumption map, and st
 
 ## What's portable, what you swap
 
-- **Portable as-is:** the skills, worker agents, conventions, the absorb/diff logic, the connector REST scripts.
+- **Portable as-is:** the skills, worker agents, conventions, the absorb/diff logic.
 - **You provide:** your LLM environment, your Miro account + OAuth, your design system (rules + Claude Design project).
 
 No custom MCP server, no library or SDK. Small scripts are bundled inside skills only where determinism requires them.

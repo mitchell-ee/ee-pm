@@ -6,7 +6,7 @@ This workflow already ships three Miro "board types" — `opportunity-tree`, `as
 
 A PM and the LLM build a visual artifact on Miro from plain-text repo state, humans rearrange it directly on the board, the skill reads the changes back as a structural diff against a saved sidecar, and then interprets what the changes *mean* and proposes repo updates the PM approves.
 
-Adding a fourth board type means writing **one new skill directory** and updating a handful of **registration points** that enumerate the board types. No new infrastructure is required — the worker agents, the Miro MCP layer, and the connector REST scripts are generic and already handle any board type.
+Adding a fourth board type means writing **one new skill directory** and updating a handful of **registration points** that enumerate the board types. No new infrastructure is required — the worker agents and the Miro MCP layer are generic and already handle any board type, connectors included (the layout DSL's `CONNECTOR` type).
 
 This guide assumes your artifact maps onto the same round-trip. If it doesn't (e.g. it's write-only, or it lives on a non-Miro surface), it's not a "board type" in this sense — look at the `claude-design` / `magic-patterns` prototyping skills instead.
 
@@ -79,7 +79,7 @@ Match the skeleton the existing board skills share. Sections, in order:
 2. **Preamble** — one sentence: the round-trip between repo and Miro for this artifact.
 3. **Topology diagram** — what the artifact looks like (tree / 2×2 grid / activity×release grid / yours).
 4. **Modes** — name each: typically `create`, `refresh`, `absorb`, plus any board-specific mode. One line each.
-5. **Required tools** — the Miro MCP calls (`layout_create` / `layout_read` / `layout_update` / `context_get`), the connector scripts if used (`${CLAUDE_PLUGIN_ROOT}/scripts/...`), and the `product/` paths it reads/writes.
+5. **Required tools** — the Miro MCP calls (`layout_get_dsl` / `layout_create` / `layout_read` / `layout_update` / `context_get`; connectors, if the board uses them, are native DSL `CONNECTOR` items in these same calls), and the `product/` paths it reads/writes.
 6. **When to use** — bulleted intent triggers.
 7. **Repo conventions** — the directory layout and the markdown file format(s) the board is built *from*, with example frontmatter.
 8. **Board naming and location** — naming convention, cardinality, folder placement, and the rule that every board URL goes in chat (not just name/ID).
@@ -112,7 +112,7 @@ The build algorithm must produce a board that `layout_read` can re-parse and mat
 
 This is where the genuine effort goes. Budget accordingly — the registration edits in §6 are trivial by comparison. Things that bite (all documented in the existing skills' reference files):
 
-- Miro's layout DSL has **no connector type** — connectors go through the REST scripts, not `layout_create`.
+- Connectors are native DSL `CONNECTOR` items in the `layout_create` batch (emitted last so they can reference item aliases); `layout_read` emits them back as `CONNECTOR` lines. No REST scripts, no second credential.
 - The DSL re-serializes the whole board on each `layout_update`; certain content (literal `\n` in stickies) can trip the parser — use `<br />` line breaks.
 - Read-back applies defaults and wraps content in `<p>` — your diff has to normalize for that, not flag it.
 

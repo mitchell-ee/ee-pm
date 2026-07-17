@@ -358,11 +358,12 @@ Accept-mode tests live in `product/_test/story-map/phase-5-accept/`
 (continuing the numbering — phases 1–4 are propose-only cohorts). The
 cohort:
 
-1. Uses **one** throwaway Miro board copy (`miro-copy-board.sh` from the
-   canonical board), recorded in `board_id.txt`. Tests run as per-test
-   edits on that board, mirroring phase-1's per-test protocol — accept
-   mode mutates one story file per test, so batching would entangle the
-   expected-after states.
+1. Uses **one** throwaway Miro board, built fresh from the canonical repo
+   state via the normal create flow (`board_create` for an empty board, then
+   `layout_create` to render the map into it), recorded in `board_id.txt`.
+   Tests run as per-test edits on that board, mirroring phase-1's per-test
+   protocol — accept mode mutates one story file per test, so batching would
+   entangle the expected-after states.
 2. Points the skill at a `working-repo/` copy of the iteration
    directory, made at phase setup. Tests write there, **never** the real
    `product/iterations/{iteration-slug}/`. The `working-repo/` and its

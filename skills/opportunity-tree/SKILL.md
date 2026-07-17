@@ -25,8 +25,8 @@ Six modes: **seed**, **create**, **refresh**, **absorb**, **analyze**, **promote
 
 ## Required tools
 
-- Official Miro MCP at `mcp.miro.com`: `mcp__miro-official__layout_create` (build the board + nodes), `mcp__miro-official__layout_read` (round-trip read for absorb), `mcp__miro-official__layout_update` (refresh-mode node moves / content / fill), `mcp__miro-official__context_get` (board metadata).
-- `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` (create / update / delete) and `${CLAUDE_PLUGIN_ROOT}/scripts/read-connectors.sh` for tree edges — the layout DSL has **no connector type**, so connectors go through these thin REST helpers. Auth via the `MIRO_ACCESS_TOKEN` environment variable (see `docs/miro-setup.md`).
+- Official Miro MCP at `mcp.miro.com`: `mcp__miro-official__layout_get_dsl` (load the DSL grammar **once** per run, then reuse — a prerequisite of `layout_create`), `mcp__miro-official__layout_create` (build the board + nodes + tree edges), `mcp__miro-official__layout_read` (round-trip read for absorb — returns shapes **and** `CONNECTOR` lines), `mcp__miro-official__layout_update` (refresh-mode node moves / content / fill, and connector rewiring), `mcp__miro-official__context_get` (board metadata).
+- Tree edges are native DSL `CONNECTOR` items — the layout DSL has a first-class `CONNECTOR` type, so connectors are created, read, and rewired through the same MCP as the nodes. One credential (the MCP's OAuth-at-connect), no separate connector token.
 - Filesystem access to `product/context/opportunity-solution-tree/` and its sidecar `miro-metadata.json`.
 
 **Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`discovery`) spawns the worker, the worker loads this skill. The `seed`, `analyze`, and `promote-from-inbox` modes are file-side only (no board mutation) and run without a board worker — `seed` fans out `opportunity-writer` workers; the others run in the main thread. See the canonical write forms in `reference/create-ost.md` and `reference/interpret-changes.md` so create output is diff-stable against `layout_read`.
@@ -202,7 +202,7 @@ Default x positions: root=0, outcome=480. Opportunity x is `480 + 480 + 320 × (
 
 **Color convention (fill):** root peach (`#ffd6cc`), outcomes white, opportunities blue (`#cce5ff`), solutions yellow (`#fff3cd`), assumption tests light green (`#d4edda`), rejected/descoped gray. Text color kept default.
 
-**Connectors:** curved, thin, no arrowheads (tree edges are structural, not directional). Created via `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` (the layout DSL has no connector type). The intent is parent-right → child-left. `write-connectors.sh` sets only the from/to item IDs, not snap endpoints, so Miro auto-routes each edge to the closest side of each shape — which reads correctly in a horizontal tree, because the closest sides are usually right-of-parent and left-of-child. One connector per parent-child edge, no skip-level edges.
+**Connectors:** curved, thin, no arrowheads (tree edges are structural, not directional) — native DSL `CONNECTOR` items (`shape=curved start_cap=none end_cap=none stroke_color=#888888`) in the same `layout_create` batch as the nodes. The intent is parent-right → child-left. Leaving snap endpoints off (default `auto`) lets Miro route each edge to the closest side of each shape — which reads correctly in a horizontal tree, because the closest sides are usually right-of-parent and left-of-child. One connector per parent-child edge, no skip-level edges.
 
 ## Modes
 

@@ -29,4 +29,4 @@ The skill pack for the EE PM Workflow workflow. Each skill is self-contained. **
 
 ## The Miro three-piece pattern
 
-`opportunity-tree`, `assumption-map`, and `story-map` all follow the same build → collaborate → read-back → interpret loop. The shared Miro REST scripts they use (`read-connectors.sh`, `write-connectors.sh`, `miro-copy-board.sh`) live in `${CLAUDE_PLUGIN_ROOT}/scripts/`, so each board skill is independently liftable — no skill depends on another. See `docs/miro-setup.md` for the Miro auth paths.
+`opportunity-tree`, `assumption-map`, and `story-map` all follow the same build → collaborate → read-back → interpret loop. Each goes entirely through the official Miro MCP (`mcp__miro-official__*`) — board build, read, and connector wiring all via its layout DSL — so each board skill is independently liftable, with no shared scripts and no skill depending on another. See `docs/miro-setup.md` for the Miro auth path.

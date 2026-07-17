@@ -29,7 +29,7 @@ The PM may abort between any phase. Phase 1 produced no side effects; phase 2's 
 Walk flags in the order they appear in `actual-diff.md`. For each:
 
 1. Read the flag's one-line reason and surface to the PM with the relevant prompt from `interpret-changes.md` §6's resolution table.
-2. On the PM's answer, call the corresponding board-write operation from `interpret-changes.md` §6 (`mcp__miro-official__layout_update` for shape content/fill/position, `write-connectors.sh create|update|delete` for connectors). For multi-step fixes (delete + create connector pair), apply both before re-reading.
+2. On the PM's answer, call the corresponding board-write operation from `interpret-changes.md` §6 — all via `mcp__miro-official__layout_update`: shape content/fill/position by editing the item's DSL line, connectors by adding, editing, or removing the `CONNECTOR` line. For multi-step fixes (remove + add connector pair), apply both before re-reading.
 3. **Scoped re-read.** Call `mcp__miro-official__layout_read` and filter the result to the affected shape ids to confirm the canonical state. `layout_read` always returns the full board (per `interpret-changes.md` §2.4), so "scoped" here means filtering the response, not narrowing the request; the loop only needs to inspect the shapes it just touched.
 4. **In-memory self-edit set.** Track the set of `miro_id`s the skill mutated this invocation. The scoped re-read's "modified" signal is expected for these ids; do not re-flag. This is a pure in-memory concern — `last_synced` plays no role inside the loop.
 5. If the re-read produces a *new* flag (rare — usually a typo in the fix), surface that and continue the loop.
@@ -120,7 +120,7 @@ Distinction from §4 documented flags: documented flags are *predictable* ambigu
 
 **MD file already exists at new-node write path** (slug collision): append `-2`, `-3`, etc. to the slug until unique. Sidecar `slug` field is the citation key; the filename is incidental.
 
-**Board-write failure during phase 2 or phase 3** (`layout_update` non-2xx, `write-connectors.sh` non-zero exit, REST 4xx/5xx): surface to PM, skip the affected node's phase-3 entry, leave it as a flag for the next run. Don't write a sidecar entry whose board state isn't canonical.
+**Board-write failure during phase 2 or phase 3** (`layout_update` non-2xx / MCP error): surface to PM, skip the affected node's phase-3 entry, leave it as a flag for the next run. Don't write a sidecar entry whose board state isn't canonical.
 
 **Sidecar write fails** (disk error, race): MD files from phase 3 are already on disk. Surface clearly: "Repo updated, sidecar write failed. Re-run accept after resolving {error}." The next absorb run will diff the board against the *old* sidecar — phase 3's MD writes will appear briefly out of sync (e.g., a new MD file with a ref_id the sidecar doesn't know about), but the next absorb will treat the corresponding shape as a new-node candidate, propose the same ref_id (or next available), and converge.
 
@@ -128,7 +128,7 @@ Distinction from §4 documented flags: documented flags are *predictable* ambigu
 
 Accept-mode tests live in `product/_test/ost-absorb/phase-5-accept/` (continuing the existing numbering — phase-1..4 are propose-only cohorts). Each test:
 
-1. Sets up its own throwaway Miro board copy via `miro_copy_board` from the canonical board. Tests do not chain off prior propose-only test boards — schema and state assumptions are too entangled (phase-1..3 working sidecars predate the multi-tier schema; reuse would require migration).
+1. Sets up its own throwaway Miro board, built fresh from the canonical repo state via the normal create flow (`board_create` for an empty board, then `layout_create` to render the tree into it). Tests do not chain off prior propose-only test boards — schema and state assumptions are too entangled (phase-1..3 working sidecars predate the multi-tier schema; reuse would require migration).
 2. Records `expected-after.md` — the MD files + sidecar diff that accept *should* produce.
 3. Runs the skill in accept mode against a scripted PM-answer transcript for any flag prompts.
 4. Compares the on-disk MD files and sidecar after accept against `expected-after.md`.

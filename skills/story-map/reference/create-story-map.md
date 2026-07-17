@@ -65,6 +65,29 @@ Capture the returned `board_id` and every item's returned ID for the sidecar
 Step 4 show one item at a time for clarity; in practice pass them together in the
 `layout_create` item list, in the Step 4 order.
 
+**Load the DSL grammar first.** Before the first `layout_create`, call
+`mcp__miro-official__layout_get_dsl` **once** and reuse the returned spec — it is a
+documented prerequisite and defines the item types, valid colors/shapes, and
+(should a future map need edges) the `CONNECTOR` syntax. DSL comments start with
+`#` (not `//`). Story maps carry **no connectors** in their base form — release
+horizons are thin rectangles, not edges — so a base map emits only FRAME / STICKY /
+SHAPE / TEXT lines. The DSL does have a `CONNECTOR` type available if a later map
+variant needs one.
+
+**Worked example — literal DSL.** The Step 4 blocks below describe items
+semantically; here is a literal `layout_create` DSL fragment (confirmed valid
+against the live MCP) showing the actual line syntax to match — `#` comments,
+`<strong>…</strong><br>…` content, a story sticky, and a release-horizon shape:
+
+```
+# Activity header sticky (backbone), persona-prefixed.
+a1 STICKY x=0 y=0 w=220 color=dark_blue align=center valign=middle "<strong>🍳 Restaurant prepares order</strong>"
+# A story sticky under it.
+s1 STICKY x=0 y=200 w=200 color=yellow align=center valign=middle "<strong>🍳 STORY-012</strong><br>Confirm item count at pack-ready"
+# A release horizon — a thin rectangle spanning the backbone, NOT a connector.
+h1 SHAPE x=600 y=140 w=1400 h=6 type=rectangle fill=#CCCCCC "Release 1"
+```
+
 ## Step 3: Layout coordinates
 
 **Y-axis bands** (top to bottom):

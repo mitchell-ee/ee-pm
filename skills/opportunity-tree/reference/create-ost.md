@@ -128,9 +128,13 @@ The 280 minimum at the SOL column is the floor; subtree-spread can push pairs fu
 
 ## 5. Connectors
 
-- Type: **curved**, thin, no arrowheads (tree edges are structural, not directional).
-- Intent: parent-right → child-left. `write-connectors.sh` sets only the from/to item IDs, not snap endpoints, so Miro auto-routes connectors to the closest side. This is acceptable — in a horizontal tree, the closest sides usually are right-of-parent and left-of-child.
-- One connector per parent-child edge. No skip-level connectors.
+Tree edges are native DSL `CONNECTOR` items, created in the **same** `layout_create` batch as the nodes (connectors are emitted last so they can reference node aliases defined above them). No REST script, no second credential.
+
+- Type: **curved**, thin, no arrowheads — `shape=curved start_cap=none end_cap=none` (tree edges are structural, not directional). Use a light stroke, e.g. `stroke_color=#888888`.
+- Intent: parent-right → child-left. Leave `start_snap` / `end_snap` off (they default to `auto`), so Miro routes each edge to the closest side. This is acceptable — in a horizontal tree, the closest sides usually are right-of-parent and left-of-child.
+- One `CONNECTOR` per parent-child edge. No skip-level connectors.
+
+A connector references its endpoints by the node aliases in the same batch (`from=root to=o1`), or, on a later `layout_update`, by the nodes' full Miro item URLs.
 
 ## 6. Sidecar contract
 
@@ -197,12 +201,18 @@ Sidecars written before the multi-tier rewrite have:
 
 Such sidecars remain readable. The renderer treats them as `opportunity_depth: 1` for every opportunity. Because the new defaults reproduce the canonical 960 / 1440 / 1920 columns exactly for a single-tier tree, no shape movement is required on read. On the next render the sidecar is re-emitted in the new schema. No standalone migration script is needed.
 
-## 7. Implementation notes (official Miro MCP + REST)
+## 7. Implementation notes (official Miro MCP)
 
 This reference runs inside a board worker (`board-builder` for create / refresh,
 `absorb-interpreter` + `board-writer` for absorb), which holds the official Miro
-MCP. The main thread never calls `mcp__miro-official__*` directly.
+MCP. The main thread never calls `mcp__miro-official__*` directly. Everything —
+nodes and edges — goes through the MCP's layout DSL; there is a single credential
+(the MCP's OAuth-at-connect), no separate connector token.
 
+- **Load the DSL grammar first.** Call `mcp__miro-official__layout_get_dsl` **once**
+  at the start of the run and reuse the returned spec — it is a documented
+  prerequisite of `layout_create` and defines the item types, the `CONNECTOR`
+  syntax, and the valid colors/shapes. DSL comments start with `#` (not `//`).
 - **Create nodes** with `mcp__miro-official__layout_create` — one SHAPE item per
   node (`round_rectangle`), `content` carrying the HTML format above
   (`<strong>{REF-ID}</strong><br />{title}`). Shapes take a **hex** `fill` (not a
@@ -212,9 +222,11 @@ MCP. The main thread never calls `mcp__miro-official__*` directly.
   rejected), and write any defaults `layout_read` returns (e.g. `border_opacity`)
   explicitly. `layout_create` returns each item's ID — record it as the node's
   `miro_id` in the sidecar.
-- **Create edges** with `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh create <board_id> <from_id>
-  <to_id> --shape curved` — the layout DSL has no connector type. One connector per
-  parent-child edge.
+- **Create edges** as native DSL `CONNECTOR` items in the **same** `layout_create`
+  batch as the nodes (they must come after the node lines so aliases resolve):
+  `cN CONNECTOR from={parent_alias} to={child_alias} shape=curved stroke_color=#888888 start_cap=none end_cap=none`.
+  One connector per parent-child edge. `layout_create` returns each connector's ID
+  — record it in the sidecar the same way as node IDs.
 - **Reposition / re-content nodes** (refresh, absorb-accept) with
   `mcp__miro-official__layout_update`. Unlike the old community `bulk_update` (which
   silently dropped `content` on shapes), `layout_update` carries content correctly.
@@ -222,4 +234,32 @@ MCP. The main thread never calls `mcp__miro-official__*` directly.
   before constructing the next `old_string`, and never reuse an `old_string` across
   parallel updates. OST node content uses `<br />` line breaks (not literal `\n`),
   so it does not trip the sticky-newline parser bug documented in story-map.
+- **Rewire / remove edges** (refresh, absorb-accept) with `mcp__miro-official__layout_update`
+  too: `layout_read` first (it emits each edge as a `CONNECTOR` line whose `from`/`to`
+  are the endpoint item URLs), then find/replace that line — edit the endpoints to
+  rewire, or replace it with empty to delete. Deleting a node cascades to its
+  connectors automatically.
 - Always emit the board URL (`https://miro.com/app/board/{board_id}=`) in chat after a render.
+
+## 8. Worked example — literal DSL
+
+A known-good `layout_create` DSL string, confirmed valid against the live MCP. It
+renders a root outcome with two child opportunities and native tree connectors —
+the same pattern scales to a full OST. Match this shape; don't reconstruct the
+grammar from memory. Note the `#` comments, the `<strong>…</strong><br>…` content,
+the `round_rectangle` fills, `align=center valign=middle`, and the `CONNECTOR`
+lines emitted last with `start_cap=none end_cap=none` (no arrowheads):
+
+```
+# Nodes first — each SHAPE aliased so connectors below can reference it.
+root SHAPE x=0 y=0 w=200 h=90 type=round_rectangle fill=#F5D95B align=center valign=middle "<strong>OUTCOME-01</strong><br>Eater trust and retention"
+o1 SHAPE x=350 y=-120 w=200 h=90 type=round_rectangle fill=#8FD14F align=center valign=middle "<strong>OPP-01</strong><br>ETA trust — the promise time drifts"
+o2 SHAPE x=350 y=120 w=200 h=90 type=round_rectangle fill=#8FD14F align=center valign=middle "<strong>OPP-02</strong><br>Order correctness and fair dispute resolution"
+
+# Connectors last — reference the aliases above; curved, thin, no arrowheads.
+c1 CONNECTOR from=root to=o1 shape=curved stroke_color=#888888 start_cap=none end_cap=none
+c2 CONNECTOR from=root to=o2 shape=curved stroke_color=#888888 start_cap=none end_cap=none
+```
+
+On read-back, `layout_read` returns each of these with full Miro item URLs as ids
+(and `from`/`to` as URLs), directly feedable into `layout_update` for rewiring.

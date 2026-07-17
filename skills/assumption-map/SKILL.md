@@ -38,8 +38,8 @@ If the PM wants to map assumptions for a `Proposed` (uncommitted) solution — f
 ## Required tools
 
 - **Native Miro toolchain** (same as `story-map` and `opportunity-tree`):
-  - Official Miro MCP at `mcp.miro.com` — `mcp__miro-official__layout_create` (board + axes/labels/stickies/quadrant border), `mcp__miro-official__layout_read` (round-trip read for absorb), `mcp__miro-official__layout_update` (refresh-mode mutations), `mcp__miro-official__context_get` (board metadata).
-  - REST helper scripts for board copy: `${CLAUDE_PLUGIN_ROOT}/scripts/miro-copy-board.sh` (for throwaway test-harness boards). Connectors are **not used** in the base assumption map; the optional cross-board connector to the OST is a stretch and would use `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` if added. (These shared Miro REST scripts live in `${CLAUDE_PLUGIN_ROOT}/scripts/` and are used by all three board skills.)
+  - Official Miro MCP at `mcp.miro.com` — `mcp__miro-official__layout_get_dsl` (load the DSL grammar **once** at the start of a run, then reuse — a prerequisite of `layout_create`), `mcp__miro-official__layout_create` (axes/labels/stickies/quadrant border), `mcp__miro-official__layout_read` (round-trip read for absorb), `mcp__miro-official__layout_update` (refresh-mode mutations), `mcp__miro-official__context_get` (board metadata).
+  - Everything the assumption map needs goes through the MCP's layout DSL — a single credential (the MCP's OAuth-at-connect), no separate connector or copy token.
 - Filesystem access to `product/context/opportunity-solution-tree/assumptions/` for canonical assumption-test files (one file per assumption) and `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` for per-map sidecars (see "Sidecar format" below).
 
 ## Repo conventions
@@ -185,7 +185,7 @@ Sticky `Type` → fill color (canonical hex on the right; sticky color name on t
 
 ### Connectors
 
-Optional: thin curved connectors from each sticky back to its parent solution sticky on the OST board, *only* if both boards are open in the same Miro project. The skill does not require this and will not error if the OST sticky isn't reachable. Connectors would use `${CLAUDE_PLUGIN_ROOT}/scripts/write-connectors.sh` (the layout DSL has no connector primitive).
+Optional: thin curved connectors from each sticky back to its parent solution sticky on the OST board, *only* if both boards are open in the same Miro project. The skill does not require this and will not error if the OST sticky isn't reachable. If added, connectors are native DSL `CONNECTOR` items in the `layout_create` / `layout_update` batch (`from`/`to` referencing the sticky and the OST solution item) — the layout DSL has a first-class `CONNECTOR` type.
 
 ## Known DSL limitations and canonical write forms
 

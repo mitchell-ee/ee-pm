@@ -1,7 +1,7 @@
 ---
 name: absorb-interpreter
 description: Worker agent. Reads a Miro board, computes the structural diff against the sidecar, and emits a propose-only interpretation (structural + semantic). Never writes to the board or repo. Non-interactive, single unit of work, backgroundable. Spawned by the main thread, typically while executing a router skill; the PM reviews the diff in the interactive thread and only then triggers board-writer.
-tools: Read, Write, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
+tools: Read, Write, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_get_dsl, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
 model: opus
 effort: high
 color: green
@@ -43,12 +43,12 @@ If any field is missing or the board / sidecar don't reconcile (board_id from si
 
 ## Preflight: confirm Miro auth before reading
 
-Before reading the board, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` rather than a partial diff. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/ee-pm:setup` §7), then re-invoke."* If instead the connector REST read fails, that's a missing/expired `MIRO_ACCESS_TOKEN` (a separate path — run `miro-fresh-token.sh`), not MCP consent; name which path failed.
+Before reading the board, verify the hosted Miro MCP is reachable. If the `mcp__miro-official__*` tools return "No such tool available," the MCP isn't wired or its OAuth-at-connect flow hasn't completed — return `status: auth-required` rather than a partial diff. In an **interactive** session, say the MCP needs a one-time browser authorization and re-invoking after consent will work. In a **non-interactive** session, say: *"Miro hosted-MCP OAuth requires an interactive session; authorize once interactively (any board op, or `/ee-pm:setup` §7), then re-invoke."* Connectors are read through the same MCP (`layout_read` emits `CONNECTOR` lines), so there is one credential path to fail, not two.
 
 ## What the worker does
 
-1. Loads the named skill's absorb-mode reference (`interpret-changes.md` for OST; `read-board-state.md` + `interpret-changes.md` for story-map).
-2. Reads the current board via `mcp__miro-official__layout_read` (shapes / stickies / frames / lines) and `${CLAUDE_PLUGIN_ROOT}/scripts/read-connectors.sh` (connectors). The skill's read step owns the parse rules.
+1. Loads the named skill's absorb-mode reference (`interpret-changes.md` for OST; `read-board-state.md` + `interpret-changes.md` for story-map). Where the read involves connectors, calls `mcp__miro-official__layout_get_dsl` **once** first so the `CONNECTOR` line syntax is known (call once, reuse).
+2. Reads the current board via `mcp__miro-official__layout_read`, which returns shapes / stickies / frames / text **and** `CONNECTOR` lines (board and frame scope) in one DSL response — each connector's `from`/`to` are item URLs that resolve to the shapes on the board. The skill's read step owns the parse rules.
 3. Computes the structural diff against the sidecar per the skill's detection rules (identity, content, structural, new nodes, deletions, detachments, flags).
 4. Generates the semantic interpretation pass where the skill calls for one (story-map Task C; OST §2/§4 flags).
 5. Writes the result as a single markdown document at the invocation's `output` path, in the diff format the skill specifies. Format includes a top section listing every flag the PM must resolve before accept-mode can run.
