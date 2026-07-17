@@ -1,7 +1,7 @@
 {
   "name": "ee-pm",
   "displayName": "EE PM Workflow",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "Mike Mitchell's Equal Experts product management toolkit — skills and agents for AI-assisted, human-led product work across discovery and delivery.",
   "author": {
     "name": "Mike Mitchell",
