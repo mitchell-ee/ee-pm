@@ -38,7 +38,8 @@ Everything goes through the one hosted MCP:
 
 | Operation | Path |
 |---|---|
-| Build / refresh a board | hosted MCP (`layout_create` / `layout_update`) |
+| Create a new board | hosted MCP (`board_create` mints the empty board, then `layout_create` renders items into it) |
+| Refresh an existing board | hosted MCP (`layout_update`) |
 | Read board state for absorb | hosted MCP (`layout_read`) |
 | Create / read / rewire / delete connectors | hosted MCP (DSL `CONNECTOR` via `layout_create` / `layout_read` / `layout_update`) |
 

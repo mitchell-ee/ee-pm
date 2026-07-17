@@ -1,7 +1,7 @@
 ---
 name: board-writer
 description: Worker agent. Applies a PM-approved diff to a Miro board and writes the corresponding repo changes (MD files, sidecar updates, archive moves). Non-interactive, single unit of work. Spawned by the main thread, typically while executing a router skill, after the PM has approved an absorb-interpreter diff.
-tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_get_dsl, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
+tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__board_create, mcp__miro-official__layout_get_dsl, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
 model: sonnet
 color: orange
 # OPTIONAL OPTIMIZATION (disabled by default) — agent-scoped Miro MCP.

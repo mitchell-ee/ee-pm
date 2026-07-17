@@ -213,6 +213,12 @@ nodes and edges — goes through the MCP's layout DSL; there is a single credent
   at the start of the run and reuse the returned spec — it is a documented
   prerequisite of `layout_create` and defines the item types, the `CONNECTOR`
   syntax, and the valid colors/shapes. DSL comments start with `#` (not `//`).
+- **Create the board first (create mode only).** Board creation is a two-step
+  sequence: `mcp__miro-official__board_create` mints an empty named board and
+  returns its URL/id; `layout_create` then renders items into that **existing**
+  board (it takes the board's `miro_url` + DSL; it does not create a board). For a
+  refresh, skip `board_create` and use the existing `board_id`. Record the new
+  board's id/URL in the sidecar's `board_url`.
 - **Create nodes** with `mcp__miro-official__layout_create` — one SHAPE item per
   node (`round_rectangle`), `content` carrying the HTML format above
   (`<strong>{REF-ID}</strong><br />{title}`). Shapes take a **hex** `fill` (not a

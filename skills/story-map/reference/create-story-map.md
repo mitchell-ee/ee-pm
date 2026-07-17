@@ -48,22 +48,28 @@ For each story file:
 ## Step 2: Create the Miro board
 
 This skill runs inside a board worker (`board-builder`), which holds the official
-Miro MCP. Create the board and its items with `mcp__miro-official__layout_create`;
-the call returns the new `board_id` and the item IDs. (If a board already exists for
-this iteration — sidecar present with a `board_id` — this is a `refresh`, not a
-create: read the board with `layout_read` and mutate with `layout_update` instead.)
+Miro MCP. Creating a board is a **two-step** sequence — the MCP splits board
+creation from item rendering:
 
-`layout_create` takes a `board_name` plus the list of items to render. Name the
-board:
+1. **Mint the empty board** with `mcp__miro-official__board_create`, passing the
+   board name. It returns the new board's URL (and id).
 
-```
-board_name: "{project} — Story Map — {iteration-slug}"
-```
+   ```
+   name: "{project} — Story Map — {iteration-slug}"
+   ```
 
-Capture the returned `board_id` and every item's returned ID for the sidecar
+2. **Render the items into it** with `mcp__miro-official__layout_create`, passing
+   that board's `miro_url` plus the DSL item list. `layout_create` renders into an
+   **existing** board — it does not create one — and returns each item's id.
+
+(If a board already exists for this iteration — sidecar present with a `board_id` —
+this is a `refresh`, not a create: skip `board_create`, read the board with
+`layout_read`, and mutate with `layout_update` instead.)
+
+Capture the new board's id/URL and every item's returned id for the sidecar
 (see Step 5). All subsequent reads/updates use `board_id`. The item examples in
 Step 4 show one item at a time for clarity; in practice pass them together in the
-`layout_create` item list, in the Step 4 order.
+`layout_create` DSL, in the Step 4 order.
 
 **Load the DSL grammar first.** Before the first `layout_create`, call
 `mcp__miro-official__layout_get_dsl` **once** and reuse the returned spec — it is a

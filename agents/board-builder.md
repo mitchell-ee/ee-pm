@@ -1,7 +1,7 @@
 ---
 name: board-builder
 description: Worker agent. Builds or refreshes a Miro board from repo state using the relevant board skill (opportunity-tree, story-map, assumption-map). Non-interactive, single unit of work, backgroundable. Spawned by the main thread, typically while executing a router skill (`discovery`, `story-shaping`, `prototyping`, or `workshop-facilitator`).
-tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__layout_get_dsl, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
+tools: Read, Write, Edit, Glob, Grep, Bash, Skill, mcp__miro-official__context_get, mcp__miro-official__board_create, mcp__miro-official__layout_get_dsl, mcp__miro-official__layout_read, mcp__miro-official__layout_create, mcp__miro-official__layout_update
 model: sonnet
 color: blue
 # OPTIONAL OPTIMIZATION (disabled by default) — agent-scoped Miro MCP.
@@ -61,7 +61,7 @@ This converts the opaque "No such tool available" failure into an actionable ins
 1. Loads the named skill via the `Skill` tool. The skill's create-mode or refresh-mode procedure owns the layout math, colors, fonts, and connector wiring.
 2. Calls `mcp__miro-official__layout_get_dsl` **once** to load the current DSL grammar (item types, connector syntax, valid colors/shapes), and reuses that spec for every `layout_create` / `layout_update` in this run — the tool is a prerequisite of `layout_create` and its own contract says to call it only once and reuse.
 3. Reads repo state per the skill's input contract (story frontmatter, sidecar JSON, README backbone, etc.).
-4. Builds the board via `mcp__miro-official__layout_create` (or `layout_update` for refresh). Connectors are native DSL `CONNECTOR` items in the same `layout_create` batch (created last so they can reference item aliases), where the skill calls for them.
+4. Builds the board. For a **create** (`board_id: null` in the invocation): first mints an empty board with `mcp__miro-official__board_create` (name it per the skill's convention), capture the returned board URL/id, then render items into it with `mcp__miro-official__layout_create` (which takes that `miro_url` + the DSL — it renders into an existing board, it does not create one). For a **refresh**: skip `board_create` and use `layout_update` against the existing `board_id`. Connectors are native DSL `CONNECTOR` items in the same `layout_create` batch (created last so they can reference item aliases), where the skill calls for them.
 5. Writes the sidecar JSON atomically (write to `.tmp`, rename) to the path the skill specifies.
 6. Verifies by reading the board back via `layout_read` and reconciling shape count + ref_id presence against the sidecar. `layout_read` emits `CONNECTOR` lines at board scope, so connector count is reconcilable the same way.
 
