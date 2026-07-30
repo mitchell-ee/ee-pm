@@ -6,14 +6,14 @@ reads the board and emits a diff of structural-only proposals, semantic
 proposals, warnings, and informational notices. Accept mode walks any
 flags with the PM, writes the resolved diff into repo files and the
 sidecar, then runs a closing **board label-normalization pass** that
-writes the canonical identity label (`STORY-NNN` token + persona emoji)
+writes the canonical identity label (`STORY-NNNN` token + persona emoji)
 onto any sticky whose board content doesn't already carry it.
 
 The label pass is **content-only**: it never moves, recolors, or
 resizes a sticky. A workshop arranges the board for human collaboration
 — that arrangement is left exactly as the PM left it. Accept only makes
 sure each sticky *displays* the identity the sidecar now assigns it
-(critically, a brand-new story's freshly minted `STORY-NNN`).
+(critically, a brand-new story's freshly minted `STORY-NNNN`).
 
 Accept always runs inside the same invocation as propose-only. There is
 no standalone accept-from-prior-diff entrypoint; the diff lives in
@@ -64,7 +64,7 @@ phase 3's writes are not transactional across stories (see §4).
 positional. So accept mode has no connector reads, no connector writes,
 and no detachment/reattachment handling. The flag-walk loop is also
 lighter: there is no stale-prefix board-fix step, because a story map's
-delivery items are stickies whose identity is the `STORY-NNN` token in
+delivery items are stickies whose identity is the `STORY-NNNN` token in
 their content, assigned by accept itself — not a prefix a human
 copy-pastes.
 
@@ -103,11 +103,11 @@ Sidecar finalize runs once at the end; only the on-disk sidecar write is
 atomic.
 
 A story file lives at
-`product/iterations/{iteration-slug}/stories/story-{NNN}-{slug}.md`. The
+`product/iterations/{iteration-slug}/stories/story-{NNNN}-{slug}.md`. The
 sidecar lives at
 `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`.
 Activity files live at
-`product/iterations/{iteration-slug}/story-maps/activities/activity-{NN}-{slug}.md`;
+`product/iterations/{iteration-slug}/story-maps/activities/activity-{NNNN}-{slug}.md`;
 the persona legend is the `## Legend` table in
 `product/personas.md` (the iteration README holds no map
 structure).
@@ -162,13 +162,13 @@ or recolored the sticky — the board is already canonical).
 
 **`NEW_STORY` — Task A, one per accepted `orphan_sticky`:**
 - **Re-derive the Story ID at write time.** Scan the live sidecar for
-  the highest existing `STORY-NNN`, increment. Do not trust the
+  the highest existing `STORY-NNNN`, increment. Do not trust the
   `Suggested ID` from the diff text — it was advisory. Apply in stable
   order (sorted by the orphan's Miro item id if multiple new stories).
 - Slugify the draft title into a filename: lowercase, hyphenated,
   ASCII-only, truncate to ~40 chars at a word boundary.
-- Write `story-{NNN}-{slug}.md` from `templates/story.md`. Fill in:
-  - `**Story ID**: {NNN}`
+- Write `story-{NNNN}-{slug}.md` from `templates/story.md`. Fill in:
+  - `**Story ID**: {NNNN}`
   - `**Priority**: {value}` — the value the PM confirmed in the §2 loop
     (default **High** for a NOW landing, per `read-board-state.md`
     Step 6).
@@ -184,7 +184,7 @@ or recolored the sticky — the board is already canonical).
   - The `# {draft title}` H1.
   - Acceptance criteria and body left as TODO placeholders for the PM.
 - **Assign the canonical content** for the board sticky: the two-`<p>`
-  form `<p>{emoji} STORY-{NNN}</p><p>{short title}</p>`. The orphan was
+  form `<p>{emoji} STORY-{NNNN}</p><p>{short title}</p>`. The orphan was
   created by the PM with no `STORY-` id; this is where accept mints its
   identity. The actual board write happens in the §3.6 label-normalization
   pass — §3.2 only records the canonical content the pass will write.
@@ -251,15 +251,15 @@ content doesn't already carry it. This is the **only** place accept
 writes to the board, and it is **content-only**.
 
 **Why the pass exists.** When the PM creates an orphan sticky, it has no
-`STORY-NNN` token — accept mints the id in §3.2, and the board sticky
+`STORY-NNNN` token — accept mints the id in §3.2, and the board sticky
 must then *display* that id so the next absorb run can identify the
 story by its content key. The pass is what puts the minted label on the
 board.
 
 **What the pass writes**, driven by the just-finalized sidecar — for
 every `stories[]` entry, compare the board sticky's content to the
-canonical two-`<p>` form `<p>{emoji} STORY-NNN</p><p>{short title}</p>`
-(emoji from the persona, `STORY-NNN` and short title from the sidecar
+canonical two-`<p>` form `<p>{emoji} STORY-NNNN</p><p>{short title}</p>`
+(emoji from the persona, `STORY-NNNN` and short title from the sidecar
 entry). If they differ, write the canonical content. If they already
 match, write nothing. In practice the only sticky that needs a write
 each run is the §3.2 new story — every other sticky already carries its
@@ -281,10 +281,10 @@ no-op.
 **Failure is self-healing.** The pass is not transactional, but the only
 write it makes is the new-story content write — if it fails, the new
 story file and sidecar entry are already on disk but the board sticky
-still lacks its `STORY-NNN` token. Surface to the PM ("repo and sidecar
+still lacks its `STORY-NNNN` token. Surface to the PM ("repo and sidecar
 updated; board label write failed — re-run accept to finish"). The next
 absorb re-detects the still-unlabelled sticky as a `candidate_story` /
-`orphan_sticky`, the same `STORY-NNN` is re-derived (it is the highest
+`orphan_sticky`, the same `STORY-NNNN` is re-derived (it is the highest
 on disk), and the pass retries. No repo damage, converges on re-run.
 
 ## 3a. Underspecified-state rule — ask, don't invent
@@ -293,7 +293,7 @@ If the skill encounters a state during phase 1, 2, or 3 that **no rule
 in this file, `read-board-state.md`, or `interpret-changes.md` covers**,
 the skill must stop and ask the PM how to proceed. Examples:
 
-- A story MD file exists on disk for a `STORY-NNN` that has no sidecar
+- A story MD file exists on disk for a `STORY-NNNN` that has no sidecar
   entry (drift between repo and sidecar).
 - Two sidecar story entries share a `miro_id` or a `story_id` (data
   corruption — `SKILL.md` error handling: "refuse to sync").
@@ -303,7 +303,7 @@ the skill must stop and ask the PM how to proceed. Examples:
   type-color table.
 
 The skill **never** silently picks a default in these cases. The cost of
-a wrong silent choice (overwriting prior work; assigning a `STORY-NNN`
+a wrong silent choice (overwriting prior work; assigning a `STORY-NNNN`
 already in use on disk) is high enough that interrupting the PM is
 always cheaper. Frame the prompt as a flag the PM sees alongside any
 other flagged ambiguities.
@@ -331,15 +331,15 @@ only written at the very end (§3.5 atomic rename). On abort:
   diff.
 
 **MD file already exists at new-story write path** (slug collision):
-append `-2`, `-3`, etc. to the slug until unique. The `STORY-NNN` id is
+append `-2`, `-3`, etc. to the slug until unique. The `STORY-NNNN` id is
 the citation key; the filename is incidental.
 
 **Board label-normalization pass fails during phase 3** (`layout_update`
 / REST PATCH error): the repo files and sidecar are already written and
-finalized — only the new story's `STORY-NNN` label didn't make it onto
+finalized — only the new story's `STORY-NNNN` label didn't make it onto
 the board sticky. Surface to PM: "Repo and sidecar updated; board label
 write failed — re-run accept to finish." Self-healing: the next absorb
-re-detects the unlabelled sticky as an orphan, the same `STORY-NNN` is
+re-detects the unlabelled sticky as an orphan, the same `STORY-NNNN` is
 re-derived (it is now the highest on disk), and the pass retries. Do
 **not** roll back the sidecar — its state is correct and is what the
 re-run converges against.
@@ -348,7 +348,7 @@ re-run converges against.
 already on disk. Surface clearly: "Repo updated, sidecar write failed.
 Re-run accept after resolving {error}." The next absorb run diffs the
 board against the *old* sidecar — phase 3's MD writes appear briefly out
-of sync (e.g. a new story file with a `STORY-NNN` the sidecar doesn't
+of sync (e.g. a new story file with a `STORY-NNNN` the sidecar doesn't
 know), but the next absorb treats the corresponding sticky as a
 candidate, proposes the same id (or next available), and converges.
 
@@ -392,7 +392,7 @@ propose-only mode:
 1. **CONTENT_UPDATE (no flag)** — Task D. Update the sidecar
    `sticky_short_title` only; the story file is not touched (§3.2). The
    §3.6 pass is a no-op here — the PM already typed the new short title
-   on the board and the sticky still carries its `STORY-NNN` label, so
+   on the board and the sticky still carries its `STORY-NNNN` label, so
    the board content is already canonical. (Proved propose-side by
    phase-1 test 1.1, phase-4 test 4.1.)
 2. **Structural Priority update (no flag)** — a swim-lane move into NEXT
@@ -404,7 +404,7 @@ propose-only mode:
    phase-1 test 1.4, phase-4 test 4.2.)
 4. **NEW_STORY (Priority flag)** — Task A. Flag-walk the NOW-ambiguity
    Priority (PM confirms High or raises to Critical), re-derive the
-   `STORY-NNN`, write the story file, rewrite the board sticky to
+   `STORY-NNNN`, write the story file, rewrite the board sticky to
    canonical form, add the sidecar entry, append to `stories-index.md`.
    (Proved propose-side by phase-2 test 2.1, phase-4 tests 4.1 / 4.3.)
 5. **Missing item (warning, no write)** — confirm the no-cascade
@@ -418,7 +418,7 @@ write:
   value and a `## Sync History` note; the Labels rewrite is not
   mechanically computable (`interpret-changes.md` Task B).
 - **BACKBONE_EXTENSION** (Task C, cluster) — writes multiple story
-  files *and* a new `story-maps/activities/activity-{NN}-{slug}.md`
+  files *and* a new `story-maps/activities/activity-{NNNN}-{slug}.md`
   *and* a sidecar `activity_header` entry (with its `activity_ref`) in
   one accept.
 - **`moved_and_changed` compound accept** — applying a Priority, a Type,
@@ -430,13 +430,13 @@ write:
   (§3.3 deferred note).
 
 **Every thin-slice test also verifies the §3.6 board label-normalization
-pass.** The pass is content-only — it writes the canonical `STORY-NNN`
+pass.** The pass is content-only — it writes the canonical `STORY-NNNN`
 label onto a sticky that lacks it and touches nothing else. So each
 test's `expected-after.md` records two things about the board: (a) the
 sticky positions, fills, and sizes are **byte-identical to the PM's
 edit** — accept moved nothing; (b) for test 4 (new story) only, the
 orphan sticky's content is rewritten to canonical
-`<p>{emoji} STORY-NNN</p><p>{short title}</p>`. Tests 1–3 and 5 expect
+`<p>{emoji} STORY-NNNN</p><p>{short title}</p>`. Tests 1–3 and 5 expect
 **zero** board writes (their stickies already carry canonical labels).
 `verdict.md` compares a post-accept `layout_read` against this.
 

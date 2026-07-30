@@ -1,7 +1,7 @@
 # User Story: {Story Title}
 
-**Story ID**: {NNN}
-**Epic**: EPIC-{NNN} - {Epic Title}
+**Story ID**: {NNNN}
+**Epic**: EPIC-{NNNN} - {Epic Title}
 **Priority**: Critical | High | Medium | Low
 **Type**: Regular | Infrastructure | Spike | Quality | Risk | Bug | Refactor | Doc (optional; omit for Regular)
 **Status**: Draft | Ready | In Progress | Built | Done

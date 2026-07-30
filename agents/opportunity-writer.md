@@ -19,24 +19,24 @@ This is the OST analogue of `story-writer`: same plan-vs-prose split, same fan-o
 Spawned by the main thread (while executing `discovery` → `opportunity-tree` seed mode) with **the stub fully resolved in the prompt**. The plan phase has already:
 
 - Decided the whole outcome + opportunity set and the nesting rationale.
-- Assigned each node its canonical `OUTCOME-{NN}` or `OPP-{NN}` ref_id and slug.
+- Assigned each node its canonical `OUTCOME-{NNNN}` or `OPP-{NNNN}` ref_id and slug.
 - Resolved each opportunity's parent (outcome ref_id or parent-opportunity ref_id), persona, and evidence strength.
 
 The invocation prompt must carry one stub plus the shared run parameters:
 
 ```
 node_type:        outcome | opportunity
-ref_id:           OUTCOME-{NN} | OPP-{NN}
+ref_id:           OUTCOME-{NNNN} | OPP-{NNNN}
 slug:             {kebab-slug}
 title:            {one-line title}
-parent_ref:       OUTCOME-{NN} | OPP-{NN} | null      # null only for outcomes
+parent_ref:       OUTCOME-{NNNN} | OPP-{NNNN} | null      # null only for outcomes
 persona:          {persona-slug}                       # opportunities only
 evidence_strength: Strong | Moderate | Weak | Assumed  # opportunities only
 metric:           {metric statement}                   # outcomes only
 target:           {target statement}                   # outcomes only
 intent:           {1–2 line statement of what this node frames and why}
 source_refs:      {paths — synthesis section, inbox candidate, strategy note}
-out_path:         product/opportunity-solution-tree/{outcomes|opportunities}/{outcome|opportunity}-{NN}-{slug}.md
+out_path:         product/opportunity-solution-tree/{outcomes|opportunities}/{outcome|opportunity}-{NNNN}-{slug}.md
 ```
 
 If the stub is missing required fields (`node_type`, `ref_id`, `slug`, `title`, `intent`, `out_path`, plus `parent_ref` for opportunities), the worker **stops and returns a `precondition-unresolved` receipt** rather than guessing. The caller fixes the stub and re-spawns.
@@ -64,7 +64,7 @@ A single structured block to the caller. The caller assembles the sidecar / inde
 ```
 status:          ok | failed | precondition-unresolved
 node_type:       outcome | opportunity
-ref_id:          OUTCOME-{NN} | OPP-{NN}
+ref_id:          OUTCOME-{NNNN} | OPP-{NNNN}
 final_title:     {title as written — may differ slightly from the stub}
 path:            {out_path written}
 parent_ref:      {parent ref_id, or "none" for outcomes}

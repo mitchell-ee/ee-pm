@@ -48,7 +48,7 @@ Two layers, distinguishable by shape:
 
 | Object | Miro form | Fill color | Notes |
 |---|---|---|---|
-| Activity header (backbone) | Sticky | Miro `dark_blue` | Top row, temporal order. One per backbone step; each header maps to an `activities/activity-{NN}-{slug}.md` file (see "Activity files"). The owning persona(s) from the activity file's `Personas:` field render as an emoji prefix on the header (`🛵 Courier picks up`), so the backbone reads as a sequence of actors and handoffs are visible along the spine. Sub-activity rows (Patton "tasks") are not rendered — add activity files if finer granularity is needed. |
+| Activity header (backbone) | Sticky | Miro `dark_blue` | Top row, temporal order. One per backbone step; each header maps to an `activities/activity-{NNNN}-{slug}.md` file (see "Activity files"). The owning persona(s) from the activity file's `Personas:` field render as an emoji prefix on the header (`🛵 Courier picks up`), so the backbone reads as a sequence of actors and handoffs are visible along the spine. Sub-activity rows (Patton "tasks") are not rendered — add activity files if finer granularity is needed. |
 | Story | Sticky | type-color (see below) | Body cards. Persona indicated via emoji prefix on content (one emoji per persona for multi-actor stories). |
 | Release horizon | Thin rectangle (`total_width × 12`, `#222222`) | n/a | Horizontal line separating NOW / NEXT / LATER, spanning the full map width. Three per map (NOW/NEXT, NEXT/LATER, LATER end). |
 | Swim-lane label | Text, bold, `font_size 72` | n/a | One per slice (NOW, NEXT, LATER), placed to the left of the map and vertically centered in the lane. NOW label is the left-edge bounds landmark. |
@@ -73,7 +73,7 @@ Activity headers always **dark_blue**. Persona legend is a `#f5f5f5` rectangle s
 
 **Persona indication:** stories and activity headers carry an emoji prefix drawn from the product-level persona legend (`product/personas.md` `## Legend`). Example: `🍳 Restaurant confirms item count at pack-ready`. The legend on the board maps emoji → persona name.
 
-A story or activity may name **more than one persona** (the `Personas:` field is comma-separated). Render one emoji per persona, space-separated, in the order written — primary actor first. This is how Patton's handoffs show up: a multi-persona story is a moment two actors act together (e.g. `🛵 🍽️ STORY-008 / Eater enters handoff PIN`, the courier-to-eater PIN exchange), and a multi-persona activity header marks a co-owned backbone step. Where adjacent activity headers carry different emoji, the reader sees the baton pass along the spine. Keep the visual to ~3 emoji; an activity that genuinely needs more is usually a hidden handoff that wants splitting into separate activity files — surface that to the PM rather than rendering a crowded header.
+A story or activity may name **more than one persona** (the `Personas:` field is comma-separated). Render one emoji per persona, space-separated, in the order written — primary actor first. This is how Patton's handoffs show up: a multi-persona story is a moment two actors act together (e.g. `🛵 🍽️ STORY-0008 / Eater enters handoff PIN`, the courier-to-eater PIN exchange), and a multi-persona activity header marks a co-owned backbone step. Where adjacent activity headers carry different emoji, the reader sees the baton pass along the spine. Keep the visual to ~3 emoji; an activity that genuinely needs more is usually a hidden handoff that wants splitting into separate activity files — surface that to the PM rather than rendering a crowded header.
 
 **Map bounds (for absorb mode):** the canonical map area is defined by four landmark items — title (top), LATER end horizon line (bottom), NOW swim-lane label (left), persona legend (right). Absorb mode reads this rectangle and treats anything outside as off-map. The mechanism is landmark-relative, so if a PM drags a landmark, the bounds shift with it.
 
@@ -87,7 +87,7 @@ Push repo → Miro. Follow `reference/create-story-map.md` end-to-end.
 
 **Outputs:**
 - A new Miro board named per the convention above with the iteration title (top-edge landmark), activity headers, story stickies (persona-prefixed), assumption rounded rectangles placed beside their related stories, NOW/NEXT/LATER release horizons + swim-lane labels, and a persona legend rectangle (right-edge landmark).
-- `story-maps/activities/activity-{NN}-{slug}.md` files, if the iteration has none yet — activity files are a prerequisite the same way stories are, so create mode drafts them from the stories' inferred activities (with PM approval) before rendering.
+- `story-maps/activities/activity-{NNNN}-{slug}.md` files, if the iteration has none yet — activity files are a prerequisite the same way stories are, so create mode drafts them from the stories' inferred activities (with PM approval) before rendering.
 - `product/iterations/{iteration-slug}/story-maps/miro-metadata.json` sidecar recording every Miro item ID.
 - A summary to the user with the board URL.
 
@@ -108,7 +108,7 @@ Push repo → Miro, preserving the existing board.
    - **Added / renamed** activity (a new `activities/*.md` file, or a title change in an existing one) → create or re-content the dark_blue header sticky, recompute spans, and update the sidecar entry keyed by `activity_ref`.
 4. Save `last_synced_at` in the sidecar.
 
-Refresh also **re-canonicalizes** any sticky a human has touched on the board: the Miro inline editor collapses two-line sticky content to a single `<p>` line on first click-into-edit (see `reference/read-board-state.md` "Sticky-content parser"). Re-rendering the sticky content from the story file restores the canonical `{emoji} STORY-NNN\n{short title}` form. Run refresh after an absorb if the board has visually drifted.
+Refresh also **re-canonicalizes** any sticky a human has touched on the board: the Miro inline editor collapses two-line sticky content to a single `<p>` line on first click-into-edit (see `reference/read-board-state.md` "Sticky-content parser"). Re-rendering the sticky content from the story file restores the canonical `{emoji} STORY-NNNN\n{short title}` form. Run refresh after an absorb if the board has visually drifted.
 
 ### 3. Absorb mode (two-pass: structural diff, then semantic interpretation)
 
@@ -134,7 +134,7 @@ This two-pass split maps to established practice in tree-diff theory — see gra
    - Missing item (in sidecar, not on board) → warn, keep repo unchanged
 3. **Semantic interpretation pass:** for each candidate, run the interpretation prompt in `reference/interpret-changes.md` to decide:
    - New story? Suggest ID, activity, priority, draft title, persona prefix.
-   - New activity column? Propose a new `activities/activity-{NN}-{slug}.md` (backbone extension — parallel to a new story).
+   - New activity column? Propose a new `activities/activity-{NNNN}-{slug}.md` (backbone extension — parallel to a new story).
    - Re-slicing of releases? Propose the new slice boundaries.
    - New assumption? Surface it as an informational `ASSUMPTION_CAPTURED` notice with its `nearest_story` — no forward, no proposal, no repo write (cross-board linkage deferred).
 4. **Propose, don't apply.** Present every proposed repo change to the user for approval. On approval, write new story markdown files, update existing ones, and update the sidecar.
@@ -143,13 +143,13 @@ This two-pass split maps to established practice in tree-diff theory — see gra
 
 ## Story file format
 
-Each story lives at `product/iterations/{iteration-slug}/stories/story-{NNN}-{slug}.md`.
+Each story lives at `product/iterations/{iteration-slug}/stories/story-{NNNN}-{slug}.md`.
 
 Header metadata (parsed by this skill):
 
 ```
-**Story ID**: {NNN}
-**Epic**: EPIC-{NNN} - {epic title}
+**Story ID**: {NNNN}
+**Epic**: EPIC-{NNNN} - {epic title}
 **Priority**: Critical | High | Medium | Low
 **Type**: Regular | Infrastructure | Spike | Quality | Risk | Bug | Refactor | Doc (optional; defaults to Regular)
 **Status**: Draft | Ready | In Progress | Built | Done
@@ -167,7 +167,7 @@ Body follows with user story, acceptance criteria, design references, etc. See `
 
 The backbone is stored as first-class activity files — one `.md` per backbone activity, mirroring the OST's one-object-one-file rule. The iteration README holds no map structure; like the OST and assumption-map READMEs, it is orientation prose only.
 
-**Location:** `product/iterations/{iteration-slug}/story-maps/activities/activity-{NN}-{slug}.md`
+**Location:** `product/iterations/{iteration-slug}/story-maps/activities/activity-{NNNN}-{slug}.md`
 
 Co-located under `story-maps/` (not the iteration root) because the backbone is a property of the map, not the whole iteration — the sidecar lives there for the same reason.
 

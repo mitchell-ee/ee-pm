@@ -95,7 +95,7 @@ Generate `product/iterations/{slug}/README.md`:
 **Started**: {YYYY-MM-DD}
 **Status**: active | completed | archived
 **Seeded from**: {reference iteration slug, or "cold start"}
-**Chosen opportunity**: [OPP-{NN} — {title}](../../opportunity-solution-tree/opportunities/opportunity-{NN}-{slug}.md)
+**Chosen opportunity**: [OPP-{NNNN} — {title}](../../opportunity-solution-tree/opportunities/opportunity-{NNNN}-{slug}.md)
 
 ## Problem frame
 {one paragraph — the specific angle this iteration pursues on the chosen opportunity}

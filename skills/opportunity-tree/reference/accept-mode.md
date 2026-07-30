@@ -53,7 +53,7 @@ After the loop, confirm with the PM, then walk the diff sections. Ordering withi
 
 For each entry `{ref_id}: title "..." → "..."`:
 
-- Read the existing MD file at `product/opportunity-solution-tree/{type}s/{type}-{NN}-{slug}.md`.
+- Read the existing MD file at `product/opportunity-solution-tree/{type}s/{type}-{NNNN}-{slug}.md`.
 - Update the `# Type: {title}` H1.
 - Save under the **existing filename** — do not rename even if the new title would produce a different slug. Rationale: repo-internal hyperlinks (other context docs, prototype specs, ticket descriptions, archive cross-references) cite by path. Ref_id is the stable identity; slug drift in the filename is acceptable and expected over a node's lifetime.
 
@@ -70,10 +70,10 @@ For each entry `{ref_id}: title "..." → "..."`:
 - No MD content changes — the file body was preserved through detachment.
 - If the reattached node is an opportunity whose new parent's depth differs from its pre-detachment parent's depth, recompute `opportunity_depth` and propagate to descendants per §2.8, same as Re-parented.
 
-**New nodes `{temp_id} | type={type} | parent={parent_ref} | title="..." | proposed_ref={NN}`:**
+**New nodes `{temp_id} | type={type} | parent={parent_ref} | title="..." | proposed_ref={NNNN}`:**
 - **Re-derive ref_id at write time.** Scan the live sidecar for the highest existing `{TYPE}-NN`, increment. Do not trust `proposed_ref` from the diff text — it was advisory. Apply in stable order (sorted by `temp_id` if multiple new nodes of the same type).
 - Slugify the title into a filename: lowercase, hyphenated, ASCII-only, truncate to ~40 chars at a word boundary.
-- Write `{type}-{NN}-{slug}.md` using the template in `SKILL.md` §"File formats". Pick the right parent field based on parent type (same rule as Re-parented). Fill in ref_id, parent, title; leave evidence/persona/status as TODO placeholders for the PM to fill in.
+- Write `{type}-{NNNN}-{slug}.md` using the template in `SKILL.md` §"File formats". Pick the right parent field based on parent type (same rule as Re-parented). Fill in ref_id, parent, title; leave evidence/persona/status as TODO placeholders for the PM to fill in.
 - Add a sidecar entry: `{ref_id, type, miro_id, parent_ref, x, y}` where `x` and `y` come from the **latest board read Claude holds at sidecar finalize**. If phase 2 wrote to this shape (e.g., a column-mismatch fix moved it from x=1366 to x=960), that's the scoped re-read after the last flag-walk write. If phase 2 did not touch this shape, no re-read happened and the phase-1 board read is itself the latest state — use those coordinates directly. The sidecar must record where the shape sits **now**, never a stale pre-fix coordinate. `attached: true` is implicit by omission. For opportunities, also `opportunity_depth`.
 - **Rewrite the board shape** via `mcp__miro-official__layout_update` to set content to canonical `<strong>{ref_id}</strong><br />{title}`. This is the one phase-3 board write — required because the PM may have typed the title with no prefix, and the canonical form must be on the board for future absorb runs to identify the node. Add this shape's miro_id to the in-memory self-edit set so the post-write re-read (if any) doesn't re-flag.
 - For new opportunities whose depth exceeds the sidecar's `max_opportunity_depth`, bump `max_opportunity_depth`. Next refresh will re-flow the solution column.

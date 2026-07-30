@@ -51,7 +51,7 @@ Push repo → CD-ready brief.
 A prototype almost always extends or sits adjacent to a screen the product already has. Find it before briefing — don't ask the PM for it unless the match is genuinely ambiguous. Keep this token-frugal: read names first, then only the one or two files that actually match.
 
 1. **List `product/screens/`** (names only) to see the available baseline screen specs.
-2. **Auto-match the baseline / adjacent screen** for this feature from the target story + persona, matching feature keywords and persona against screen filenames/titles. E.g. a handoff-confirmation feature for a given persona (STORY-019) matches `{persona}-pin-entry-in-app.md`; an order-status feature for that persona matches `{persona}-order-status.md`.
+2. **Auto-match the baseline / adjacent screen** for this feature from the target story + persona, matching feature keywords and persona against screen filenames/titles. E.g. a handoff-confirmation feature for a given persona (STORY-0019) matches `{persona}-pin-entry-in-app.md`; an order-status feature for that persona matches `{persona}-order-status.md`.
 3. **Read only the matched screen spec** (not all of them) to populate the brief's baseline section — what exists today and what stays unchanged.
 4. **Read the relevant product spec(s) only if the feature touches them** — `product/principles.md`, `product/product-as-built.md` — for constraints and existing behavior. Do not read all of `product/`.
 5. **Read the persona** from `product/personas.md` (the matched persona's entry).
@@ -126,8 +126,8 @@ Recommended sections:
 
 **Persona**: {persona slug from product/personas.md}
 **Surface**: web app | mobile web | native | marketing page
-**Solution shape**: {SOL-NN reference}
-**Stories served**: {STORY-NNN, STORY-NNN}
+**Solution shape**: {SOL-NNNN reference}
+**Stories served**: {STORY-NNNN, STORY-NNNN}
 
 ## What it does
 {1-2 sentence description}

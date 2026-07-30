@@ -34,29 +34,29 @@ Propose the file edit and the sidecar update:
 
 ```
 PROPOSED QUADRANT MOVE
-  ASSUMPTION-006 "Marketing can position wider ETAs as reliability win"
+  ASSUMPTION-0006 "Marketing can position wider ETAs as reliability win"
     From: investigate_later (Low / Weak)
     To:   test_first        (High / Weak)
 
-  Proposed edit (assumption-006-marketing-spin.md):
+  Proposed edit (assumption-0006-marketing-spin.md):
     Importance: Low  →  High
     Evidence:   Weak →  Weak  (unchanged — flagged for transparency)
 
   Proposed sidecar edit:
-    stickies.ASSUMPTION-006.current_quadrant: investigate_later → test_first
+    stickies.ASSUMPTION-0006.current_quadrant: investigate_later → test_first
 ```
 
 **Flag unchanged axes for transparency.** If the move was diagonal (both Importance AND Evidence change), report both deltas. If the move was orthogonal (e.g. across the y-axis only — Importance flips but Evidence is unchanged), explicitly mark the unchanged axis. The PM should see both columns of the derivation, even when one is a no-op.
 
 **Special case: move INTO `test_first`.** If the sticky lands in test_first AND the assumption file's `Method:` / `Success Criterion:` fields are empty, surface a PM follow-up:
 
-> ASSUMPTION-006 just landed in test_first. Method and Success Criterion are still empty. Want to design the test now, or leave for later?
+> ASSUMPTION-0006 just landed in test_first. Method and Success Criterion are still empty. Want to design the test now, or leave for later?
 
 Do NOT auto-scaffold `Method` / `Success Criterion` with placeholders. The "test first" quadrant is consequential — entering it should prompt the PM, not generate work.
 
 **Special case: move OUT of `test_first`.** Either Importance dropped or Evidence strengthened — the team decided this no longer needs urgent testing. If the file has populated `Method:` / `Success Criterion:`, ask whether the test plan should be archived or kept in place:
 
-> ASSUMPTION-XX just left test_first. The test plan (Method + Success Criterion) is still filled. Archive it (move into a notes section) or leave as-is in case it returns?
+> ASSUMPTION-NNNN just left test_first. The test plan (Method + Success Criterion) is still filled. Archive it (move into a notes section) or leave as-is in case it returns?
 
 ### Task B — Recolor → Type or Result
 
@@ -66,17 +66,17 @@ A `recolored` sticky is structurally the same diff but semantically branches on 
 
 ```
 PROPOSED RESULT UPDATE
-  ASSUMPTION-001 "Customers trust a wider ETA band"
+  ASSUMPTION-0001 "Customers trust a wider ETA band"
     Sticky recolored: light_yellow → gray
     Implication: result has come in (gray = Result ≠ Pending)
 
   Proposed sidecar edit (safe — observable):
-    stickies.ASSUMPTION-001.fill_color: light_yellow → gray
+    stickies.ASSUMPTION-0001.fill_color: light_yellow → gray
 
   Proposed file edit (BLOCKED on PM):
     Result: Pending → {Confirmed | Rejected | Inconclusive}
 
-  Question: ASSUMPTION-001 went gray on the board — looks like a result
+  Question: ASSUMPTION-0001 went gray on the board — looks like a result
   came in. Which one: Confirmed, Rejected, or Inconclusive? Want to
   record the evidence link too?
 ```
@@ -95,12 +95,12 @@ PROPOSED RESULT UPDATE
 
 ```
 PROPOSED TYPE UPDATE
-  ASSUMPTION-XX "{short title}"
+  ASSUMPTION-NNNN "{short title}"
     Sticky recolored: light_yellow → light_pink
     Type mapping:     Desirability  → Viability
 
   Proposed sidecar edit:
-    stickies.ASSUMPTION-XX.fill_color: light_yellow → light_pink
+    stickies.ASSUMPTION-NNNN.fill_color: light_yellow → light_pink
 
   Proposed file edit:
     Type: Desirability → Viability
@@ -108,7 +108,7 @@ PROPOSED TYPE UPDATE
 
 This is deterministic — proposed without PM clarification, accepted as a single approval.
 
-**Unknown color (not in canonical 6-color palette).** PM picked a custom hex. Warn and flag; do not auto-map. Ask: "ASSUMPTION-XX recolored to a non-canonical hex `#aabbcc`. Should we adopt this as a new type, or was it a stray click?"
+**Unknown color (not in canonical 6-color palette).** PM picked a custom hex. Warn and flag; do not auto-map. Ask: "ASSUMPTION-NNNN recolored to a non-canonical hex `#aabbcc`. Should we adopt this as a new type, or was it a stray click?"
 
 ### Task C — Content change → Hypothesis review
 
@@ -116,14 +116,14 @@ When a sticky's parsed short title differs from `sticky_short_title`, the PM has
 
 ```
 PROPOSED CONTENT UPDATE
-  ASSUMPTION-003 short title rewritten:
+  ASSUMPTION-0003 short title rewritten:
     From: "Pickers understand the wider ETA band UI"
     To:   "Picker app surfaces ETA band correctly to staff"
 
   Proposed sidecar edit:
-    stickies.ASSUMPTION-003.sticky_short_title: → "Picker app surfaces ETA band correctly to staff"
+    stickies.ASSUMPTION-0003.sticky_short_title: → "Picker app surfaces ETA band correctly to staff"
 
-  Proposed file edit (assumption-003-pickers-understand-band.md):
+  Proposed file edit (assumption-0003-pickers-understand-band.md):
     # Assumption Test: Pickers understand the wider ETA band UI
     →
     # Assumption Test: Picker app surfaces ETA band correctly to staff
@@ -136,7 +136,7 @@ PROPOSED CONTENT UPDATE
     a secondary claim?
 ```
 
-**File slug is durable identity.** Do not propose renaming `assumption-003-pickers-understand-band.md` even when the title in the file changes radically. The slug is the filesystem identity — stable across edits, referenced from the OST and possibly from the story map. The title-in-file evolves; the slug doesn't.
+**File slug is durable identity.** Do not propose renaming `assumption-0003-pickers-understand-band.md` even when the title in the file changes radically. The slug is the filesystem identity — stable across edits, referenced from the OST and possibly from the story map. The title-in-file evolves; the slug doesn't.
 
 **Never auto-rewrite Hypothesis, Method, or Success Criterion.** These fields encode the team's research design and assertions. A retitle is a strong signal that they need review, but the actual rewrite is human work. Surface the question; let the PM type.
 
@@ -152,14 +152,14 @@ Propose:
 
 ```
 PROPOSED NEW ASSUMPTION
-  Suggested ID:    ASSUMPTION-009 (next available — current max is 008)
+  Suggested ID:    ASSUMPTION-0009 (next available — current max is 008)
   Quadrant:        test_first
   Type:            Desirability (light_yellow)
   Importance:      High (top-half quadrant)
   Evidence:        Weak (right-half quadrant)
   Result:          Pending
   Draft title:     "Customers will tolerate a 5-minute ETA buffer"
-  Parent Solution: SOL-01 (derived from board's solution_ref)
+  Parent Solution: SOL-0001 (derived from board's solution_ref)
 
   Rationale: A new light_yellow sticky appeared in the test_first quadrant
   with content suggesting a desirability claim about ETA buffers. Reads as
@@ -171,7 +171,7 @@ PROPOSED NEW ASSUMPTION
   Hypothesis ("If we ___, then ___") and Method when accepting?
 ```
 
-Ask: **accept / edit / reject**. On accept, create `product/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md` from the SKILL.md file template and add the sticky to the sidecar's `stickies` block.
+Ask: **accept / edit / reject**. On accept, create `product/opportunity-solution-tree/assumptions/assumption-{NNNN}-{slug}.md` from the SKILL.md file template and add the sticky to the sidecar's `stickies` block.
 
 ### Task E — Missing sticky → deletion warning (phase-3)
 
@@ -182,7 +182,7 @@ A `missing` state is a recorded sticky the read couldn't find on the board. Two 
 
 Surface as a warning; do NOT cascade-delete the assumption file. Ask:
 
-> ASSUMPTION-XX is no longer on the board but its file is still in the repo. Was the deletion intentional? Options:
+> ASSUMPTION-NNNN is no longer on the board but its file is still in the repo. Was the deletion intentional? Options:
 >   1. Yes — mark the file's Status as Removed and keep it as record.
 >   2. Yes — delete the file (rare; only if it was a duplicate that got merged into another assumption).
 >   3. No, accidental — refresh-mode will recreate the sticky on the next build.
@@ -193,7 +193,7 @@ Default to option 1 if the PM is undecided. The assumption file carries research
 
 If three or more stickies move quadrant in the same absorb pass, the team is likely re-rating an entire category — e.g. "we systematically overestimated our evidence for all the desirability assumptions." Surface the pattern:
 
-> 4 stickies moved between quadrants in this pass. 3 of them (ASSUMPTION-001, -004, -006) are all Desirability assumptions, all moved into the same quadrant (test_first). Looks like the team is re-rating the Desirability category. Apply the moves individually, or apply as a batch with a single rationale entry in each file's history section?
+> 4 stickies moved between quadrants in this pass. 3 of them (ASSUMPTION-0001, -004, -006) are all Desirability assumptions, all moved into the same quadrant (test_first). Looks like the team is re-rating the Desirability category. Apply the moves individually, or apply as a batch with a single rationale entry in each file's history section?
 
 Batch-apply is cosmetic — the underlying edits are still per-file — but the framing helps the PM see the workshop story.
 

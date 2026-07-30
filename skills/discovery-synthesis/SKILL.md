@@ -14,7 +14,7 @@ This skill is the bridge between iteration discovery and the product-level OST. 
 Synthesis is exploratory. It writes candidate solutions and their initial assumptions **inline in `synthesis.md`** — it does not create separate solution or assumption files. Materialization happens downstream, driven by the PM:
 
 1. **Solution MD file** materializes when the PM promotes a candidate to the OST (interactive or via OST absorb). Created with `Status: Proposed`.
-2. **Assumption MD files** materialize when the PM flips a solution's `Status:` to `Committed` (commitment to pursue). The inline assumptions for that solution in `synthesis.md` are written out as separate `assumption-{NNN}-{slug}.md` files under `product/opportunity-solution-tree/assumptions/`, ready for `/assumption-map create from solution-NN`.
+2. **Assumption MD files** materialize when the PM flips a solution's `Status:` to `Committed` (commitment to pursue). The inline assumptions for that solution in `synthesis.md` are written out as separate `assumption-{NNNN}-{slug}.md` files under `product/opportunity-solution-tree/assumptions/`, ready for `/assumption-map create from solution-NNNN`.
 3. **Assumption-map sidecar dir** materializes on first `/assumption-map create` for that solution.
 
 The synthesis doc keeps its inline copies as the historical record; the promoted files become the working artifacts. Unchosen candidate solutions stay inline forever — no orphan files for branches the team never pursued.
@@ -54,7 +54,7 @@ START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 ### 3. Load the chosen opportunity
 
-Read the iteration README to get the chosen OST opportunity. Read the opportunity file itself from `product/opportunity-solution-tree/opportunities/opportunity-{NN}-{slug}.md`. Synthesis should sharpen this opportunity, not re-invent it.
+Read the iteration README to get the chosen OST opportunity. Read the opportunity file itself from `product/opportunity-solution-tree/opportunities/opportunity-{NNNN}-{slug}.md`. Synthesis should sharpen this opportunity, not re-invent it.
 
 ### 4. Verify discovery materials exist
 
@@ -112,7 +112,7 @@ Write `product/iterations/{iteration}/synthesis.md` using this structure:
 # Synthesis — {iteration name}
 
 **Iteration**: {slug}
-**Chosen opportunity**: [OPP-{NN} — {title}](../../opportunity-solution-tree/opportunities/opportunity-{NN}-{slug}.md)
+**Chosen opportunity**: [OPP-{NNNN} — {title}](../../opportunity-solution-tree/opportunities/opportunity-{NNNN}-{slug}.md)
 **Interviews**: {N total, persona breakdown}
 **Date**: {YYYY-MM-DD}
 
@@ -147,7 +147,7 @@ Exploratory — these materialize as files only when promoted (solution → OST)
 **Pros**: {bullets}
 **Cons / risks**: {bullets}
 
-**Initial assumptions** (materialize as `assumption-{NNN}-*.md` on commit):
+**Initial assumptions** (materialize as `assumption-{NNNN}-*.md` on commit):
 - {Type — Desirability | Viability | Feasibility | Usability | Ethical} — *{hypothesis}*. Suggested Importance: {High/Med/Low}, Evidence: {Strong/Mod/Weak}. Source: {interview ref}.
 - ...
 
@@ -173,7 +173,7 @@ Tell the user:
 - Synthesis primary output path and summary (themes, pain points per persona).
 - Candidate solutions count + recommended next pick (still PM's call).
 - Inbox candidate output path and count.
-- Suggested next step: review candidate solutions, promote one or more to the OST (creates `solution-{NN}-*.md` with `Status: Proposed`), then commit to pursue one (flip to `Status: Committed`) — that flip materializes the inline assumptions for that solution as `assumption-{NNN}-*.md` files under `product/opportunity-solution-tree/assumptions/`, ready for `/assumption-map create from solution-{NN}`. Then `opportunity-tree promote-from-inbox` to land adjacent candidates; then `story-map`.
+- Suggested next step: review candidate solutions, promote one or more to the OST (creates `solution-{NNNN}-*.md` with `Status: Proposed`), then commit to pursue one (flip to `Status: Committed`) — that flip materializes the inline assumptions for that solution as `assumption-{NNNN}-*.md` files under `product/opportunity-solution-tree/assumptions/`, ready for `/assumption-map create from solution-{NNNN}`. Then `opportunity-tree promote-from-inbox` to land adjacent candidates; then `story-map`.
 
 ## Quality checklist
 

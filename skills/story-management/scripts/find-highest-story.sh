@@ -3,7 +3,9 @@
 #
 # Usage: find-highest-story.sh
 #
-# Returns: The highest STORY-XXX number found, or 0 if none exist
+# Returns: The highest story number found as a bare integer (no zero-padding, no
+#          STORY- prefix), or 0 if none exist. The caller formats the next ID as
+#          STORY-$(printf '%04d' $((HIGHEST + 1))).
 #
 # Story numbers are globally unique across all iterations and never reset.
 # This script scans ALL iterations to find the current maximum.
@@ -19,26 +21,42 @@ PROJECT_ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
 
 ITERATIONS_DIR="$PROJECT_ROOT/product/iterations"
 
-if [[ ! -d "$ITERATIONS_DIR" ]]; then
-    echo "0"
-    exit 0
-fi
-
-# Find all story files and extract the highest number
-HIGHEST=$(grep -rh "Story ID.*STORY-" "$ITERATIONS_DIR"/*/stories/*.md 2>/dev/null | \
+# Extract story numbers from stdin and return the highest as a BARE INTEGER --
+# no zero-padding, no prefix. The padding strip is the load-bearing part.
+#
+# The pre-0.6.0 version returned the number as written, so a project of 4-digit
+# IDs yielded `0045`. A caller doing $((HIGHEST + 1)) then hits bash arithmetic,
+# where a leading zero means OCTAL: $((0045 + 1)) is 38, and $((0008 + 1)) is a
+# hard "value too great for base" error. Padding to four digits made this
+# reachable for every story below 1000, where three digits had mostly hidden it.
+#
+# Tolerating a context-mesh domain prefix (`payments:STORY-0001`) is free here:
+# `grep -oE "STORY-[0-9]+"` already drops anything left of `STORY-`. Kept
+# deliberately, and covered by a test, so a later refactor doesn't lose it.
+#
+# Widths are mixed on purpose: 0.5.x wrote STORY-001 and 0.6.0 writes STORY-0001,
+# and an unmigrated project has both. `sort -n` compares numerically, so 45 and
+# 0045 order correctly against each other.
+highest_from_stdin() {
     grep -oE "STORY-[0-9]+" | \
-    sed 's/STORY-//' | \
-    sort -n | \
-    tail -1)
+        grep -oE "[0-9]+$" | \
+        sed 's/^0*//;s/^$/0/' | \
+        sort -n | \
+        tail -1
+}
+
+HIGHEST=""
+
+if [[ -d "$ITERATIONS_DIR" ]]; then
+    HIGHEST=$(grep -rh "Story ID.*STORY-" "$ITERATIONS_DIR"/*/stories/*.md 2>/dev/null | \
+        highest_from_stdin)
+fi
 
 if [[ -z "$HIGHEST" ]]; then
     # Also check backlog as a fallback
     BACKLOG="$PROJECT_ROOT/product/backlog.md"
     if [[ -f "$BACKLOG" ]]; then
-        HIGHEST=$(grep -oE "STORY-[0-9]+" "$BACKLOG" 2>/dev/null | \
-            sed 's/STORY-//' | \
-            sort -n | \
-            tail -1)
+        HIGHEST=$(highest_from_stdin < "$BACKLOG" 2>/dev/null)
     fi
 fi
 

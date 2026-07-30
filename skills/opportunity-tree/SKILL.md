@@ -49,13 +49,13 @@ OST data lives at **product-level**, under `product/opportunity-solution-tree/`:
 product/opportunity-solution-tree/
   README.md                   # orientation — what this tree is, how it grows
   outcomes/
-    outcome-{NN}-{slug}.md
+    outcome-{NNNN}-{slug}.md
   opportunities/
-    opportunity-{NN}-{slug}.md
+    opportunity-{NNNN}-{slug}.md
   solutions/
-    solution-{NN}-{slug}.md
+    solution-{NNNN}-{slug}.md
   assumptions/
-    assumption-{NNN}-{slug}.md
+    assumption-{NNNN}-{slug}.md
   inbox/                      # staging for per-iteration synthesis output
     {iteration-slug}-candidates.md
   miro-metadata.json          # sidecar, same pattern as story-map
@@ -65,11 +65,11 @@ The tree is **not** per-iteration. Iteration discovery contributes evidence and 
 
 ### File formats
 
-**outcome-{NN}-{slug}.md**
+**outcome-{NNNN}-{slug}.md**
 ```
 # Outcome: {title}
 
-**ID**: OUTCOME-{NN}
+**ID**: OUTCOME-{NNNN}
 **Metric**: {specific metric being moved}
 **Target**: {delta}
 **Timeframe**: {by when}
@@ -79,13 +79,13 @@ The tree is **not** per-iteration. Iteration discovery contributes evidence and 
 product/platform it serves}
 ```
 
-**opportunity-{NN}-{slug}.md**
+**opportunity-{NNNN}-{slug}.md**
 ```
 # Opportunity: {title}
 
-**ID**: OPP-{NN}
-**Parent Outcome**: OUTCOME-{NN}        # for a depth-1 opportunity (direct child of an outcome)
-**Parent Opportunity**: OPP-{NN}        # for a deeper opportunity (child of another opportunity). Exactly one of Parent Outcome or Parent Opportunity is set.
+**ID**: OPP-{NNNN}
+**Parent Outcome**: OUTCOME-{NNNN}        # for a depth-1 opportunity (direct child of an outcome)
+**Parent Opportunity**: OPP-{NNNN}        # for a deeper opportunity (child of another opportunity). Exactly one of Parent Outcome or Parent Opportunity is set.
 **Evidence Strength**: Strong | Moderate | Weak
 **Persona**: {persona}
 **Status**: Open | Exploring | Descoped
@@ -101,12 +101,12 @@ product/platform it serves}
 - {iteration-slug}: {one-line note}
 ```
 
-**solution-{NN}-{slug}.md**
+**solution-{NNNN}-{slug}.md**
 ```
 # Solution: {title}
 
-**ID**: SOL-{NN}
-**Parent Opportunity**: OPP-{NN}
+**ID**: SOL-{NNNN}
+**Parent Opportunity**: OPP-{NNNN}
 **Status**: Proposed | Testing | Committed | Shipped | Rejected
 **Shaped by iteration**: {iteration-slug}   # set when the solution was promoted from a synthesis
 
@@ -114,17 +114,17 @@ product/platform it serves}
 {1–3 sentences}
 
 ## Tests
-- ASSUMPTION-{NNN}: {one-line description}   # populated after the Status: Committed flip materializes assumption files
+- ASSUMPTION-{NNNN}: {one-line description}   # populated after the Status: Committed flip materializes assumption files
 ```
 
-**Status lifecycle and the commitment trigger.** A solution lands on the OST at `Status: Proposed` (created when the PM promotes a candidate from synthesis or branches via OST absorb). Flipping to `Status: Committed` is the team's commitment to pursue. **That flip is also the materialization trigger for assumption files**: read the inline assumptions for this solution in `{shaped-by-iteration}/synthesis.md` (`### SOL-candidate-*` block) and write each one as `product/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md`, then list them under `## Tests` here. After materialization, the next `/assumption-map create from SOL-{NN}` renders the 2×2 cleanly. Other transitions (`Testing` → `Shipped` / `Rejected`) do not materialize new files; see `assumption-map` SKILL for downstream behavior.
+**Status lifecycle and the commitment trigger.** A solution lands on the OST at `Status: Proposed` (created when the PM promotes a candidate from synthesis or branches via OST absorb). Flipping to `Status: Committed` is the team's commitment to pursue. **That flip is also the materialization trigger for assumption files**: read the inline assumptions for this solution in `{shaped-by-iteration}/synthesis.md` (`### SOL-candidate-*` block) and write each one as `product/opportunity-solution-tree/assumptions/assumption-{NNNN}-{slug}.md`, then list them under `## Tests` here. After materialization, the next `/assumption-map create from SOL-{NNNN}` renders the 2×2 cleanly. Other transitions (`Testing` → `Shipped` / `Rejected`) do not materialize new files; see `assumption-map` SKILL for downstream behavior.
 
-**assumption-{NNN}-{slug}.md** (in `assumptions/`)
+**assumption-{NNNN}-{slug}.md** (in `assumptions/`)
 ```
 # Assumption Test: {title}
 
-**ID**: ASSUMPTION-{NNN}
-**Parent Solution**: SOL-{NN}
+**ID**: ASSUMPTION-{NNNN}
+**Parent Solution**: SOL-{NNNN}
 **Hypothesis**: {"If we X, then Y" statement}
 **Method**: {how the test is run}
 **Success Criterion**: {what would make you believe the hypothesis}
@@ -140,7 +140,7 @@ did not belong to the iteration's chosen opportunity. Promote into the tree
 via `opportunity-tree promote-from-inbox`.
 
 ## Candidate 1 — {proposed title}
-**Suggested parent outcome:** OUTCOME-{NN}
+**Suggested parent outcome:** OUTCOME-{NNNN}
 **Persona:** {persona}
 **Evidence strength:** Strong | Moderate | Weak
 **Evidence:**
@@ -179,7 +179,7 @@ An OST renders as a **left-to-right horizontal tree** in Miro. The board is not 
 <strong>{REF-ID}</strong><br>{title}
 ```
 
-For example: `<strong>OPP-01</strong><br>ETA trust — the promise time drifts`. This convention applies to every node type (root, outcome, opportunity, solution, assumption test) and every mode (create, refresh, absorb, promote-from-inbox). Miro's shape `content` field accepts inline HTML; `<strong>` and `<br>` are the only tags needed.
+For example: `<strong>OPP-0001</strong><br>ETA trust — the promise time drifts`. This convention applies to every node type (root, outcome, opportunity, solution, assumption test) and every mode (create, refresh, absorb, promote-from-inbox). Miro's shape `content` field accepts inline HTML; `<strong>` and `<br>` are the only tags needed.
 
 **Board title:** every board carries a bold `text` item — `<strong>{tree name} — Opportunity Solution Tree</strong>`, `font_size: 96` — at the root column (x=0), placed above the topmost node. It is board chrome: recorded in the sidecar as `items.title`, classified only `unchanged` / `missing` by absorb, never treated as a tree node. See `reference/create-ost.md` §2a.
 
@@ -214,7 +214,7 @@ Seed is Torres-canonical: a fresh tree is **outcomes + an initial opportunity se
 
 Seed follows a **plan → fan-out → assemble** shape (the OST analogue of `story-shaping`'s seed). The plan phase is interactive and stays in the main thread; the expansion fans out:
 
-1. **Plan (main thread, interactive).** Settle the tree shape *with the PM*: which outcomes (with metric + target), which opportunities under each, how they nest, persona and evidence strength per opportunity. Assign canonical `OUTCOME-{NN}` / `OPP-{NN}` ref_ids and slugs. This is the judgment; it is not delegated. Confirm the set before fan-out. Answer the three "Open questions for the PM before building" below as part of this phase.
+1. **Plan (main thread, interactive).** Settle the tree shape *with the PM*: which outcomes (with metric + target), which opportunities under each, how they nest, persona and evidence strength per opportunity. Assign canonical `OUTCOME-{NNNN}` / `OPP-{NNNN}` ref_ids and slugs. This is the judgment; it is not delegated. Confirm the set before fan-out. Answer the three "Open questions for the PM before building" below as part of this phase.
 2. **Fan-out (delegated, parallel).** For each settled node, the main thread spawns one `opportunity-writer` worker with the stub fully resolved in the prompt (see that agent's invocation contract). Workers run in parallel waves (~10 at a time), each writing one node file atomically and returning a one-line receipt. The node prose never returns to the main thread — only the receipts. The main thread never authors node bodies inline.
 3. **Assemble (main thread).** Collect receipts, verify the file set is complete and parent refs resolve, then hand off to **create mode** (via `board-builder`) to render the board. Seed itself writes no sidecar — the sidecar is born when create renders the board.
 
@@ -275,16 +275,16 @@ Reads `product/opportunity-solution-tree/inbox/*-candidates.md` and walks the PM
 
 **(a) New opportunity** — the candidate becomes its own node in the tree:
 
-- Propose filename (`opportunity-{NN}-{slug}.md`), parent outcome, persona, evidence strength
+- Propose filename (`opportunity-{NNNN}-{slug}.md`), parent outcome, persona, evidence strength
 - Confirm or edit with the PM
 - Write the opportunity file
 - Mark the candidate as promoted in the inbox file (strikethrough + date)
 
-**(b) Enrichment to an existing opportunity** — the candidate is evidence for an opportunity the tree already carries, not a new node. The PM picks the existing OPP-NN. Then:
+**(b) Enrichment to an existing opportunity** — the candidate is evidence for an opportunity the tree already carries, not a new node. The PM picks the existing OPP-NNNN. Then:
 
 - Append the candidate's evidence bullets to that opportunity's MD file under an `## Evidence` section (create the section if absent). Each appended bullet is prefixed with the iteration slug for provenance (e.g., `- [YYYY-MM-DD-{iteration-slug}] E02: "$10 off..."`).
 - Append a line to that opportunity's `## Iterations that enriched this` section (create if absent) recording the iteration slug and date.
-- Mark the candidate in the inbox file as `~~enrichment~~ → OPP-NN ({YYYY-MM-DD})` — visually distinct from `~~promoted~~` so the inbox is auditable.
+- Mark the candidate in the inbox file as `~~enrichment~~ → OPP-NNNN ({YYYY-MM-DD})` — visually distinct from `~~promoted~~` so the inbox is auditable.
 - **No Miro mutation.** The OST board is unchanged; the tree's structure didn't grow, only an existing node's evidence did.
 
 **(c) Reject or defer** — the candidate doesn't belong in the tree (yet). Mark in the inbox as `~~deferred~~ ({YYYY-MM-DD}): {reason}`. The candidate stays in the inbox file as historical context; no other side effects.

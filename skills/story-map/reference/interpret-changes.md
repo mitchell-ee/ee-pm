@@ -37,7 +37,7 @@ Produce a proposed story draft:
 
 ```
 PROPOSED NEW STORY
-  Suggested ID:  STORY-015 (next available)
+  Suggested ID:  STORY-0015 (next available)
   Activity:      Courier picks up
   Priority:      High (NOW lane — Critical/High ambiguous on a board read;
                  defaulted to High per read-board-state.md Step 6, flag for
@@ -51,7 +51,7 @@ PROPOSED NEW STORY
   standard user story for the courier persona. Confidence: high.
 ```
 
-Ask the user: **accept / edit / reject**. On accept, create `story-{NNN}-{slug}.md` from the template and add the sticky to the sidecar.
+Ask the user: **accept / edit / reject**. On accept, create `story-{NNNN}-{slug}.md` from the template and add the sticky to the sidecar.
 
 ### Task B — Cross-column move → rescoping?
 
@@ -61,7 +61,7 @@ Propose:
 
 ```
 PROPOSED RESCOPE
-  STORY-007 "Handoff PIN displays on courier app at arrival"
+  STORY-0007 "Handoff PIN displays on courier app at arrival"
     Moved from:  Courier picks up
     Moved to:    Courier delivers
 
@@ -110,7 +110,7 @@ PROPOSED BACKBONE EXTENSION
   follow-through" as a 6th backbone column.
 
   If accepted:
-    1. Create story files STORY-015 through STORY-018
+    1. Create story files STORY-0015 through STORY-0018
     2. Create story-maps/activities/activity-06-post-resolution-follow-through.md
        (ID: ACTIVITY-06, Order: 6, Personas: cx — seeded from the 🎧 prefix
        on the new column's header sticky) — the new activity's .md home
@@ -155,7 +155,7 @@ If the edit looks like a meaningful improvement (clarity, factual fix, persona a
 
 ```
 PROPOSED CONTENT UPDATE
-  STORY-009 current title:  "SMS PIN fallback to eater's phone on handoff"
+  STORY-0009 current title:  "SMS PIN fallback to eater's phone on handoff"
   Board edit:               "SMS PIN fallback after 30s of no in-app entry"
 
   Rationale: The board version is more specific — fallback trigger is now
@@ -199,7 +199,7 @@ assumption, records which story it sits beside (`nearest_story`), and
 ```
 ASSUMPTION_CAPTURED (informational — no action taken)
   Content:         "Couriers will tap a one-tap transit flag mid-route"
-  Sits beside:     STORY-012 "Courier flags transit disturbance"
+  Sits beside:     STORY-0012 "Courier flags transit disturbance"
   Activity column: Courier delivers
 
   This assumption surfaced on the story map during mapping. It has been
@@ -249,7 +249,7 @@ Propose the structural change (PM-approved; **never** automatic):
 PROPOSED BACKBONE CONTRACTION
   The "Disputes resolve" column is no longer on the board:
     - Missing activity header: "Disputes resolve" (sidecar id 3458764671405697781)
-    - Co-missing stories from that column: STORY-006, STORY-014
+    - Co-missing stories from that column: STORY-0006, STORY-0014
 
   Rationale: The column header and 2 of its 2 stories were removed
   together. Reads as an intentional deletion of the activity from the
@@ -259,7 +259,7 @@ PROPOSED BACKBONE CONTRACTION
     1. Move story-maps/activities/activity-05-disputes-resolve.md to
        story-maps/activities/_archive/ with frontmatter
        deleted_on: {YYYY-MM-DD}, deleted_from_board: {board_id}
-    2. Move story-006-*.md and story-014-*.md to product/iterations/
+    2. Move story-0006-*.md and story-0014-*.md to product/iterations/
        {iteration}/stories/_archive/ with the same frontmatter
     3. Drop the sidecar entries for the header and the co-missing stories
     4. Next refresh renders the map with one fewer column
@@ -341,7 +341,7 @@ SEMANTIC INTERPRETATION — {board_name} — {timestamp}
 
 {M} informational notices (no action required):
 
-  - ASSUMPTION_CAPTURED — "{content}" beside STORY-012
+  - ASSUMPTION_CAPTURED — "{content}" beside STORY-0012
   ...
 
 Reply with: "accept 1,3" or "accept all" or "reject 2" or edit-per-item.

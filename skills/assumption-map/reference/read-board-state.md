@@ -6,8 +6,8 @@ Mirrors `story-map/reference/read-board-state.md` and `opportunity-tree/referenc
 
 ## Inputs
 
-- `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` — sidecar with recorded item IDs (chrome + stickies blocks).
-- Assumption files under `product/opportunity-solution-tree/assumptions/assumption-*.md` filtered by `Parent Solution: SOL-{NN}`.
+- `product/assumption-maps/SOL-{NNNN}-{slug}/miro-metadata.json` — sidecar with recorded item IDs (chrome + stickies blocks).
+- Assumption files under `product/opportunity-solution-tree/assumptions/assumption-*.md` filtered by `Parent Solution: SOL-{NNNN}`.
 - Live Miro board, read via `mcp__miro-official__layout_read`.
 
 ## Step 1: Load the sidecar
@@ -20,7 +20,7 @@ sidecar_index = {
     "role": "title" | "x_axis_line" | "y_axis_line" |
             "axis_tip_label" | "legend_swatch" | "legend_label" |
             "sticky",
-    "assumption_id": "ASSUMPTION-001",     // sticky role only
+    "assumption_id": "ASSUMPTION-0001",     // sticky role only
     "current_quadrant": "test_first" | "watch" | "dont_worry" | "investigate_later",
     "fill_color": "light_yellow" | "light_blue" | "light_green" |
                   "light_pink" | "violet" | "gray",
@@ -59,7 +59,7 @@ Stickies are authored as two `<p>` blocks: `<p>{ID}</p><p>{short title}</p>`. Th
 
 Normalize before compare, in order:
 
-1. **HTML-decode** entities: `&lt;` → `<`, `&gt;` → `>`, `&amp;` → `&`, `&#39;` → `'`. ASSUMPTION-002's "ETA model can ingest surge signal in <100ms" round-trips as `&lt;100ms` from `layout_read` and would otherwise flag as content change on every read.
+1. **HTML-decode** entities: `&lt;` → `<`, `&gt;` → `>`, `&amp;` → `&`, `&#39;` → `'`. ASSUMPTION-0002's "ETA model can ingest surge signal in <100ms" round-trips as `&lt;100ms` from `layout_read` and would otherwise flag as content change on every read.
 2. **Strip the outer `<p>...</p>` wrapper** and split on the inner `</p><p>` boundary. The first segment is the ID line; the second is the short title.
 3. **Trim whitespace** on both segments.
 4. The result is the **parsed short title**. Compare against `sticky_short_title` in the sidecar.
@@ -144,7 +144,7 @@ Produce a structured object:
     {
       "state": "moved_quadrant",
       "item_id": "3458764672162294121",
-      "assumption_id": "ASSUMPTION-006",
+      "assumption_id": "ASSUMPTION-0006",
       "from": "investigate_later",
       "to": "test_first",
       "observed_position": {"x": 362.39, "y": -317.49}
@@ -163,7 +163,7 @@ Board changes since last sync (2026-05-18 14:30):
 
   STICKIES
     MOVED QUADRANT (1):
-      ASSUMPTION-006  investigate_later → test_first
+      ASSUMPTION-0006  investigate_later → test_first
                      (low/strong → high/weak)
     UNCHANGED (7)
 

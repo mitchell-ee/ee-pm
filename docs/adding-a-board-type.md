@@ -23,7 +23,7 @@ Where does the artifact's repo-side state live, and how many of these boards exi
 | Board type | Scope | Sidecar path |
 |---|---|---|
 | `opportunity-tree` | singleton, product-level | `product/opportunity-solution-tree/miro-metadata.json` |
-| `assumption-map` | one per solution | `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` |
+| `assumption-map` | one per solution | `product/assumption-maps/SOL-{NNNN}-{slug}/miro-metadata.json` |
 | `story-map` | one per iteration | `product/iterations/{iteration-slug}/story-maps/miro-metadata.json` |
 
 Pick the scope that matches the artifact's lifecycle. Product-level artifacts go under `product/<your-type>/`; per-iteration artifacts go under `product/iterations/{slug}/<your-type>/`. The choice dictates the sidecar path and how the router resolves "which board" before spawning a worker.
@@ -97,7 +97,7 @@ Match the skeleton the existing board skills share. Sections, in order:
 - **Board identity:** `board_id`, `board_url`, `board_name`, `last_synced_at`.
 - **Layout constants:** any pitch/column/spacing defaults the layout math uses (so refresh reproduces the same coordinates).
 - **Per-item records**, keyed by Miro item ID, each carrying:
-  - `ref_id` — links the board item back to its repo markdown file (e.g. `OPP-01`, `STORY-003`).
+  - `ref_id` — links the board item back to its repo markdown file (e.g. `OPP-0001`, `STORY-0003`).
   - role classification — tells absorb what kind of change to expect for this item.
   - rendered baseline — position, color, content, and any board-specific state your diff compares against (`current_quadrant` for assumption-map, etc.).
 - **Board chrome:** IDs of titles, axes, legends, horizons — marked as chrome so absorb doesn't flag them as data changes.

@@ -40,10 +40,10 @@ Sidecar shape (additions):
 
 ```json
 {
-  "ref_id": "SOL-08",
+  "ref_id": "SOL-0008",
   "type": "solution",
   "miro_id": "3458764670883863934",
-  "parent_ref": "OPP-17",          // last-known parent before detachment, preserved
+  "parent_ref": "OPP-0017",          // last-known parent before detachment, preserved
   "x": 1440, "y": 3290,
   "attached": false,                // NEW; default true if omitted
   "detached_on": "2026-05-11"       // NEW; date first observed detached
@@ -75,7 +75,7 @@ After normalization, compare the extracted `(ref_id, title)` pair against the si
 - **`miro_id` in sidecar, parsed ref_id matches**: existing node. Compare title. Title differs after normalization → `## Content` entry `{ref_id}: title "..." → "..."`. Title identical → silently absorbed.
 - **`miro_id` in sidecar, parsed ref_id mismatches**: **identity-break flag** (§4) — the PM may have renamed the node, typo'd it, or pasted over it.
 - **`miro_id` NOT in sidecar, parsed ref_id is already in the sidecar (used by a different `miro_id`)**: **stale-prefix flag** (§4) — the PM almost certainly copy-pasted an existing shape and didn't clear the `<strong>{ref_id}</strong>` prefix. The new shape is treated as a new-node candidate; absorb does not honor the parsed ref_id. Resolution loop (§6) offers to strip the leftover prefix and assign the next available ref_id.
-- **`miro_id` NOT in sidecar, parsed ref_id is also new** (e.g., PM hand-typed "OPP-99" into a fresh shape): treat as new-node candidate (§2.3); the parsed ref_id is ignored — absorb assigns the next available number for the inferred column. Surface a non-blocking note in the diff so the PM sees it.
+- **`miro_id` NOT in sidecar, parsed ref_id is also new** (e.g., PM hand-typed "OPP-0099" into a fresh shape): treat as new-node candidate (§2.3); the parsed ref_id is ignored — absorb assigns the next available number for the inferred column. Surface a non-blocking note in the diff so the PM sees it.
 
 What is silently ignored (never appears in the diff):
 - `<p>...</p>` wrapper added by Miro's inline editor on click-into-edit.
@@ -96,22 +96,22 @@ A shape with no matching `miro_id` in the sidecar **and reachable from the root*
 
 **Type inference — signal ladder.** Absorb determines the new shape's type by checking signals in this priority order; the first one that resolves wins:
 
-1. **Bold prefix in shape content.** If the shape's content has a parseable `<strong>{TYPE}-{NN}</strong>` prefix and `{TYPE}` maps to a known type (`OUTCOME`, `OPP`, `SOL`, `ASSUMPTION`), use that type. This is authoritative for any shape that's been through the skill at least once — copy-paste preserves the prefix even when the `miro_id` is new. (When the parsed `{TYPE}-{NN}` ref_id is already in use by a different sidecar entry, fall through to the stale-prefix flag in §4.)
+1. **Bold prefix in shape content.** If the shape's content has a parseable `<strong>{TYPE}-{NNNN}</strong>` prefix and `{TYPE}` maps to a known type (`OUTCOME`, `OPP`, `SOL`, `ASSUMPTION`), use that type. This is authoritative for any shape that's been through the skill at least once — copy-paste preserves the prefix even when the `miro_id` is new. (When the parsed `{TYPE}-{NNNN}` ref_id is already in use by a different sidecar entry, fall through to the stale-prefix flag in §4.)
 2. **Canonical fill color.** A shape with no parseable prefix but a canonical fill is typed by its fill: `#cce5ff` → opportunity, `#fff3cd` → solution, `#d4edda` → assumption_test, `#ffffff` → outcome (rare for new outcomes; usually treated as ambiguous and prompted). This is the narrow color-as-signal exception to §1's "color is silently ignored" guiding principle — fill color is consulted **only as a type fallback for new shapes that lack a prefix.** Existing typed nodes (sidecar entry or parseable prefix) still ignore color; recoloring a node does nothing.
 3. **Connector neighborhood.** For a shape with neither a prefix nor a canonical fill (PM sketched a plain box and dragged a connector), infer type from the type of its tree-adjacent node, using the type graph in §2.6:
    - Adjacent to an outcome → opportunity (depth 1).
    - Adjacent to an opportunity → either a deeper opportunity or a solution; cannot distinguish without more signal. Emit a **type-ambiguous flag** (§4).
    - Adjacent to a solution → assumption_test.
 
-If two signals disagree (e.g., prefix says `SOL-04` but fill is opportunity-blue), the prefix wins silently. Color drift is below the noise threshold; do not flag this case.
+If two signals disagree (e.g., prefix says `SOL-0004` but fill is opportunity-blue), the prefix wins silently. Color drift is below the noise threshold; do not flag this case.
 
 **Position validation.** Once type is inferred, absorb checks that the shape's x sits within `opportunity_pitch / 2` (default 160 px) of the expected x for its inferred type/depth. Mismatch → **column-mismatch flag** (§4). For opportunities specifically, depth is inferred from the unique parent connector first; the expected x is `outcome_ancestor.x + outcome_to_opportunity_gap + opportunity_pitch × (inferred_depth - 1)`.
 
 **Parent inference.** The unique incoming tree-edge connector whose other endpoint is closer to root in the connector graph identifies the parent. Reachability to root is already proven (otherwise the shape wouldn't be a new-node candidate in the first place). For opportunities, this parent may be an outcome or another opportunity, per the type graph.
 
-**Proposed ref_id.** Next available number for the inferred type (`OPP-{NN}`, `SOL-{NN}`, etc.). Numbering is global per type — opportunity numbering does not reset per tier.
+**Proposed ref_id.** Next available number for the inferred type (`OPP-{NNNN}`, `SOL-{NNNN}`, etc.). Numbering is global per type — opportunity numbering does not reset per tier.
 
-Reported as: `New nodes: {temp_id} | type={type} | parent={parent_ref} | title="..." | proposed_ref={NN}`. For opportunities, also include `depth={N}`.
+Reported as: `New nodes: {temp_id} | type={type} | parent={parent_ref} | title="..." | proposed_ref={NNNN}`. For opportunities, also include `depth={N}`.
 
 **On adoption.** Accept-mode rewrites the shape content to canonical `<strong>{ref_id}</strong><br />{title}`, writes the MD file, and adds a sidecar entry (`attached: true` implicit). For new opportunities, `opportunity_depth` is recorded; if it exceeds the sidecar's `max_opportunity_depth`, the sidecar's `max_opportunity_depth` is bumped and the solution column is re-laid-out on the next render.
 
@@ -193,7 +193,7 @@ A sidecar node with `attached: false` whose current reachability check now finds
 
 ### 2.8 Opportunity tier changes
 
-When an opportunity's `parent_ref` changes type (e.g., was a direct child of OUTCOME-04, now a child of OPP-12), its `opportunity_depth` changes too. Absorb:
+When an opportunity's `parent_ref` changes type (e.g., was a direct child of OUTCOME-0004, now a child of OPP-0012), its `opportunity_depth` changes too. Absorb:
 
 - Emits a normal `Re-parented:` entry in `## Structural`. The depth shift is implicit in the parent change; do not surface it separately.
 - On accept: recompute `opportunity_depth = parent.opportunity_depth + 1` (or `1` if the new parent is an outcome). Propagate to all descendants — every opportunity whose ancestor chain passes through the moved node has its `opportunity_depth` recomputed.
@@ -212,7 +212,7 @@ Both `expected-diff.md` (written before a board edit) and `actual-diff.md` (emit
 ## Structural
 - Re-parented: {ref_id}: {old_parent_ref} → {new_parent_ref}
 - Reattached: {ref_id} (was detached on {date}; now under {new_parent_ref})
-- New nodes: {temp_id} | type={type} | parent={parent_ref} | title="..." | proposed_ref={NN} [| depth={N} when type=opportunity]
+- New nodes: {temp_id} | type={type} | parent={parent_ref} | title="..." | proposed_ref={NNNN} [| depth={N} when type=opportunity]
 - Deleted nodes: {ref_id} (was under {parent_ref}; descendants in sidecar: [list or "none"])
 - New connectors (non-tree): {miro_id_a} ↔ {miro_id_b} — {same-column | skip-level | reverse}
 
@@ -243,7 +243,7 @@ Flags exist only for ambiguities the skill cannot resolve safely. Style drift ne
 - **Stale prefix:** a *new* shape (`miro_id` not in sidecar) carries a `<strong>{ref_id}</strong>` prefix where `{ref_id}` is already used by a different node in the sidecar. Almost always a copy-paste leftover. Resolution loop strips the prefix and proceeds as a normal new node.
 - **Content malformed:** the canonical pattern in §2.1 step 3 cannot be matched at all (bold tag missing, no `<br>`, multiple `<br>`s, content reordered such that ref_id and title aren't separable).
 - **Non-tree connector violation:** a connector is reverse-direction or skip-level.
-- **Column mismatch:** a node appears at a column that doesn't match its inferred type from the connector graph (e.g., a fresh shape connected only to OUTCOME-04 — type=OPP — but visually placed at x=530 near the OUTCOME column). Absorb infers type from connectors, not from x-position or color; a position-vs-type mismatch is the *signal*, not silently corrected. This is the most common new-shape flag in practice — PMs sketch in roughly the right area without snapping precisely to a column.
+- **Column mismatch:** a node appears at a column that doesn't match its inferred type from the connector graph (e.g., a fresh shape connected only to OUTCOME-0004 — type=OPP — but visually placed at x=530 near the OUTCOME column). Absorb infers type from connectors, not from x-position or color; a position-vs-type mismatch is the *signal*, not silently corrected. This is the most common new-shape flag in practice — PMs sketch in roughly the right area without snapping precisely to a column.
 - **Ref collision:** two new shapes propose the same `ref_id`.
 - **Possible duplicate:** a title on a new shape is identical (after normalization) to a recently-deleted node's title. Ask the PM.
 - **Type ambiguous:** a new shape's type cannot be resolved from prefix, canonical fill, or connector neighborhood — typically a plain box connected only to another opportunity (could be a deeper opportunity or a solution). Ask the PM which type it is.
@@ -277,13 +277,13 @@ Board writes go entirely through the official MCP's `mcp__miro-official__layout_
 | **Column mismatch** (node's x-column doesn't match its connector-inferred type) | "Which is right — the connector parent or the visual position?" | Fix the position: `layout_update` to move the shape to the correct column's x. Fix the parent: rewire the connector via `layout_update` — edit the `CONNECTOR` line's `from`/`to` (or remove and re-add). |
 | **Ref collision** (two new shapes propose the same ref_id) | Auto-resolved by absorb (assigns the next available number to the second). PM is informed, not asked, unless one shape's title duplicates a recently-deleted ref_id (then it's "Possible duplicate"). | `layout_update` the content of the second shape to carry the assigned ref_id once the human accepts. |
 | **Possible duplicate** (new shape's title matches a recently-deleted node) | "Is this resurrecting `{old_ref}` ({old_title}), or is it genuinely new?" | Resurrect: restore the archived MD file, reuse the old ref_id, `layout_update` content. Genuine new: assign the next available ref_id. |
-| **Type ambiguous** (plain-box new shape connected only to an opportunity) | "Is `{temp_id}` a deeper opportunity under `{adjacent_ref}`, or a solution attached to it?" | Opportunity: `layout_update` to set fill `#cce5ff` and content to `<strong>OPP-{NN}</strong><br />{title}`. Solution: fill `#fff3cd`, content `<strong>SOL-{NN}</strong><br />{title}`. Position is corrected on the next refresh. |
+| **Type ambiguous** (plain-box new shape connected only to an opportunity) | "Is `{temp_id}` a deeper opportunity under `{adjacent_ref}`, or a solution attached to it?" | Opportunity: `layout_update` to set fill `#cce5ff` and content to `<strong>OPP-{NNNN}</strong><br />{title}`. Solution: fill `#fff3cd`, content `<strong>SOL-{NNNN}</strong><br />{title}`. Position is corrected on the next refresh. |
 | **Solution on non-leaf opportunity** (SOL connected to an OPP that has child OPPs) | "`{sol_ref}` is on `{opp_ref}`, which has child opportunities `{children}`. Re-parent under one of the children, collapse `{opp_ref}`'s sub-tree, or keep as-is (override)?" | Re-parent: `layout_update` to remove the mid-tier edge's `CONNECTOR` line and add a `CONNECTOR` to the chosen leaf child. Collapse sub-tree: delete the child opportunities (cascading through the resolution loop). Override: leave as-is and record the override on the SOL's MD frontmatter so future absorbs don't re-flag. |
 
 ### Behavioral rules
 
 - **Always ask before fixing.** The skill never silently rewrites the board, even when the fix looks obvious. Ambiguity that absorb couldn't resolve is by definition something the PM should see.
-- **Flag placeholders for new shapes.** The resolution-table prompts above use `{sol_ref}`-style placeholders, but a new shape has no canonical ref_id yet. Substitute `proposed_ref={TYPE}-{NN}` (e.g., `proposed_ref=SOL-10`) when emitting flag text for a new shape; use the miro_id when even the proposed_ref isn't determined.
+- **Flag placeholders for new shapes.** The resolution-table prompts above use `{sol_ref}`-style placeholders, but a new shape has no canonical ref_id yet. Substitute `proposed_ref={TYPE}-{NNNN}` (e.g., `proposed_ref=SOL-0010`) when emitting flag text for a new shape; use the miro_id when even the proposed_ref isn't determined.
 - **One flag at a time.** The skill walks flags sequentially, applying each fix before moving on. This keeps the board state consistent during the resolution loop.
 - **Re-read after each fix.** Once a fix is applied, the skill re-reads the relevant part of the board via `mcp__miro-official__layout_read` — which returns shapes and `CONNECTOR` lines together — to confirm the fix took, and then proceeds. If the re-read produces a new flag, the loop continues.
 - **No board edits in propose-only mode.** Resolution-loop fixes only run when the PM has invoked accept-mode (or an explicit "fix the board" subcommand).

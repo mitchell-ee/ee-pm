@@ -76,7 +76,7 @@ Every OST board carries a title `text` item so the board is self-identifying —
   <strong>{REF-ID}</strong><br>{title}
   ```
 
-  Example: `<strong>OPP-01</strong><br>ETA trust — the promise time drifts`
+  Example: `<strong>OPP-0001</strong><br>ETA trust — the promise time drifts`
 
 - This applies to **every node type** (root, outcome, opportunity, solution, assumption test) and **every mode** (create, refresh, absorb, promote-from-inbox). Miro's `content` field accepts inline HTML; `<strong>` and `<br>` are the only tags needed.
 
@@ -114,15 +114,15 @@ Solution column (9 solutions, ordered):
 
 | Ref | Parent | y | Pitch from previous | Reason |
 |---|---|---|---|---|
-| SOL-01 | OPP-01 | 0 | — | start |
-| SOL-02 | OPP-01 | 140 | +140 | same parent (OPP-01) |
-| SOL-03 | OPP-02 | 420 | +280 | different parent |
-| SOL-09 | OPP-02 | 560 | +140 | same parent (OPP-02) |
-| SOL-04 | OPP-05 | 1050 | +490 | different parent — but OPP column needs ≥280 from OPP-04, which forces SOL-04 down past the SOL rule's 280 minimum |
-| SOL-05 | OPP-08 | 1610 | +560 | subtree-driven: OPP-7 needs ≥280 from OPP-8 |
-| SOL-06 | OPP-10 | 1890 | +280 | different parent |
-| SOL-07 | OPP-13 | 2450 | +560 | subtree-driven from OPP column |
-| SOL-08 | OPP-17 | 3290 | +840 | subtree-driven |
+| SOL-0001 | OPP-0001 | 0 | — | start |
+| SOL-0002 | OPP-0001 | 140 | +140 | same parent (OPP-0001) |
+| SOL-0003 | OPP-0002 | 420 | +280 | different parent |
+| SOL-0009 | OPP-0002 | 560 | +140 | same parent (OPP-0002) |
+| SOL-0004 | OPP-0005 | 1050 | +490 | different parent — but OPP column needs ≥280 from OPP-0004, which forces SOL-0004 down past the SOL rule's 280 minimum |
+| SOL-0005 | OPP-0008 | 1610 | +560 | subtree-driven: OPP-0007 needs ≥280 from OPP-0008 |
+| SOL-0006 | OPP-0010 | 1890 | +280 | different parent |
+| SOL-0007 | OPP-0013 | 2450 | +560 | subtree-driven from OPP column |
+| SOL-0008 | OPP-0017 | 3290 | +840 | subtree-driven |
 
 The 280 minimum at the SOL column is the floor; subtree-spread can push pairs further apart. The 140 minimum within the same parent is also a floor — if there's room to spread, the parent's children stay tight at 140.
 
@@ -174,10 +174,10 @@ After every render, write the full layout to `product/opportunity-solution-tree/
     "title": { "miro_id": "...", "type": "text", "font_size": 96, "bold": true, "x": 0, "y": -360 }
   },
   "nodes": [
-    { "ref_id": "OUTCOME-01", "type": "outcome", "miro_id": "...", "parent_ref": "PRODUCT-CRUMBS", "x": 480, "y": 0 },
-    { "ref_id": "OPP-01", "type": "opportunity", "miro_id": "...", "parent_ref": "OUTCOME-01", "x": 960, "y": 0, "opportunity_depth": 1 },
-    { "ref_id": "OPP-12", "type": "opportunity", "miro_id": "...", "parent_ref": "OPP-01", "x": 1280, "y": 0, "opportunity_depth": 2 },
-    { "ref_id": "SOL-01", "type": "solution", "miro_id": "...", "parent_ref": "OPP-12", "x": 1760, "y": 0 }
+    { "ref_id": "OUTCOME-0001", "type": "outcome", "miro_id": "...", "parent_ref": "PRODUCT-CRUMBS", "x": 480, "y": 0 },
+    { "ref_id": "OPP-0001", "type": "opportunity", "miro_id": "...", "parent_ref": "OUTCOME-0001", "x": 960, "y": 0, "opportunity_depth": 1 },
+    { "ref_id": "OPP-0012", "type": "opportunity", "miro_id": "...", "parent_ref": "OPP-0001", "x": 1280, "y": 0, "opportunity_depth": 2 },
+    { "ref_id": "SOL-0001", "type": "solution", "miro_id": "...", "parent_ref": "OPP-0012", "x": 1760, "y": 0 }
   ]
 }
 ```
@@ -258,9 +258,9 @@ lines emitted last with `start_cap=none end_cap=none` (no arrowheads):
 
 ```
 # Nodes first — each SHAPE aliased so connectors below can reference it.
-root SHAPE x=0 y=0 w=200 h=90 type=round_rectangle fill=#F5D95B align=center valign=middle "<strong>OUTCOME-01</strong><br>Eater trust and retention"
-o1 SHAPE x=350 y=-120 w=200 h=90 type=round_rectangle fill=#8FD14F align=center valign=middle "<strong>OPP-01</strong><br>ETA trust — the promise time drifts"
-o2 SHAPE x=350 y=120 w=200 h=90 type=round_rectangle fill=#8FD14F align=center valign=middle "<strong>OPP-02</strong><br>Order correctness and fair dispute resolution"
+root SHAPE x=0 y=0 w=200 h=90 type=round_rectangle fill=#F5D95B align=center valign=middle "<strong>OUTCOME-0001</strong><br>Eater trust and retention"
+o1 SHAPE x=350 y=-120 w=200 h=90 type=round_rectangle fill=#8FD14F align=center valign=middle "<strong>OPP-0001</strong><br>ETA trust — the promise time drifts"
+o2 SHAPE x=350 y=120 w=200 h=90 type=round_rectangle fill=#8FD14F align=center valign=middle "<strong>OPP-0002</strong><br>Order correctness and fair dispute resolution"
 
 # Connectors last — reference the aliases above; curved, thin, no arrowheads.
 c1 CONNECTOR from=root to=o1 shape=curved stroke_color=#888888 start_cap=none end_cap=none

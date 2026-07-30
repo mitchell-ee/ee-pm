@@ -18,7 +18,7 @@ Add a new story to the backlog.
 **Workflow:**
 1. Read current backlog: `product/backlog.md`
 2. Validate story has required fields:
-   - Story ID (STORY-XXX format)
+   - Story ID (STORY-NNNN format)
    - Title
    - Description
    - Priority (P0, P1, P2, P3)
@@ -91,7 +91,7 @@ Change priority of existing story.
 ## Quality Checklist
 
 ### Story Addition
-- [ ] Story ID follows STORY-XXX format
+- [ ] Story ID follows STORY-NNNN format
 - [ ] No duplicate story IDs
 - [ ] Priority is valid (P0, P1, P2, P3)
 - [ ] Story title is clear and concise
