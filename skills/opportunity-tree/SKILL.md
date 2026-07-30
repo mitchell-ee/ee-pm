@@ -54,12 +54,19 @@ product/opportunity-solution-tree/
     opportunity-{NNNN}-{slug}.md
   solutions/
     solution-{NNNN}-{slug}.md
-  assumptions/
-    assumption-{NNNN}-{slug}.md
   inbox/                      # staging for per-iteration synthesis output
     {iteration-slug}-candidates.md
   miro-metadata.json          # sidecar, same pattern as story-map
+
+product/assumptions/          # NOT under the tree — see below
+  assumption-{NNNN}-{slug}.md
 ```
+
+**Assumptions are a sibling of the tree, not part of it** (moved in 0.6.0). They hang off a
+`Solution` via `Parent Solution:`, but they are testable objects in their own right and may be
+referenced from a story map as readily as from the OST. A team may also de-risk a solution
+without having built a tree at all — see `assumption-map`, "A solution is required; an OST is
+not."
 
 The tree is **not** per-iteration. Iteration discovery contributes evidence and candidates (written to `inbox/`) and the `promote-from-inbox` mode absorbs them into the canonical tree.
 
@@ -117,9 +124,9 @@ product/platform it serves}
 - ASSUMPTION-{NNNN}: {one-line description}   # populated after the Status: Committed flip materializes assumption files
 ```
 
-**Status lifecycle and the commitment trigger.** A solution lands on the OST at `Status: Proposed` (created when the PM promotes a candidate from synthesis or branches via OST absorb). Flipping to `Status: Committed` is the team's commitment to pursue. **That flip is also the materialization trigger for assumption files**: read the inline assumptions for this solution in `{shaped-by-iteration}/synthesis.md` (`### SOL-candidate-*` block) and write each one as `product/opportunity-solution-tree/assumptions/assumption-{NNNN}-{slug}.md`, then list them under `## Tests` here. After materialization, the next `/assumption-map create from SOL-{NNNN}` renders the 2×2 cleanly. Other transitions (`Testing` → `Shipped` / `Rejected`) do not materialize new files; see `assumption-map` SKILL for downstream behavior.
+**Status lifecycle and the commitment trigger.** A solution lands on the OST at `Status: Proposed` (created when the PM promotes a candidate from synthesis or branches via OST absorb). Flipping to `Status: Committed` is the team's commitment to pursue. **That flip is also the materialization trigger for assumption files**: read the inline assumptions for this solution in `{shaped-by-iteration}/synthesis.md` (`### SOL-candidate-*` block) and write each one as `product/assumptions/assumption-{NNNN}-{slug}.md`, then list them under `## Tests` here. After materialization, the next `/assumption-map create from SOL-{NNNN}` renders the 2×2 cleanly. Other transitions (`Testing` → `Shipped` / `Rejected`) do not materialize new files; see `assumption-map` SKILL for downstream behavior.
 
-**assumption-{NNNN}-{slug}.md** (in `assumptions/`)
+**assumption-{NNNN}-{slug}.md** (in `product/assumptions/`, alongside the tree — not inside it)
 ```
 # Assumption Test: {title}
 

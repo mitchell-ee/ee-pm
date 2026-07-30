@@ -171,7 +171,7 @@ PROPOSED NEW ASSUMPTION
   Hypothesis ("If we ___, then ___") and Method when accepting?
 ```
 
-Ask: **accept / edit / reject**. On accept, create `product/opportunity-solution-tree/assumptions/assumption-{NNNN}-{slug}.md` from the SKILL.md file template and add the sticky to the sidecar's `stickies` block.
+Ask: **accept / edit / reject**. On accept, create `product/assumptions/assumption-{NNNN}-{slug}.md` from the SKILL.md file template and add the sticky to the sidecar's `stickies` block.
 
 ### Task E — Missing sticky → deletion warning (phase-3)
 
