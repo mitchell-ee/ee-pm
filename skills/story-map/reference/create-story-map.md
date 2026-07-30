@@ -6,20 +6,20 @@ The map is Patton-narrative-scoped (one map per iteration, multi-actor narrative
 
 ## Input files
 
-Read from `product/iterations/{iteration-slug}/` (plus the product-level persona legend):
+Read from `product/iterations/{iteration-slug}/` (plus the product-level persona files):
 
 1. **`README.md`** — provides the iteration title (top `# ...` heading) only. The README holds no map structure — it is orientation prose, like the OST and assumption-map READMEs.
 2. **`story-maps/activities/activity-{NNNN}-{slug}.md`** — the backbone. One file per activity with an `ID` (e.g. `ACTIVITY-01`) and `Order` header; the `#` title (after the `Activity:` prefix) is the header text rendered on the dark_blue sticky. See `SKILL.md` "Activity files".
-3. **`product/personas.md`** — the `## Legend` table (slug · emoji · name) used to build the persona legend rectangle and resolve emoji prefixes.
+3. **`product/personas/*.md`** — one file per persona; `slug`, `name`, and optional `emoji` from each one's frontmatter build the persona legend rectangle and resolve emoji prefixes.
 4. **`stories/story-{NNNN}-{slug}.md`** — all story files. Each contains header metadata:
    - `Story ID`, `Priority`, `Status`, `Personas`, `Labels`, optional `Type`
 5. **Optional** `assumptions.md` (or whatever the iteration uses) — surfaces assumption items to render as `light_green` rounded rectangles placed *beside the story each assumption questions* (per the 2026-05-14 decision — no separate discovery band). If absent, skip. Opportunities on the story map are **dormant**: even if a source file exists, nothing renders today (opportunities relate to outcomes, which the OST owns, not to activities).
 
 ## Step 1: Parse structural sources
 
-### Personas (from `product/personas.md` `## Legend`)
+### Personas (from `product/personas/*.md`)
 
-Build a map: `persona-slug → {emoji, name}`. Legend row order preserved for legend display. If a story names a persona with no legend row, warn and offer to append one before rendering.
+Build a map: `persona-slug → {emoji, name}`, reading each file's frontmatter. Sort by `slug` so legend display order is stable across runs. A persona with no `emoji` renders without a prefix. If a story names a persona slug with no matching file, warn and offer to create `product/personas/{slug}.md` before rendering.
 
 ### Backbone (from `story-maps/activities/*.md`)
 
@@ -540,7 +540,7 @@ The sidecar is a **pure index**: every entry references its `.md` home by
 ref-id (`activity_ref` → `activities/*.md`, `story_id` → `stories/*.md`),
 and no authoritative content is duplicated — there is no standalone
 `backbone` or `personas` block (backbone order lives in the activity
-files; the persona legend lives in `product/personas.md`).
+files; the persona legend is derived from `product/personas/*.md`).
 Everything position-shaped in the sidecar is rendered state, re-derived
 from board geometry on absorb.
 
@@ -577,7 +577,8 @@ Sidecar: product/iterations/{iteration-slug}/story-maps/miro-metadata.json
 
 - Miro MCP unavailable → tell the user which MCP to install, stop cleanly.
 - No `story-maps/activities/` files → warn, offer to draft them from the stories' inferred activities.
-- `product/personas.md` missing a `## Legend` table → warn, offer to draft from the stories' personas.
+- `product/personas/` missing or empty → warn, offer to draft one file per persona from the stories' `Personas:` fields.
+- Story names a persona slug with no `product/personas/{slug}.md` → warn, offer to create it.
 - Story file with no `Story ID` header → skip with warning, list skipped files at end.
 - Story with no `Personas:` field → warn and prompt to assign before render.
 - Activity name on story can't be matched to backbone → place in best-guess column, list mismatches at end.

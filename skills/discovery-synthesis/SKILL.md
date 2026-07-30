@@ -68,9 +68,11 @@ If no materials found, inform the user and stop.
 Read for product background:
 - `product/product-strategy.md`
 - `product/product-as-built.md`
-- `product/personas.md`
+- `product/personas/*.md`
 - `product/glossary.md`
-- `product/principles.md`
+- `product/design-principles.md`
+
+Any of these may be absent — read what exists and carry on.
 
 ### 6. Gather discovery materials
 

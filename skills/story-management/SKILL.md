@@ -37,7 +37,7 @@ Create a new user story from scratch or from a feature description.
    - **Human Developer**: Detailed, explicit requirements
 
 4. **Gather Story Details**
-   - Who is the user? (Use general personas from `product/personas.md`)
+   - Who is the user? (Use general personas from `product/personas/*.md`)
    - What do they want to do?
    - Why? (business value, user benefit)
    - Which iteration and chosen solution does it trace to?
@@ -203,7 +203,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
    - **No matching story exists** → create a stub for it.
    - **A matching story exists** → (finalize path only) update it to align (re-derive AC, priority, traceability) rather than duplicating. **Never silently overwrite** — propose the diff before applying (consistent with Mode 2's "propose changes before making them"). In seed there are no existing stories to reconcile against — every capability is a new stub.
    - Apply the granularity setting **to the stub list** — granularity decides how many stubs, not how verbose each one is.
-   - Use "As a [persona], I want [action], so that [benefit]" framing for the stub's `intent` — general personas matching `product/personas.md`.
+   - Use "As a [persona], I want [action], so that [benefit]" framing for the stub's `intent` — general personas matching `product/personas/*.md`.
    - Maintain traceability: every stub records its solution + opportunity + source theme (and a story-map activity once a map exists) in `source_refs`.
 
    Each stub carries exactly the fields the `story-writer` invocation contract names (`agents/story-writer.md`): `story_id`, `slug`, `title`, `personas`, `activity`, `priority`, `type`, `epic`, `intent`, `source_refs`. A stub is cheap — one to two lines of intent plus metadata — which is why the whole stub list fits in the main thread without bloat.

@@ -301,7 +301,7 @@ Structural diff from read-board-state:
 Relevant story files (for context):
 {content of nearby stories in the same activity column and swim lane}
 
-Persona legend (product/personas.md ## Legend) and backbone
+Persona legend (derived from product/personas/*.md) and backbone
 activity files (story-maps/activities/*.md, sorted by Order):
 {verbatim}
 

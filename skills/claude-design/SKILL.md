@@ -53,8 +53,8 @@ A prototype almost always extends or sits adjacent to a screen the product alrea
 1. **List `product/screens/`** (names only) to see the available baseline screen specs.
 2. **Auto-match the baseline / adjacent screen** for this feature from the target story + persona, matching feature keywords and persona against screen filenames/titles. E.g. a handoff-confirmation feature for a given persona (STORY-0019) matches `{persona}-pin-entry-in-app.md`; an order-status feature for that persona matches `{persona}-order-status.md`.
 3. **Read only the matched screen spec** (not all of them) to populate the brief's baseline section — what exists today and what stays unchanged.
-4. **Read the relevant product spec(s) only if the feature touches them** — `product/principles.md`, `product/product-as-built.md` — for constraints and existing behavior. Do not read all of `product/`.
-5. **Read the persona** from `product/personas.md` (the matched persona's entry).
+4. **Read the relevant product spec(s) only if the feature touches them** — `product/design-principles.md`, `product/product-as-built.md` — for constraints and existing behavior. Do not read all of `product/`.
+5. **Read the persona** from `product/personas/{slug}.md` — that one file, not the whole directory.
 6. **Decide the relationship and record it in frontmatter:** use `baseline_screen:` when the prototype *extends* an existing screen (render the full screen, only the new section is new work), or `adjacent_existing_screen:` when it's a *new* screen and the existing one is navigation context. Point at the discovered `product/screens/{file}.md`.
 7. **Ask the PM only when** two screens are equally plausible baselines, or when no existing screen fits the feature at all — otherwise proceed with the match.
 
@@ -65,7 +65,7 @@ A prototype almost always extends or sits adjacent to a screen the product alrea
 3. **Paste the brief** the skill produced. The brief includes:
    - Frontmatter: `baseline_screen:` or `adjacent_existing_screen:` pointing at the discovered `product/screens/{file}.md` (from Step 0), plus `stories`, `solution`, `persona`, `surface`.
    - Feature summary (what it does, who uses it, the surface)
-   - Persona context (relevant excerpts from `product/personas.md`)
+   - Persona context (relevant excerpts from `product/personas/{slug}.md`)
    - A **baseline section** describing the matched existing screen — what's there today and what stays unchanged — so CD renders the new work in context rather than redesigning the whole screen.
    - Per-screen specs (the existing markdown mockups in `prototypes/`)
    - Acceptance criteria pulled from the relevant story files
@@ -124,7 +124,7 @@ Recommended sections:
 ```
 # {Screen name}
 
-**Persona**: {persona slug from product/personas.md}
+**Persona**: {persona slug — resolves to product/personas/{slug}.md}
 **Surface**: web app | mobile web | native | marketing page
 **Solution shape**: {SOL-NNNN reference}
 **Stories served**: {STORY-NNNN, STORY-NNNN}

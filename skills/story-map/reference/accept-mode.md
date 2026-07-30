@@ -108,8 +108,8 @@ sidecar lives at
 `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`.
 Activity files live at
 `product/iterations/{iteration-slug}/story-maps/activities/activity-{NNNN}-{slug}.md`;
-the persona legend is the `## Legend` table in
-`product/personas.md` (the iteration README holds no map
+the persona legend is derived from
+`product/personas/*.md` (the iteration README holds no map
 structure).
 
 ### 3.1 Structural-only proposals — Priority and Type header edits
@@ -176,8 +176,10 @@ or recolored the sticky — the board is already canonical).
     color. Per `templates/story.md`, **omit this line entirely when the
     mapping is `Regular`** (the default); write it only for a
     non-Regular type.
-  - `**Personas**: {persona-slug}` — resolved from the emoji prefix via
-    the `product/personas.md` `## Legend` table.
+  - `**Personas**: {persona-slug}` — resolved from the emoji prefix by
+    reverse-mapping `emoji → slug` over `product/personas/*.md`. If two
+    persona files share an `emoji`, the prefix is ambiguous: ask the PM
+    which persona rather than guessing.
   - `**Status**: Draft`
   - `**Labels**: {iteration-slug}` — area labels are theme-based and not
     mechanically derivable; leave them for the PM.
@@ -297,8 +299,8 @@ the skill must stop and ask the PM how to proceed. Examples:
   entry (drift between repo and sidecar).
 - Two sidecar story entries share a `miro_id` or a `story_id` (data
   corruption — `SKILL.md` error handling: "refuse to sync").
-- An orphan sticky's emoji prefix matches no persona in the
-  `product/personas.md` `## Legend` table.
+- An orphan sticky's emoji prefix matches no persona file's `emoji` in
+  `product/personas/*.md` — or matches more than one.
 - A `recolored` sticky's fill color is not in the `create-story-map.md`
   type-color table.
 

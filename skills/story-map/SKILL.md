@@ -21,7 +21,7 @@ If unsure which mode, ask: "Are we pushing repo → board, pulling board → rep
 ## Required tools
 
 - Official Miro MCP at `mcp.miro.com`: `mcp__miro-official__layout_get_dsl` (load the DSL grammar **once** per run, then reuse — a prerequisite of `layout_create`), `mcp__miro-official__layout_create` (build the board + items), `mcp__miro-official__layout_read` (round-trip read for absorb), `mcp__miro-official__layout_update` (refresh-mode mutations), `mcp__miro-official__context_get` (board metadata). Story maps carry no connectors, so none is needed (release horizons are thin rectangles, not edges) — though the DSL does have a first-class `CONNECTOR` type available if a future map variant wants one.
-- Filesystem access to the iteration's `stories/` and `story-maps/activities/` directories, the product-level persona legend at `product/personas.md`, and the iteration's sidecar at `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`.
+- Filesystem access to the iteration's `stories/` and `story-maps/activities/` directories, the product-level persona files at `product/personas/*.md`, and the iteration's sidecar at `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`.
 
 **Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`story-shaping`) spawns the worker, the worker loads this skill. The official MCP renders stickies, shapes (including rounded rectangles), and text — the primitives this spec uses. See the canonical write forms in `reference/create-story-map.md` and `reference/read-board-state.md` (explicit defaults, matching-color borders) so create output is diff-stable against `layout_read`.
 
@@ -71,7 +71,7 @@ Two layers, distinguishable by shape:
 
 Activity headers always **dark_blue**. Persona legend is a `#f5f5f5` rectangle shape (HTML content), not a frame.
 
-**Persona indication:** stories and activity headers carry an emoji prefix drawn from the product-level persona legend (`product/personas.md` `## Legend`). Example: `🍳 Restaurant confirms item count at pack-ready`. The legend on the board maps emoji → persona name.
+**Persona indication:** stories and activity headers carry an emoji prefix drawn from the persona files' `emoji` key (`product/personas/{slug}.md`). Example: `🍳 Restaurant confirms item count at pack-ready`. The legend on the board maps emoji → persona name.
 
 A story or activity may name **more than one persona** (the `Personas:` field is comma-separated). Render one emoji per persona, space-separated, in the order written — primary actor first. This is how Patton's handoffs show up: a multi-persona story is a moment two actors act together (e.g. `🛵 🍽️ STORY-0008 / Eater enters handoff PIN`, the courier-to-eater PIN exchange), and a multi-persona activity header marks a co-owned backbone step. Where adjacent activity headers carry different emoji, the reader sees the baton pass along the spine. Keep the visual to ~3 emoji; an activity that genuinely needs more is usually a hidden handoff that wants splitting into separate activity files — surface that to the PM rather than rendering a crowded header.
 
@@ -83,7 +83,7 @@ A story or activity may name **more than one persona** (the `Personas:` field is
 
 Push repo → Miro. Follow `reference/create-story-map.md` end-to-end.
 
-**Inputs:** iteration slug. All stories under `product/iterations/{iteration-slug}/stories/`, the backbone from `story-maps/activities/*.md` (one file per activity, ordered by `Order`), the persona legend from `product/personas.md` `## Legend`, plus an optional `assumptions.md` file (or whatever the iteration uses). An `opportunities.md` file, if present, is ignored — opportunities on the story map are dormant.
+**Inputs:** iteration slug. All stories under `product/iterations/{iteration-slug}/stories/`, the backbone from `story-maps/activities/*.md` (one file per activity, ordered by `Order`), the persona legend derived from `product/personas/*.md`, plus an optional `assumptions.md` file (or whatever the iteration uses). An `opportunities.md` file, if present, is ignored — opportunities on the story map are dormant.
 
 **Outputs:**
 - A new Miro board named per the convention above with the iteration title (top-edge landmark), activity headers, story stickies (persona-prefixed), assumption rounded rectangles placed beside their related stories, NOW/NEXT/LATER release horizons + swim-lane labels, and a persona legend rectangle (right-edge landmark).
@@ -159,7 +159,7 @@ Header metadata (parsed by this skill):
 
 `Type` drives the sticky fill color (see `reference/create-story-map.md` Step 1's color table). It is optional — absent means Regular. Absorb mode's `recolored` state proposes adding or updating this line when a human changes a sticky's color on the board.
 
-The skill renders persona as an emoji prefix — one emoji per persona named in the comma-separated `Personas:` field, in the order written. Persona-emoji mapping is recorded in the product-level legend (`product/personas.md` `## Legend`) and reproduced on the board's persona legend rectangle.
+The skill renders persona as an emoji prefix — one emoji per persona named in the comma-separated `Personas:` field, in the order written. Persona-emoji mapping comes from each persona file's `emoji` frontmatter key (`product/personas/{slug}.md`) and is reproduced on the board's persona legend rectangle.
 
 Body follows with user story, acceptance criteria, design references, etc. See `templates/story.md`.
 
@@ -186,26 +186,40 @@ Co-located under `story-maps/` (not the iteration root) because the backbone is 
 
 ## Persona legend
 
-The persona legend (slug · emoji · display name) is product-level, not per-iteration. The skill reads the `## Legend` table in `product/personas.md`:
+The persona legend (slug · emoji · display name) is product-level, not per-iteration, and is
+**derived** — there is no legend file. Read `product/personas/*.md` and take `slug`, `emoji`, and
+`name` from each one's frontmatter:
 
+```yaml
+---
+type: Persona
+slug: courier
+name: Delivery courier
+emoji: 🛵          # optional; board rendering only
+---
 ```
-## Legend
 
-| slug | emoji | name |
-|---|---|---|
-| restaurant | 🍳 | Restaurant pack-out staff |
-| courier | 🛵 | Delivery courier |
-| eater | 🍽️ | Person receiving the order |
-| cx | 🎧 | Customer experience / dispute handler |
-```
+Sort by `slug` so the rendered legend is stable across runs. A persona file with no `emoji` gets
+no prefix — render its stories without one rather than substituting a placeholder.
 
-Persona is a **story attribute** (the `Personas:` field on each story `.md`), not a board object — there are no persona `.md` files. The skill reads the legend at create/refresh time to build the persona legend rectangle and resolve emoji prefixes. If a story names a persona missing from the legend, warn and offer to append a row to `product/personas.md` — new personas surfacing mid-story-mapping are possible but rare.
+**Changed in 0.6.0: one file per persona, and the `## Legend` table is gone.** It used to live in
+`product/personas.md`, and this skill was the only thing that read it. That table was a **second
+source of truth**: it had to be kept in step with personas by hand, and detecting staleness needed
+machinery that existed *only because the table existed*. With `emoji` on the persona file, the
+failure mode becomes "persona file missing" — real, actionable, and checkable — instead of "legend
+is out of date." A derived view is fine; a stored second copy is not.
+
+Persona is still a **story attribute** (the `Personas:` field on each story `.md`) — a story names
+personas by slug, and the slug resolves to `product/personas/{slug}.md`. The skill reads those
+files at create/refresh time to build the persona legend rectangle and resolve emoji prefixes. If
+a story names a persona with no matching file, warn and offer to create
+`product/personas/{slug}.md` — new personas surfacing mid-story-mapping are possible but rare.
 
 ## Sidecar format
 
 One sidecar per iteration at `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`. The sidecar is a **pure index** — board identity, layout constants, bounds, and per-object entries that reference `.md` files by ref-id, same shape as the OST and assumption-map sidecars. It stores Miro item IDs for every board element: title, activity headers (each with its `activity_ref` → `activities/*.md`, plus rendered `span_left` / `span_width`), release horizons, swim-lane labels, persona legend, shape legend, each story sticky (`story_id` → `stories/*.md`, plus rendered position / lane / color and the `sticky_short_title`, a render-time choice that is not reverse-derivable), and each assumption (with its `nearest_story`). The `opportunities` array stays empty — opportunities are dormant. Also captures the layout band table, the `subcolumn_pitch` / `rows_per_lane` grid constants, and the landmark-relative `bounds` block so absorb mode can read the canonical map area without hard-coded coordinates.
 
-No authoritative *content* is duplicated into the sidecar: backbone order and activity names live in the activity files; the persona legend lives in `product/personas.md`. (Earlier sidecars carried standalone `backbone` / `personas` blocks — those are gone; anything position- or render-shaped in the sidecar is derived state, re-derivable from board geometry on absorb.)
+No authoritative *content* is duplicated into the sidecar: backbone order and activity names live in the activity files; the persona legend is derived from `product/personas/*.md`. (Earlier sidecars carried standalone `backbone` / `personas` blocks — those are gone; anything position- or render-shaped in the sidecar is derived state, re-derivable from board geometry on absorb.)
 
 ## Activity × release layout (canonical)
 
@@ -224,8 +238,9 @@ See `reference/create-story-map.md` for the full coordinate specification. Summa
 - Story file with no Story ID header → skip with warning, list skipped files at end.
 - Story with no `Personas:` field → warn and ask the PM to assign at least one persona before render.
 - No `story-maps/activities/` files → warn and offer to draft them from the stories' inferred activities.
-- `product/personas.md` with no `## Legend` table → warn and stop; offer to draft one from the stories' personas.
-- Story names a persona missing from the legend → warn and offer to append a row to `product/personas.md`.
+- No `product/personas/` directory, or it is empty → warn and stop; offer to draft one file per persona from the stories' `Personas:` fields.
+- Story names a persona slug with no `product/personas/{slug}.md` → warn and offer to create that file.
+- Persona file with no `emoji` → render its stories with no prefix; do not substitute a placeholder.
 - Sidecar missing but board referenced → offer to rebuild the sidecar by matching sticky content to story IDs.
 - Two stories with the same ID → refuse to sync, ask the user to resolve.
 
