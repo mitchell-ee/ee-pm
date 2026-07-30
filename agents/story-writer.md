@@ -17,26 +17,26 @@ This is the **map** half of a map-reduce: the main thread fans out one `story-wr
 Spawned by the main thread (while executing `story-shaping` → `story-management` Mode 4, seed) with **the stub fully resolved in the prompt**. The plan phase has already:
 
 - Decided the whole story set and the breakdown rationale.
-- Assigned each story its globally-unique `STORY-{NNN}` id and slug.
+- Assigned each story its globally-unique `STORY-{NNNN}` id and slug.
 - Resolved template, granularity, epic assignment (if any), and source refs.
 
 The invocation prompt must carry one stub plus the shared run parameters:
 
 ```
-story_id:    STORY-{NNN}
+story_id:    STORY-{NNNN}
 slug:        {kebab-slug}
 title:       {one-line title}
 personas:    {persona-slug}[, {persona-slug}...]
 activity:    {backbone activity this story sits under, if known}
 priority:    Critical | High | Medium | Low
 type:        Regular | Infrastructure | Spike | Quality | Risk | Bug | Refactor | Doc
-epic:        epic-{NN}-{slug} | null
+epic:        epic-{NNNN}-{slug} | null
 intent:      {1–2 line statement of what this story delivers and why}
 source_refs: {paths — solution brief, synthesis section, opportunity id}
 template:    llm-dev | human-dev
 granularity: fine | standard | coarse
 iteration:   {iteration-slug}
-out_path:    product/iterations/{iteration-slug}/stories/story-{NNN}-{slug}.md
+out_path:    product/iterations/{iteration-slug}/stories/story-{NNNN}-{slug}.md
 ```
 
 If the stub is missing required fields (`story_id`, `slug`, `title`, `intent`, `out_path`), the worker **stops and returns a `precondition-unresolved` receipt** rather than guessing. The caller fixes the stub and re-spawns.
@@ -63,7 +63,7 @@ A single structured block to the caller. The caller assembles the stories index 
 
 ```
 status:          ok | failed | precondition-unresolved
-story_id:        STORY-{NNN}
+story_id:        STORY-{NNNN}
 final_title:     {title as written — may differ slightly from the stub}
 path:            {out_path written}
 personas:        {resolved persona slugs}
@@ -80,7 +80,7 @@ On `failed` the worker returns the failure mode in `notes` and leaves the repo u
 ## What this worker does NOT do
 
 - **No breakdown planning.** Deciding how many stories exist, the split rationale, numbering, and the epic-or-flat decision all happen in the main thread's plan phase. This worker receives a settled stub.
-- **No index, no backlog.** Assembling `stories-index.md` and updating `product/context/backlog.md` are the main thread's assemble phase — one writer touching those shared files, not N workers racing on them.
+- **No index, no backlog.** Assembling `stories-index.md` and updating `product/backlog.md` are the main thread's assemble phase — one writer touching those shared files, not N workers racing on them.
 - **No splitting or merging.** One stub → one story. Coarse-stub re-planning goes back to the caller via `split_suspected`.
 - **No PM-facing approval steps.** Workers are non-interactive. The plan was approved before fan-out; anything ambiguous comes back as `precondition-unresolved`.
 - **No Miro.** Story authoring never touches a board. This worker has no Miro MCP. Rendering the map is `board-builder`'s job, sequenced by the caller after seed.

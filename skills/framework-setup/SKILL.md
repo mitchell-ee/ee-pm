@@ -14,20 +14,23 @@ This skill guides the PM through establishing core product context files through
 ### Quick Start
 Initialize minimal context to start building product (personas + glossary only)
 - Time: 15-20 minutes
-- Outputs: personas.md, glossary.md
+- Outputs: `product/personas/{slug}.md` (one per persona), `product/glossary.md`
 - Best for: Getting started quickly, validating concept
 
 ### Standard Setup
 Establish working product context with core artifacts
 - Time: 30-45 minutes
-- Outputs: personas.md, glossary.md, product-principles.md, journey-maps.md
+- Outputs: the Quick Start files + `product/design-principles.md`, `product/journey-maps/{slug}.md`
 - Best for: Most product initiatives
 
 ### Complete Setup
 Full product context with all recommended artifacts
 - Time: 60-90 minutes
-- Outputs: All standard files + competitive-analysis.md, use-cases.md, constraints.md
+- Outputs: all Standard files + `product/competitive-analysis.md`, `product/use-cases.md`, `product/constraints.md`
 - Best for: Complex products, regulated industries, competitive markets
+
+**A mode names the questions asked, not files guaranteed to appear.** If the interview
+produces nothing real for an artifact, do not create it — see §3.
 
 ## Workflow
 
@@ -41,6 +44,22 @@ For each artifact in the selected mode:
 - Who will use this product?
 - What are their goals and pain points?
 - What is their context (technical skills, environment, constraints)?
+
+One file per persona at `product/personas/{slug}.md`, with frontmatter:
+
+```yaml
+---
+type: Persona
+slug: repeat-buyer      # kebab-case; the identity other files reference
+name: Repeat buyer      # display name
+emoji: 🔁               # optional — story-map board rendering only
+---
+```
+
+The `slug` is what a story's `Personas:` field names and what every other skill resolves
+against, so pick it deliberately and don't rename it casually. `emoji` is optional; a
+persona without one simply renders no prefix. **There is no persona index or legend file** —
+any legend is derived by reading these files (see `story-map`).
 
 **Glossary**
 - What domain-specific terms matter?
@@ -73,7 +92,14 @@ For each artifact in the selected mode:
 - What regulatory or compliance requirements matter?
 
 ### 3. File Creation
-Create each file in `product/context/` using responses from the interview.
+Create each file directly under `product/` using responses from the interview — `personas/`
+and `journey-maps/` take one file per subject; the rest are single files.
+
+**Never create a file that says nothing.** If the interview produced no real content for an
+artifact, skip it and say so in the summary. An empty or placeholder file is worse than an
+absent one: it reads as answered when it isn't, and anything indexing `product/` will claim
+context exists that doesn't. Skipping is not failure — the PM can run this skill again later
+and the mode is a list of questions, not a quota.
 
 Format each file with:
 - Clear markdown structure
@@ -81,9 +107,59 @@ Format each file with:
 - Bulleted lists where appropriate
 - Examples where helpful
 
-### 4. Summary and Next Steps
+### 4. Register with context-mesh (only if it is installed)
+
+**Skip this whole step unless `context-index.md` exists at the root of the tree containing
+`product/`.** That file is what makes this a context-mesh domain. Absent, ee-pm stands alone
+and nothing here applies — do not create the index, do not mention the mesh in the summary,
+and do not treat its absence as a problem to fix. (`/ee-context-mesh:setup-mesh` is what
+creates an index; that is its job, not this skill's.)
+
+If it does exist:
+
+**a. Add the files just created to the index's canonical-context table.** One row each —
+path, what it is about, and when to load it. Add rows only for files that actually got
+written in §3; a row pointing at a file that does not exist, or at one that exists and says
+nothing, is worse than no row, because routing reads the index and will believe it.
+
+**b. Emit the backlog workflow.** Do this whether or not `product/backlog.md` exists yet — it
+is created lazily by `story-management` / `backlog-management` when the first story lands, and
+the mesh needs a routing target *before* that, not after. This is the one exception to §3's
+"never create a file that says nothing", and it holds because the workflow file is not a
+claim that context exists — it is a pointer saying where work goes, which is true from the
+moment the practice is set up.
+
+ee-pm's backlog is a repo-native queue — `product/backlog.md` *is* the record of work, not a
+pointer at Jira — so the mesh has no way to know it exists unless it is declared. Write
+`process/workflows/backlog.md`:
+
+```yaml
+---
+type: Workflow
+name: backlog
+system: repo
+external_ref: product/backlog.md
+creates: Story
+via: ee-pm:story-management
+owned-by: <team>
+---
+```
+
+and add it to the index's Workflows table. `system: repo` is legitimate, not a degenerate
+case: what the mesh requires is a *declared owner* for the queue, and a repo-native file with
+an `external_ref` naming a repo-relative path has one. Without this, a `Todo` ingested from a
+conversation has no legal `routed-to` target in this domain and cannot be placed at all.
+
+**c. Do not emit a second workflow for anything else.** Iterations, OSTs, and assumption maps
+are artifacts, not queues; only a place work is *routed to* is a `Workflow`.
+
+Ask the PM before writing to `context-index.md` — it is a shared file that other domains and
+skills read.
+
+### 5. Summary and Next Steps
 Provide the PM with:
 - List of files created with absolute paths
+- Which artifacts were skipped, and why (see §3) — so a thin run reads as deliberate
 - Suggested next steps (typically running the discovery-synthesis or interview-management skill)
 - Note about what context is now available for other workflows
 
@@ -95,8 +171,10 @@ Before completing:
 - [ ] Content is specific to the user's product (not generic)
 - [ ] Glossary terms are used consistently across all files
 - [ ] Persona details are concrete and actionable
-- [ ] Files are created in `product/context/` directory
-- [ ] No placeholder or lorem ipsum content
+- [ ] Every persona file has `type`, `slug`, and `name` frontmatter; slugs are unique
+- [ ] Files are created directly under `product/` (no `product/context/` layer)
+- [ ] No placeholder or lorem ipsum content — and no file created for an artifact the
+      interview produced nothing for
 - [ ] Summary provided with absolute file paths
 
 ## Templates
@@ -104,7 +182,7 @@ Before completing:
 Use templates from `/templates/product/` if they exist:
 - `persona-template.md`
 - `glossary-template.md`
-- `product-principles-template.md`
+- `design-principles-template.md`
 - `journey-map-template.md`
 
 If templates don't exist, create well-structured markdown files following standard product management formats.

@@ -39,7 +39,7 @@ approvals:     <inline list or path>      # PM's per-flag answers from the resol
 notes:         <one-line PM intent>
 ```
 
-The `approvals` block carries the PM's answers for every flag in the diff (e.g., "identity-break OPP-07: typo, restore canonical"; "stale-prefix temp_id_42: strip and assign next ref"). The worker treats missing answers as `precondition-unresolved` — it does not invent defaults.
+The `approvals` block carries the PM's answers for every flag in the diff (e.g., "identity-break OPP-0007: typo, restore canonical"; "stale-prefix temp_id_42: strip and assign next ref"). The worker treats missing answers as `precondition-unresolved` — it does not invent defaults.
 
 ## Preflight: confirm Miro auth before writing
 

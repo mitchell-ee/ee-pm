@@ -113,7 +113,7 @@ handoff:
   # Include only fields relevant to this seam — see "Per-seam contents" below.
   artifacts:
     synthesis_path:           product/iterations/<slug>/synthesis.md
-    inbox_candidates_path:    product/context/opportunity-solution-tree/inbox/<slug>.md
+    inbox_candidates_path:    product/opportunity-solution-tree/inbox/<slug>.md
     chosen_opportunity:
       slug:    {opportunity-slug}
       ref_id:  O-12

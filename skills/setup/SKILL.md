@@ -30,9 +30,11 @@ Check, without modifying anything:
 
 - Does `<root>/CLAUDE.md` exist?
   - If it exists, does it already contain the line `<!-- BEGIN ee-pm -->`? If so, the conventions block is already installed.
-- Does `<root>/product/` exist? If so, what's already in it — is it the empty scaffold, or does it hold real content (files/subdirs other than `context/`, `iterations/`, `README.md`)?
-- Does `<root>/product/context/` exist?
+- Does `<root>/product/` exist? If so, what's already in it — is it the empty scaffold, or does it hold real content (files/subdirs other than `iterations/` and `README.md`)?
 - Does `<root>/product/iterations/` exist?
+- **Legacy layout (pre-0.6.0):** does `<root>/product/context/` exist? That was the old home for
+  durable context; 0.6.0 collapsed it into `product/` itself. **Don't move anything** — report it
+  and offer the migration in §7.
 - **Miro MCP wiring (for the board workers):** the board workers (`board-builder`, `absorb-interpreter`, `board-writer`) build and round-trip Miro boards through the official Miro MCP. They reach it by registering `miro-official` as a **project-level MCP server** (see §5). Detect, without modifying anything:
   - Is `miro-official` already a configured MCP server? (`claude mcp get miro-official` succeeds, or a `<root>/.mcp.json` declares it.)
   - If not, Miro MCP is **not wired** — the board workers will lack `mcp__miro-official__*` and can't build or read boards. Plan to offer wiring in §5.
@@ -42,9 +44,10 @@ Check, without modifying anything:
 Build a plan from the detection results and **print it to the PM before writing anything**. For each item state the action: **create**, **append**, **skip (already present)**, or **ask first**.
 
 - **`product/` tree:**
-  - Missing → plan to create `product/`, `product/context/`, `product/iterations/`, and `product/README.md` (from `templates/product-README.md`).
+  - Missing → plan to create `product/`, `product/iterations/`, and `product/README.md` (from `templates/product-README.md`).
   - Exists but missing some subdirs → plan to create only the missing subdirs / README; skip what exists.
-  - Exists and holds unrelated content (not just the scaffold) → **ask first**: tell the PM what's already there and confirm it's the right place to add `context/` and `iterations/` before touching it. Never overwrite existing files.
+  - Exists and holds unrelated content (not just the scaffold) → **ask first**: tell the PM what's already there and confirm it's the right place to add `iterations/` before touching it. Never overwrite existing files.
+- **Legacy `product/context/`** (if detected in §1) → **ask first**, never automatic. See §7.
 - **`CLAUDE.md`:**
   - Missing → plan to create it with the conventions block (`templates/claude-md-block.md`).
   - Exists, already contains `<!-- BEGIN ee-pm -->` → **skip** (idempotent). Mention it's already installed.
@@ -102,7 +105,31 @@ After wiring, confirm the setup actually works rather than leaving the PM to dis
 
 A `miro-official` server added to `.mcp.json` this session is only picked up at the next `claude` startup. So: **if this run wrote `.mcp.json`, tell the PM to restart the session before building a board** (exit and relaunch Claude Code in this project), then authorize via `/mcp` per §6. If `miro-official` was already registered (nothing newly wired this run), no restart is needed; say so.
 
-### 7. Report and next steps
+### 7. Migrate a legacy `product/context/` layout (0.5.x → 0.6.0)
+
+Only if §1 found `<root>/product/context/`. **Every skill in 0.6.0 reads `product/` directly**, so
+an unmigrated project's context is invisible — the skills won't error, they'll just find nothing.
+That silence is the reason this step exists.
+
+The move is mechanical and one-to-one, with one rename:
+
+| Was | Now |
+|---|---|
+| `product/context/personas.md` | `product/personas/{slug}.md` — **one file per persona** (see `framework-setup` §Personas) |
+| `product/context/principles.md` | `product/design-principles.md` |
+| `product/context/backlog.md` | `product/backlog.md` |
+| `product/context/opportunity-solution-tree/` | `product/opportunity-solution-tree/` |
+| `product/context/opportunity-solution-tree/assumptions/` | `product/assumptions/` |
+| `product/context/<anything else>` | `product/<same>` |
+
+**Ask before moving, and use `git mv`** so history follows the file. Report the persona split
+separately — it is the one step that isn't a rename, because a single `personas.md` becomes N
+files keyed by slug, and only the PM can confirm the slugs.
+
+Once `product/context/` is empty, remove it. If it still holds anything unrecognized, leave it
+and say so — don't guess at a home for a file this skill doesn't know.
+
+### 8. Report and next steps
 
 Summarize what was created, appended, or skipped. Then tell the PM the next steps:
 

@@ -15,7 +15,7 @@ The skill pack for the EE PM Workflow workflow. Each skill is self-contained. **
 
 | Skill | Does |
 |---|---|
-| `framework-setup` | One-shot: establish `product/context/` for a new project |
+| `framework-setup` | One-shot: establish `product/` for a new project |
 | `iteration-setup` | One-shot per iteration: scaffold `product/iterations/{YYYY-MM-DD-slug}/` |
 | `interview-management` | Capture and manage discovery interview transcripts |
 | `discovery-synthesis` | Synthesize interviews into themes + opportunity/solution candidates |

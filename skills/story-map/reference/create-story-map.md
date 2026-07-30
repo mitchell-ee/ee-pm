@@ -6,20 +6,20 @@ The map is Patton-narrative-scoped (one map per iteration, multi-actor narrative
 
 ## Input files
 
-Read from `product/iterations/{iteration-slug}/` (plus the product-level persona legend):
+Read from `product/iterations/{iteration-slug}/` (plus the product-level persona files):
 
 1. **`README.md`** — provides the iteration title (top `# ...` heading) only. The README holds no map structure — it is orientation prose, like the OST and assumption-map READMEs.
-2. **`story-maps/activities/activity-{NN}-{slug}.md`** — the backbone. One file per activity with an `ID` (e.g. `ACTIVITY-01`) and `Order` header; the `#` title (after the `Activity:` prefix) is the header text rendered on the dark_blue sticky. See `SKILL.md` "Activity files".
-3. **`product/context/personas.md`** — the `## Legend` table (slug · emoji · name) used to build the persona legend rectangle and resolve emoji prefixes.
-4. **`stories/story-{NNN}-{slug}.md`** — all story files. Each contains header metadata:
+2. **`story-maps/activities/activity-{NNNN}-{slug}.md`** — the backbone. One file per activity with an `ID` (e.g. `ACTIVITY-01`) and `Order` header; the `#` title (after the `Activity:` prefix) is the header text rendered on the dark_blue sticky. See `SKILL.md` "Activity files".
+3. **`product/personas/*.md`** — one file per persona; `slug`, `name`, and optional `emoji` from each one's frontmatter build the persona legend rectangle and resolve emoji prefixes.
+4. **`stories/story-{NNNN}-{slug}.md`** — all story files. Each contains header metadata:
    - `Story ID`, `Priority`, `Status`, `Personas`, `Labels`, optional `Type`
 5. **Optional** `assumptions.md` (or whatever the iteration uses) — surfaces assumption items to render as `light_green` rounded rectangles placed *beside the story each assumption questions* (per the 2026-05-14 decision — no separate discovery band). If absent, skip. Opportunities on the story map are **dormant**: even if a source file exists, nothing renders today (opportunities relate to outcomes, which the OST owns, not to activities).
 
 ## Step 1: Parse structural sources
 
-### Personas (from `product/context/personas.md` `## Legend`)
+### Personas (from `product/personas/*.md`)
 
-Build a map: `persona-slug → {emoji, name}`. Legend row order preserved for legend display. If a story names a persona with no legend row, warn and offer to append one before rendering.
+Build a map: `persona-slug → {emoji, name}`, reading each file's frontmatter. Sort by `slug` so legend display order is stable across runs. A persona with no `emoji` renders without a prefix. If a story names a persona slug with no matching file, warn and offer to create `product/personas/{slug}.md` before rendering.
 
 ### Backbone (from `story-maps/activities/*.md`)
 
@@ -89,7 +89,7 @@ against the live MCP) showing the actual line syntax to match — `#` comments,
 # Activity header sticky (backbone), persona-prefixed.
 a1 STICKY x=0 y=0 w=220 color=dark_blue align=center valign=middle "<strong>🍳 Restaurant prepares order</strong>"
 # A story sticky under it.
-s1 STICKY x=0 y=200 w=200 color=yellow align=center valign=middle "<strong>🍳 STORY-012</strong><br>Confirm item count at pack-ready"
+s1 STICKY x=0 y=200 w=200 color=yellow align=center valign=middle "<strong>🍳 STORY-0012</strong><br>Confirm item count at pack-ready"
 # A release horizon — a thin rectangle spanning the backbone, NOT a connector.
 h1 SHAPE x=600 y=140 w=1400 h=6 type=rectangle fill=#CCCCCC "Release 1"
 ```
@@ -277,7 +277,7 @@ the §3 grid formula:
 
 ```
 layout_create STICKY item:
-  content: "<p>{emoji_prefix} STORY-{NNN}</p><p>{abbreviated_title}</p>"
+  content: "<p>{emoji_prefix} STORY-{NNNN}</p><p>{abbreviated_title}</p>"
   x: {span_left[a] + STICKY_W/2 + subcol × SUBCOL_PITCH}
   y: {lane_top[L] + row × 200}
   color: "{color_by_type}"
@@ -288,7 +288,7 @@ layout_create STICKY item:
 
 `emoji_prefix` is space-separated if the story has multiple personas (e.g. `🛵 🍽️`). Abbreviate title to ~40 chars; full title lives in the repo. Record `item_id`, `story_id`, `column`, `swim_lane`, `fill_color`, and the rendered `sticky_short_title` in the sidecar.
 
-**Author sticky content as two `<p>` blocks: `<p>{emoji_prefix} STORY-{NNN}</p><p>{abbreviated_title}</p>`.** This is the same HTML shape Miro's inline editor produces the first time a human touches a sticky, so a freshly rendered sticky and a human-touched one are byte-identical — there is no "canonical vs collapsed" split for absorb to reconcile. It also sidesteps a `layout_update` bug: literal `\n` in sticky content makes the official MCP's whole-board DSL re-serialization unparseable, failing *every* `layout_update` on that board. The `<p>` form round-trips through the DSL as a single clean line. See `read-board-state.md` "Known limitation — `layout_update` and sticky newlines."
+**Author sticky content as two `<p>` blocks: `<p>{emoji_prefix} STORY-{NNNN}</p><p>{abbreviated_title}</p>`.** This is the same HTML shape Miro's inline editor produces the first time a human touches a sticky, so a freshly rendered sticky and a human-touched one are byte-identical — there is no "canonical vs collapsed" split for absorb to reconcile. It also sidesteps a `layout_update` bug: literal `\n` in sticky content makes the official MCP's whole-board DSL re-serialization unparseable, failing *every* `layout_update` on that board. The `<p>` form round-trips through the DSL as a single clean line. See `read-board-state.md` "Known limitation — `layout_update` and sticky newlines."
 
 Priority is *not* rendered on the sticky. Priority stays story-file-authoritative; on the board it is reflected only by which swim lane the sticky sits in (Critical/High → NOW, Medium → NEXT, Low → LATER). Earlier versions rendered a third `{Priority}` block — it was display-only, lossy in reverse (NOW collapses Critical and High), and Miro's inline editor drops or inlines it the first time a human touches the sticky. Dropping it removes a whole class of false-positive content diffs in absorb mode. See `read-board-state.md` "Sticky-content parser" for how absorb tolerates legacy stickies that still carry the block.
 
@@ -515,7 +515,7 @@ Write `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`:
     "stories": [
       {
         "id": "{id}",
-        "story_id": "STORY-001",
+        "story_id": "STORY-0001",
         "activity": "{name}",
         "swim_lane": "NOW",
         "x": -1200,
@@ -526,7 +526,7 @@ Write `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`:
     ],
     "opportunities": [],
     "assumptions": [
-      {"id": "{id}", "source": "assumptions.md#asn-03", "nearest_story": "STORY-012", "x": {x}, "y": {y}, "content_hash": "{sha1}"}
+      {"id": "{id}", "source": "assumptions.md#asn-03", "nearest_story": "STORY-0012", "x": {x}, "y": {y}, "content_hash": "{sha1}"}
     ]
   }
 }
@@ -540,7 +540,7 @@ The sidecar is a **pure index**: every entry references its `.md` home by
 ref-id (`activity_ref` → `activities/*.md`, `story_id` → `stories/*.md`),
 and no authoritative content is duplicated — there is no standalone
 `backbone` or `personas` block (backbone order lives in the activity
-files; the persona legend lives in `product/context/personas.md`).
+files; the persona legend is derived from `product/personas/*.md`).
 Everything position-shaped in the sidecar is rendered state, re-derived
 from board geometry on absorb.
 
@@ -577,7 +577,8 @@ Sidecar: product/iterations/{iteration-slug}/story-maps/miro-metadata.json
 
 - Miro MCP unavailable → tell the user which MCP to install, stop cleanly.
 - No `story-maps/activities/` files → warn, offer to draft them from the stories' inferred activities.
-- `product/context/personas.md` missing a `## Legend` table → warn, offer to draft from the stories' personas.
+- `product/personas/` missing or empty → warn, offer to draft one file per persona from the stories' `Personas:` fields.
+- Story names a persona slug with no `product/personas/{slug}.md` → warn, offer to create it.
 - Story file with no `Story ID` header → skip with warning, list skipped files at end.
 - Story with no `Personas:` field → warn and prompt to assign before render.
 - Activity name on story can't be matched to backbone → place in best-guess column, list mismatches at end.

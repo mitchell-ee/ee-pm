@@ -37,7 +37,7 @@ Create a new user story from scratch or from a feature description.
    - **Human Developer**: Detailed, explicit requirements
 
 4. **Gather Story Details**
-   - Who is the user? (Use general personas from `product/context/personas.md`)
+   - Who is the user? (Use general personas from `product/personas/*.md`)
    - What do they want to do?
    - Why? (business value, user benefit)
    - Which iteration and chosen solution does it trace to?
@@ -49,7 +49,7 @@ Create a new user story from scratch or from a feature description.
    - Follow "As a [persona], I want [action], so that [benefit]"
    - Include context and source (traceability to synthesis + story-map activity)
    - Populate optional frontmatter when applicable:
-     - `epic:` (string slug, e.g., `epic-02-courier-handoff`) — only when the iteration has an epic layer (>8 stories)
+     - `epic:` (string slug, e.g., `epic-0002-courier-handoff`) — only when the iteration has an epic layer (>8 stories)
      - `prototype_refs:` (array of paths or URLs) — point to mockups in `prototypes/` that visualize this story
    - Add design references inline in AC when helpful: "See `prototypes/{filename}.png`."
 
@@ -68,7 +68,7 @@ Create a new user story from scratch or from a feature description.
    Save to: `product/iterations/{iteration}/stories/story-{number}-{slug}.md`
 
 9. **Update Backlog**
-   Add story to `product/context/backlog.md`
+   Add story to `product/backlog.md`
 
 ### Mode 2: Refine Existing Story
 
@@ -169,7 +169,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
 3. **Determine sources**
    - If the invocation names sources ("create stories from the solution brief and synthesis", "finalize stories against the converged map"), use them.
    - Otherwise ask the user which to use (AskUserQuestion), offering the candidates that exist for the iteration:
-     - Chosen solution: `product/context/opportunity-solution-tree/solutions/solution-{NN}-{slug}.md`
+     - Chosen solution: `product/opportunity-solution-tree/solutions/solution-{NNNN}-{slug}.md`
      - `product/iterations/{slug}/synthesis.md`
      - Linked OST opportunity (for traceability)
      - Converged story map under `product/iterations/{slug}/story-maps/`
@@ -203,7 +203,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
    - **No matching story exists** → create a stub for it.
    - **A matching story exists** → (finalize path only) update it to align (re-derive AC, priority, traceability) rather than duplicating. **Never silently overwrite** — propose the diff before applying (consistent with Mode 2's "propose changes before making them"). In seed there are no existing stories to reconcile against — every capability is a new stub.
    - Apply the granularity setting **to the stub list** — granularity decides how many stubs, not how verbose each one is.
-   - Use "As a [persona], I want [action], so that [benefit]" framing for the stub's `intent` — general personas matching `product/context/personas.md`.
+   - Use "As a [persona], I want [action], so that [benefit]" framing for the stub's `intent` — general personas matching `product/personas/*.md`.
    - Maintain traceability: every stub records its solution + opportunity + source theme (and a story-map activity once a map exists) in `source_refs`.
 
    Each stub carries exactly the fields the `story-writer` invocation contract names (`agents/story-writer.md`): `story_id`, `slug`, `title`, `personas`, `activity`, `priority`, `type`, `epic`, `intent`, `source_refs`. A stub is cheap — one to two lines of intent plus metadata — which is why the whole stub list fits in the main thread without bloat.
@@ -212,7 +212,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
    A prototype almost always builds or gestures at flows beyond what the seed stories named — and its handoff often *flags* them explicitly as out of scope. Read the prototype's handoff README and `cd-metadata.json` (and CD-notes if present), then:
    - Identify each screen / state / flow the design surfaced — including ones the design **declined to build but called out** (e.g. "the dispute / problem-report exit is shown only as an exit; it needs its own design pass").
    - For each, check whether an existing story covers it. A flow the prototype treats as a first-class screen, or explicitly defers, that has **no matching story and no acceptance criteria** is a candidate **new** story.
-   - **Propose, don't auto-create.** This is a semantic judgment (like absorb's board read), not a mechanical diff — surface each candidate to the PM with its source quote and the assumption/AC it relates to, and create only on approval. Assign the next sequential `STORY-{NNN}` (step 6) once approved.
+   - **Propose, don't auto-create.** This is a semantic judgment (like absorb's board read), not a mechanical diff — surface each candidate to the PM with its source quote and the assumption/AC it relates to, and create only on approval. Assign the next sequential `STORY-{NNNN}` (step 6) once approved.
    - Flows the prototype built that *are* within an existing story's scope → refine that story's AC and attach `prototype_refs` (steps 9 and 11), not a new story.
 
 8. **[plan] Epic-or-flat decision**
@@ -224,27 +224,27 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
 
    When the threshold trips:
    - Group stories into 2–4 cohesive epics (each epic is a user-facing capability cluster, not an engineering sub-system).
-   - Write epic files to `product/iterations/{slug}/epics/epic-{NN}-{slug}.md`:
+   - Write epic files to `product/iterations/{slug}/epics/epic-{NNNN}-{slug}.md`:
 
    ```markdown
    # Epic: {title}
 
-   **ID**: EPIC-{NN}
+   **ID**: EPIC-{NNNN}
    **Iteration**: {iteration-slug}
-   **Chosen solution**: SOL-{NN}
+   **Chosen solution**: SOL-{NNNN}
 
    ## Summary
    {2–3 sentences — what this cluster delivers for which persona}
 
    ## Stories
-   - STORY-{NNN}: {title}
-   - STORY-{NNN}: {title}
+   - STORY-{NNNN}: {title}
+   - STORY-{NNNN}: {title}
 
    ## Success criterion
    {how leadership will know this epic delivered value — user-visible, not implementation}
    ```
 
-   - Reference the epic from each stub via `epic: epic-{NN}-{slug}`.
+   - Reference the epic from each stub via `epic: epic-{NNNN}-{slug}`.
 
 8b. **[plan] Write the plan note, then get PM approval before fan-out** (seed path)
     The plan phase ends by making its judgment durable and gated:
@@ -258,18 +258,18 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
     Each worker receives one fully-resolved stub (the invocation contract in `agents/story-writer.md`) plus the shared `template` / `granularity` / `iteration` run parameters, loads `story-management` **Mode 1**, and:
     - generates Given-When-Then acceptance criteria — happy path, error/failure, edge, non-functional (performance, accessibility, security); referencing prototype screens inline when `prototype_refs` are present (see [reference/acceptance-criteria-format.md](reference/acceptance-criteria-format.md));
     - assigns priority (from the stub) and size (via the sizing guidelines below);
-    - writes the story file atomically to `product/iterations/{iteration}/stories/story-{NNN}-{slug}.md` with the frontmatter below;
+    - writes the story file atomically to `product/iterations/{iteration}/stories/story-{NNNN}-{slug}.md` with the frontmatter below;
     - returns a **one-line receipt** (status, id, final title, path, persona/activity/priority/size, `ac_count`, `split_suspected`, notes) — never the story body.
 
     Frontmatter each worker writes (minimum):
     ```yaml
     ---
-    id: STORY-{NNN}
+    id: STORY-{NNNN}
     title: {title}
     iteration: {iteration-slug}
-    solution: SOL-{NN}
-    opportunity: OPP-{NN}
-    epic: epic-{NN}-{slug}      # optional — only when >8 stories
+    solution: SOL-{NNNN}
+    opportunity: OPP-{NNNN}
+    epic: epic-{NNNN}-{slug}      # optional — only when >8 stories
     prototype_refs:              # optional — only when prototypes exist
       - prototypes/{file}.png
     priority: Critical | High | Medium | Low
@@ -283,7 +283,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
 
 13. **[assemble] Maintain the stories index and backlog** (in-thread, from the receipts)
     - Create/update `product/iterations/{iteration}/stories/stories-index.md` from the worker receipts (id, title, priority, epic, size, `ac_count`) plus a priority-distribution summary — one writer building the index, not N workers racing on it. Do not re-read the story bodies; the receipts carry what the index needs.
-    - Update `product/context/backlog.md` — ID, title, priority, iteration, and epic (if any) for each story.
+    - Update `product/backlog.md` — ID, title, priority, iteration, and epic (if any) for each story.
 
 14. **[assemble] Report results**
     - Stories created vs updated, epic count (0 if flat), priority distribution, total effort estimate, duration.
@@ -306,7 +306,7 @@ See [reference/acceptance-criteria-format.md](reference/acceptance-criteria-form
 
 Two fields sit alongside the required ones. They are both optional; stories without them remain valid.
 
-- **`epic:`** — a string slug identifying the epic grouping (e.g., `epic-02-courier-handoff`). Set only when the iteration has an epic layer (Mode 4 introduces one when a chosen solution decomposes into >8 stories). Epic files live at `product/iterations/{slug}/epics/epic-{NN}-{slug}.md`.
+- **`epic:`** — a string slug identifying the epic grouping (e.g., `epic-0002-courier-handoff`). Set only when the iteration has an epic layer (Mode 4 introduces one when a chosen solution decomposes into >8 stories). Epic files live at `product/iterations/{slug}/epics/epic-{NNNN}-{slug}.md`.
 - **`prototype_refs:`** — an array of relative paths or URLs to prototype artifacts that visualize the story. Typical paths are under `product/iterations/{slug}/prototypes/`. Populated by Mode 4 when prototypes exist; may be edited via Mode 2 (refine).
 
 ## Story sizing guidelines

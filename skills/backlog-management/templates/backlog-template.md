@@ -10,7 +10,7 @@ Master index of all stories that have been created but not yet built. Stories ar
 
 | ID | Title | Priority | Iteration |
 |----|-------|----------|-----------|
-| STORY-XXX | [Story title] | [Priority] | [iteration-name] |
+| STORY-NNNN | [Story title] | [Priority] | [iteration-name] |
 | STORY-YYY | [Story title] | [Priority] | [iteration-name] |
 
 ---

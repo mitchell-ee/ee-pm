@@ -21,7 +21,7 @@ sidecar_index = {
     "role": "title" | "persona_legend" | "shape_legend" |
             "swim_lane_label" | "activity_header" | "release_horizon" |
             "story" | "opportunity" | "assumption",
-    "story_id": "STORY-001",            // for stories
+    "story_id": "STORY-0001",            // for stories
     "activity_ref": "ACTIVITY-01",      // for activity headers → activities/*.md
     "kind": "opportunity" | "assumption", // for discovery-layer items
     "expected_activity": "...",         // for stories
@@ -117,7 +117,7 @@ the orphan states.
 ### Sticky-content parser
 
 Stickies are authored as two `<p>` blocks —
-`<p>{emoji_prefix} STORY-{NNN}</p><p>{short title}</p>` — which is the
+`<p>{emoji_prefix} STORY-{NNNN}</p><p>{short title}</p>` — which is the
 same HTML shape Miro's inline editor produces when a human touches a
 sticky (see `reference_miro_editor_side_effects`). So freshly rendered
 and human-touched stickies share one content form; there is no
@@ -177,7 +177,7 @@ clears the limitation permanently.
 3. **content_changed** — id in sidecar, parsed short title differs from `expected_short_title`. (A legacy form reshaped to the `<p>` form alone is **not** a content change — see the parser above.)
 4. **recolored** — id in sidecar; position and parsed short title match; observed fill color differs from `expected_fill_color`. A recolor is a story `Type` reclassification — see Step 6 for the proposal.
 5. **moved_and_changed** — any combination of moved / content_changed / recolored on the same sticky. Report each axis in the change record.
-6. **orphan_sticky** — sticky on the board with no record in the sidecar. Color and position suggest interpretation: candidate new story (if in a delivery-layer swim lane) or **candidate new activity** (a `dark_blue` sticky in the activity-header row). Known activity headers are matched to their `activities/*.md` file via the sidecar's `activity_ref`; a header sticky with no `activity_ref` is the structural signal for a new activity — the semantic pass proposes creating an `activities/activity-{NN}-{slug}.md` (Task C), parallel to how a new story sticky proposes a story file.
+6. **orphan_sticky** — sticky on the board with no record in the sidecar. Color and position suggest interpretation: candidate new story (if in a delivery-layer swim lane) or **candidate new activity** (a `dark_blue` sticky in the activity-header row). Known activity headers are matched to their `activities/*.md` file via the sidecar's `activity_ref`; a header sticky with no `activity_ref` is the structural signal for a new activity — the semantic pass proposes creating an `activities/activity-{NNNN}-{slug}.md` (Task C), parallel to how a new story sticky proposes a story file.
 7. **candidate_story** — sticky with no sidecar record but whose content includes a `STORY-\d+` pattern.
 
 ### Activity-header content parser
@@ -260,21 +260,21 @@ Produce a structured object the user (and `interpret-changes.md`) can read:
     {
       "state": "moved",
       "item_id": "...",
-      "story_id": "STORY-007",
+      "story_id": "STORY-0007",
       "from": {"activity": "Courier picks up", "swim_lane": "NEXT"},
       "to":   {"activity": "Courier delivers", "swim_lane": "NOW"}
     },
     {
       "state": "content_changed",
       "item_id": "...",
-      "story_id": "STORY-009",
+      "story_id": "STORY-0009",
       "from_short_title": "SMS PIN fallback to eater's phone",
       "to_short_title": "SMS PIN fallback after 30s of no in-app entry"
     },
     {
       "state": "recolored",
       "item_id": "...",
-      "story_id": "STORY-005",
+      "story_id": "STORY-0005",
       "from_fill_color": "light_yellow",
       "to_fill_color": "cyan",
       "implied_type": {"from": "Regular", "to": "Infrastructure"}
@@ -290,7 +290,7 @@ Produce a structured object the user (and `interpret-changes.md`) can read:
       "state": "orphan_assumption",
       "item_id": "...",
       "content": "Couriers will tap a one-tap transit flag mid-route",
-      "nearest_story": "STORY-012",
+      "nearest_story": "STORY-0012",
       "fill_color": "#adf0c7",
       "note": "shape fill is hex from layout_read — green range → assumption"
     }
@@ -314,11 +314,11 @@ Board changes since last sync (2026-05-10 18:42):
 
   DELIVERY LAYER
     MOVED (1):
-      STORY-007  Courier picks up / NEXT  →  Courier delivers / NOW
+      STORY-0007  Courier picks up / NEXT  →  Courier delivers / NOW
     CONTENT CHANGED (1):
-      STORY-009  parsed short title differs — board has edited text
+      STORY-0009  parsed short title differs — board has edited text
     RECOLORED (1):
-      STORY-005  light_yellow → cyan  (Type: Regular → Infrastructure)
+      STORY-0005  light_yellow → cyan  (Type: Regular → Infrastructure)
     ORPHAN STICKIES (1):
       [light_yellow] "🛵 Courier confirms ETA before pickup"
         at Courier picks up / NOW — looks like a new story
@@ -327,7 +327,7 @@ Board changes since last sync (2026-05-10 18:42):
   DISCOVERY LAYER
     NEW ASSUMPTIONS (1):
       "Couriers will tap a one-tap transit flag mid-route"
-        beside STORY-012 — captured for the PM to route by hand
+        beside STORY-0012 — captured for the PM to route by hand
 ```
 
 Then ask: "Apply structural changes (moves, recolors) to the repo? Run semantic interpretation on the orphans?"
@@ -342,15 +342,15 @@ On approval for structural-only changes: update the affected story markdown head
 
 ```
 PROPOSED TYPE UPDATE (structural)
-  STORY-005  "Courier flags pickup issue with chip-list reason"
+  STORY-0005  "Courier flags pickup issue with chip-list reason"
     Fill color changed:  light_yellow  →  cyan
     Type mapping:        cyan → Infrastructure
 
-  Proposed edit (story-005-courier-flag-pickup-issue.md):
+  Proposed edit (story-0005-courier-flag-pickup-issue.md):
     Add/replace header line:  **Type**: Infrastructure
     (insert after the **Priority** line if no Type line exists)
 
-  On accept, also update sidecar STORY-005 entry:
+  On accept, also update sidecar STORY-0005 entry:
     fill_color: light_yellow → cyan
 ```
 
