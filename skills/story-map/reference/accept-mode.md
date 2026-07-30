@@ -109,7 +109,7 @@ sidecar lives at
 Activity files live at
 `product/iterations/{iteration-slug}/story-maps/activities/activity-{NN}-{slug}.md`;
 the persona legend is the `## Legend` table in
-`product/context/personas.md` (the iteration README holds no map
+`product/personas.md` (the iteration README holds no map
 structure).
 
 ### 3.1 Structural-only proposals — Priority and Type header edits
@@ -177,7 +177,7 @@ or recolored the sticky — the board is already canonical).
     mapping is `Regular`** (the default); write it only for a
     non-Regular type.
   - `**Personas**: {persona-slug}` — resolved from the emoji prefix via
-    the `product/context/personas.md` `## Legend` table.
+    the `product/personas.md` `## Legend` table.
   - `**Status**: Draft`
   - `**Labels**: {iteration-slug}` — area labels are theme-based and not
     mechanically derivable; leave them for the PM.
@@ -298,7 +298,7 @@ the skill must stop and ask the PM how to proceed. Examples:
 - Two sidecar story entries share a `miro_id` or a `story_id` (data
   corruption — `SKILL.md` error handling: "refuse to sync").
 - An orphan sticky's emoji prefix matches no persona in the
-  `product/context/personas.md` `## Legend` table.
+  `product/personas.md` `## Legend` table.
 - A `recolored` sticky's fill color is not in the `create-story-map.md`
   type-color table.
 

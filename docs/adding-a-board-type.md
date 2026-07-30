@@ -22,11 +22,11 @@ Where does the artifact's repo-side state live, and how many of these boards exi
 
 | Board type | Scope | Sidecar path |
 |---|---|---|
-| `opportunity-tree` | singleton, product-level | `product/context/opportunity-solution-tree/miro-metadata.json` |
-| `assumption-map` | one per solution | `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` |
+| `opportunity-tree` | singleton, product-level | `product/opportunity-solution-tree/miro-metadata.json` |
+| `assumption-map` | one per solution | `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` |
 | `story-map` | one per iteration | `product/iterations/{iteration-slug}/story-maps/miro-metadata.json` |
 
-Pick the scope that matches the artifact's lifecycle. Product-level artifacts go under `product/context/<your-type>/`; per-iteration artifacts go under `product/iterations/{slug}/<your-type>/`. The choice dictates the sidecar path and how the router resolves "which board" before spawning a worker.
+Pick the scope that matches the artifact's lifecycle. Product-level artifacts go under `product/<your-type>/`; per-iteration artifacts go under `product/iterations/{slug}/<your-type>/`. The choice dictates the sidecar path and how the router resolves "which board" before spawning a worker.
 
 ### b. Identity inference for absorb
 

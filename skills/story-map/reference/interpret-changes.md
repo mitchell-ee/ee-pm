@@ -179,7 +179,7 @@ Ask: **accept / edit / reject**.
 (rounded rectangle, opportunity fill color), propose forwarding the
 candidate to the OST inbox:
 
-the OST inbox (`product/context/opportunity-solution-tree/inbox/`) via
+the OST inbox (`product/opportunity-solution-tree/inbox/`) via
 the `opportunity-tree` skill, recording the Miro ID in the story-map
 sidecar so the shape isn't re-proposed.
 
@@ -301,7 +301,7 @@ Structural diff from read-board-state:
 Relevant story files (for context):
 {content of nearby stories in the same activity column and swim lane}
 
-Persona legend (product/context/personas.md ## Legend) and backbone
+Persona legend (product/personas.md ## Legend) and backbone
 activity files (story-maps/activities/*.md, sorted by Order):
 {verbatim}
 

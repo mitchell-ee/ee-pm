@@ -73,7 +73,7 @@ For each artifact in the selected mode:
 - What regulatory or compliance requirements matter?
 
 ### 3. File Creation
-Create each file in `product/context/` using responses from the interview.
+Create each file in `product/` using responses from the interview.
 
 Format each file with:
 - Clear markdown structure
@@ -95,7 +95,7 @@ Before completing:
 - [ ] Content is specific to the user's product (not generic)
 - [ ] Glossary terms are used consistently across all files
 - [ ] Persona details are concrete and actionable
-- [ ] Files are created in `product/context/` directory
+- [ ] Files are created in `product/` directory
 - [ ] No placeholder or lorem ipsum content
 - [ ] Summary provided with absolute file paths
 

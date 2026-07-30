@@ -36,7 +36,7 @@ metric:           {metric statement}                   # outcomes only
 target:           {target statement}                   # outcomes only
 intent:           {1–2 line statement of what this node frames and why}
 source_refs:      {paths — synthesis section, inbox candidate, strategy note}
-out_path:         product/context/opportunity-solution-tree/{outcomes|opportunities}/{outcome|opportunity}-{NN}-{slug}.md
+out_path:         product/opportunity-solution-tree/{outcomes|opportunities}/{outcome|opportunity}-{NN}-{slug}.md
 ```
 
 If the stub is missing required fields (`node_type`, `ref_id`, `slug`, `title`, `intent`, `out_path`, plus `parent_ref` for opportunities), the worker **stops and returns a `precondition-unresolved` receipt** rather than guessing. The caller fixes the stub and re-spawns.

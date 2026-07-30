@@ -28,7 +28,7 @@ Assumption files and the per-solution assumption-map sidecar exist only for solu
 
 1. **Synthesis** writes candidate solutions and their initial assumptions **inline** in `product/iterations/{slug}/synthesis.md`. No `assumption-NN-*.md` files are created here.
 2. **PM promotes a candidate solution to the OST** (via interactive instruction or OST absorb). A `solution-{NN}-{slug}.md` file is created with `Status: Proposed`. Inline assumptions stay inline.
-3. **PM commits to pursue that solution** (flips `Status:` to `Committed` — typically a one-line interactive instruction). **This is the materialization trigger.** The inline assumptions for that solution in `synthesis.md` are written out as separate files at `product/context/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md`, one per assumption, using the file format below. Their `Importance` / `Evidence` values come from the synthesis defaults; `Method`, `Success Criterion`, `Result` start empty / `Pending`.
+3. **PM commits to pursue that solution** (flips `Status:` to `Committed` — typically a one-line interactive instruction). **This is the materialization trigger.** The inline assumptions for that solution in `synthesis.md` are written out as separate files at `product/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md`, one per assumption, using the file format below. Their `Importance` / `Evidence` values come from the synthesis defaults; `Method`, `Success Criterion`, `Result` start empty / `Pending`.
 4. **First `/assumption-map create from solution-{NN}`** reads those just-materialized files, renders the 2×2 Miro board, and writes the per-map sidecar at `assumption-maps/SOL-{NN}-{slug}/miro-metadata.json`.
 
 Solutions still at `Status: Proposed` (uncommitted) have **no** assumption files and **no** assumption-map board. They live only in the OST and in the synthesis doc. This matches the "no orphan files for branches the team never pursued" principle.
@@ -40,16 +40,16 @@ If the PM wants to map assumptions for a `Proposed` (uncommitted) solution — f
 - **Native Miro toolchain** (same as `story-map` and `opportunity-tree`):
   - Official Miro MCP at `mcp.miro.com` — `mcp__miro-official__layout_get_dsl` (load the DSL grammar **once** at the start of a run, then reuse — a prerequisite of `layout_create`), `mcp__miro-official__layout_create` (axes/labels/stickies/quadrant border), `mcp__miro-official__layout_read` (round-trip read for absorb), `mcp__miro-official__layout_update` (refresh-mode mutations), `mcp__miro-official__context_get` (board metadata).
   - Everything the assumption map needs goes through the MCP's layout DSL — a single credential (the MCP's OAuth-at-connect), no separate connector or copy token.
-- Filesystem access to `product/context/opportunity-solution-tree/assumptions/` for canonical assumption-test files (one file per assumption) and `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` for per-map sidecars (see "Sidecar format" below).
+- Filesystem access to `product/opportunity-solution-tree/assumptions/` for canonical assumption-test files (one file per assumption) and `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` for per-map sidecars (see "Sidecar format" below).
 
 ## Repo conventions
 
 Assumption files live at **product-level**, in their own surface — decoupled from the OST so an assumption can be referenced from the OST, a story map, or both without coupling sidecars together. Assumption objects (canonical content) and assumption-map boards (rendering) are stored in separate trees:
 
 ```
-product/context/opportunity-solution-tree/assumptions/
+product/opportunity-solution-tree/assumptions/
   assumption-{NNN}-{slug}.md            # one file per assumption (canonical object)
-product/context/assumption-maps/
+product/assumption-maps/
   SOL-{NN}-{solution-slug}/
     miro-metadata.json                  # per-map sidecar — see "Sidecar format" below
 ```
@@ -82,7 +82,7 @@ Existing assumption-test files in this repo encode **one assumption plus its tes
 
 **Board name:** `{project} — Assumption Map — SOL-{NN}-{solution-slug}`
 
-`{project}` is derived from `basename "$(git rev-parse --show-toplevel)"`. Override by placing a single-line file at `.claude/project-name.txt` in the host repo. `SOL-{NN}-{solution-slug}` matches the parent solution's filename in `product/context/opportunity-solution-tree/solutions/`.
+`{project}` is derived from `basename "$(git rev-parse --show-toplevel)"`. Override by placing a single-line file at `.claude/project-name.txt` in the host repo. `SOL-{NN}-{solution-slug}` matches the parent solution's filename in `product/opportunity-solution-tree/solutions/`.
 
 **Cardinality:** one board per candidate solution being de-risked. A solution lives on its own board so the team can scope the conversation tightly; multiple maps coexist in the host's Miro account, each tied to a different `SOL-{NN}`.
 
@@ -199,7 +199,7 @@ Validated against the official `mcp.miro.com` MCP during the native-toolchain sp
 
 ## Sidecar format
 
-Each map gets its own standalone sidecar at `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json`. No shared file with the OST or story map; cross-references are by `Parent Solution: SOL-{NN}` in the assumption files themselves.
+Each map gets its own standalone sidecar at `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json`. No shared file with the OST or story map; cross-references are by `Parent Solution: SOL-{NN}` in the assumption files themselves.
 
 ```json
 {
@@ -248,12 +248,12 @@ Push repo → Miro for one solution.
 
 **Steps:**
 
-0. **Pre-flight: materialize from synthesis if needed.** Check whether any `product/context/opportunity-solution-tree/assumptions/assumption-*.md` file has `Parent Solution: SOL-{NN}`. If none exist, read the iteration's `synthesis.md` (the iteration that shaped this solution — recorded in the solution file's frontmatter), find the matching `### SOL-candidate-*` block, and materialize each inline assumption as its own `assumption-{NNN}-{slug}.md` file (next-available `ASSUMPTION-NNN` ref_id). Use the synthesis-suggested `Importance` / `Evidence`; `Method` and `Success Criterion` start empty; `Result: Pending`. Report to the user how many were materialized before proceeding to step 1.
-1. Read all `product/context/opportunity-solution-tree/assumptions/assumption-*.md` files; filter by `Parent Solution: SOL-{NN}`. Call `mcp__miro-official__layout_get_dsl` **once** here and reuse the spec (a prerequisite of `layout_create`).
-2. Get the board: reuse an existing one keyed by `solution_ref` in `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` (refresh), or, for a new map, **mint an empty board with `mcp__miro-official__board_create`** (returns its URL/id). Board creation is a two-step sequence — `board_create` makes the board, `layout_create` (step 3) renders into it.
+0. **Pre-flight: materialize from synthesis if needed.** Check whether any `product/opportunity-solution-tree/assumptions/assumption-*.md` file has `Parent Solution: SOL-{NN}`. If none exist, read the iteration's `synthesis.md` (the iteration that shaped this solution — recorded in the solution file's frontmatter), find the matching `### SOL-candidate-*` block, and materialize each inline assumption as its own `assumption-{NNN}-{slug}.md` file (next-available `ASSUMPTION-NNN` ref_id). Use the synthesis-suggested `Importance` / `Evidence`; `Method` and `Success Criterion` start empty; `Result: Pending`. Report to the user how many were materialized before proceeding to step 1.
+1. Read all `product/opportunity-solution-tree/assumptions/assumption-*.md` files; filter by `Parent Solution: SOL-{NN}`. Call `mcp__miro-official__layout_get_dsl` **once** here and reuse the spec (a prerequisite of `layout_create`).
+2. Get the board: reuse an existing one keyed by `solution_ref` in `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` (refresh), or, for a new map, **mint an empty board with `mcp__miro-official__board_create`** (returns its URL/id). Board creation is a two-step sequence — `board_create` makes the board, `layout_create` (step 3) renders into it.
 3. Place board chrome by rendering into the board's `miro_url` with `layout_create` in this order: title (upper-left), x-axis line, y-axis line, 4 axis-tip labels, 6 legend swatches, 6 legend labels. (`layout_create` renders into an existing board; it does not create one.) See "Miro layout" above for exact positions and the canonical write forms (explicit defaults, matching-color borders).
 4. For each assumption: compute (quadrant, slot) from `Importance` and `Evidence`; create a sticky at the slot's coordinates with sticky color from `Type` (override to `gray` if `Result ≠ Pending`); write content as two `<p>` blocks — `{ID}` then `{abbreviated title from H1}` — mirroring the story-map sticky-content format.
-5. Save the sidecar at `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` including the full `chrome` block (item IDs of every chrome item) and the `stickies` block.
+5. Save the sidecar at `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` including the full `chrome` block (item IDs of every chrome item) and the `stickies` block.
 6. Summarize to the user with the board URL and counts per quadrant. Flag if `test_first` is empty (suggests the team thinks they have nothing risky to validate — usually wrong; ask the PM to revisit importance/evidence ratings).
 
 Reference: `reference/create-assumption-map.md` (to be written; expected to mirror `story-map/reference/create-story-map.md` in shape).
@@ -262,7 +262,7 @@ Reference: `reference/create-assumption-map.md` (to be written; expected to mirr
 
 Push repo → Miro, preserving the existing board.
 
-1. Read the sidecar at `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json`.
+1. Read the sidecar at `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json`.
 2. Diff current assumption files against recorded stickies.
 3. For each diff (use `layout_update` per the canonical write forms above; re-read via `layout_read` before each update):
    - **Added** assumption → create a new sticky in the right quadrant; append to `stickies`.
@@ -314,7 +314,7 @@ Before creating an assumption map for the first time on a given solution:
 
 - `story-map` — same four-piece pattern, grid topology (activity × NOW/NEXT/LATER).
 - `opportunity-tree` — same four-piece pattern, tree topology. Assumption maps live under solutions branched in the OST; the OST is the source of `Parent Solution` references.
-- `discovery-synthesis` — proposes candidate solutions with their initial assumptions inline in `synthesis.md`. Those assumptions materialize as `product/context/opportunity-solution-tree/assumptions/assumption-{NNN}-*.md` files when the PM commits the parent solution (`Status: Committed`) or when `/assumption-map create` runs against an uncommitted solution. See "Lifecycle and lazy materialization" above.
+- `discovery-synthesis` — proposes candidate solutions with their initial assumptions inline in `synthesis.md`. Those assumptions materialize as `product/opportunity-solution-tree/assumptions/assumption-{NNN}-*.md` files when the PM commits the parent solution (`Status: Committed`) or when `/assumption-map create` runs against an uncommitted solution. See "Lifecycle and lazy materialization" above.
 
 ## Hardening checklist (for when the Miro MCP we want lands)
 

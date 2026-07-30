@@ -33,7 +33,7 @@ HIGHEST=$(grep -rh "Story ID.*STORY-" "$ITERATIONS_DIR"/*/stories/*.md 2>/dev/nu
 
 if [[ -z "$HIGHEST" ]]; then
     # Also check backlog as a fallback
-    BACKLOG="$PROJECT_ROOT/product/context/backlog.md"
+    BACKLOG="$PROJECT_ROOT/product/backlog.md"
     if [[ -f "$BACKLOG" ]]; then
         HIGHEST=$(grep -oE "STORY-[0-9]+" "$BACKLOG" 2>/dev/null | \
             sed 's/STORY-//' | \

@@ -104,5 +104,5 @@ Schema: `agents/README.md` § "Cross-agent handoff payload".
 
 - `CLAUDE.md` — project scope and principles.
 - `agents/README.md` — agent-shape rationale and the discovery↔story-shaping seam.
-- `product/context/opportunity-solution-tree/README.md` — OST orientation.
+- `product/opportunity-solution-tree/README.md` — OST orientation.
 - `skills/README.md` — skill inventory.

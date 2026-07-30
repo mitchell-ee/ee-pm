@@ -7,7 +7,7 @@ description: Set up a new product iteration — directory structure, iteration R
 
 Creates a new iteration folder under `product/iterations/` with the standard subdirectories, optionally bound to an opportunity in the product-level OST, optionally seeded from an existing iteration, and captures iteration goals via a short PM interview.
 
-The OST is **product-level** (`product/context/opportunity-solution-tree/`), not per-iteration. An iteration pursues one opportunity (or a tight cluster) from the tree, enriches it, and may surface adjacent opportunities that land in the OST inbox.
+The OST is **product-level** (`product/opportunity-solution-tree/`), not per-iteration. An iteration pursues one opportunity (or a tight cluster) from the tree, enriches it, and may surface adjacent opportunities that land in the OST inbox.
 
 ## When to use
 
@@ -34,7 +34,7 @@ Accept a `--opportunity <slug>` flag so the PM can launch directly:
 iteration-setup --opportunity opp-NN-{iteration-slug}
 ```
 
-If no opportunity is given, ask: "Which OST opportunity does this iteration pursue? (Pick from `product/context/opportunity-solution-tree/opportunities/`, or mark as 'to be defined' if exploratory.)"
+If no opportunity is given, ask: "Which OST opportunity does this iteration pursue? (Pick from `product/opportunity-solution-tree/opportunities/`, or mark as 'to be defined' if exploratory.)"
 
 ### 2. Decide the iteration slug
 
@@ -95,7 +95,7 @@ Generate `product/iterations/{slug}/README.md`:
 **Started**: {YYYY-MM-DD}
 **Status**: active | completed | archived
 **Seeded from**: {reference iteration slug, or "cold start"}
-**Chosen opportunity**: [OPP-{NN} — {title}](../../context/opportunity-solution-tree/opportunities/opportunity-{NN}-{slug}.md)
+**Chosen opportunity**: [OPP-{NN} — {title}](../../opportunity-solution-tree/opportunities/opportunity-{NN}-{slug}.md)
 
 ## Problem frame
 {one paragraph — the specific angle this iteration pursues on the chosen opportunity}
@@ -132,7 +132,7 @@ Append a one-line entry to `product/iterations/README.md`:
 
 ## Integration with other skills
 
-- `framework-setup` — run once per scenario to populate `product/context/` before the first iteration.
+- `framework-setup` — run once per scenario to populate `product/` before the first iteration.
 - `opportunity-tree` (analyze mode) — typically runs **before** `iteration-setup`, returning the chosen opportunity.
 - `interview-management` — used inside this skill for the iteration-planning interview, and separately for user interviews during discovery.
 - `discovery-synthesis` — next skill invoked after interviews are in place. Produces dual output: enrichment into the iteration's `synthesis.md`, and candidate opportunities into the OST `inbox/`.

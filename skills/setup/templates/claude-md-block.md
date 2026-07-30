@@ -25,8 +25,10 @@ Worker agents: `board-builder`, `absorb-interpreter`, `board-writer`, `synthesis
 ## Artifact storage convention
 
 PM artifacts live under `product/`:
-- `product/context/` — durable cross-iteration artifacts (personas, backlog, opportunity-solution-tree, assumption-maps).
+- **`product/{artifact}`** — durable cross-iteration context, directly under `product/`: `personas/{slug}.md` (one file each), `assumptions/`, `opportunity-solution-tree/`, `assumption-maps/`, `backlog.md`, `design-principles.md`, `glossary.md`. Create what your practice produces; none is required.
 - `product/iterations/{YYYY-MM-DD-iteration-slug}/` — per-iteration work (interviews, synthesis, stories, story-maps, prototypes, decisions).
+
+There is **no `product/context/` layer** — durable context sits directly under `product/`. (It existed through 0.5.x; `/ee-pm:setup` migrates the old layout.)
 
 Each Miro artifact keeps its own sidecar (`miro-metadata.json`) recording the board ID and the shape/connector IDs the absorb pass diffs against. Sidecars are per artifact, never nested.
 

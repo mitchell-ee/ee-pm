@@ -90,13 +90,13 @@ The main thread never calls `mcp__miro-official__*` directly while following thi
 Sometimes you want to pre-populate the early phases before a workshop — so the session opens at synthesis with interviews already in place — rather than building everything live with participants. When you start from a seeded iteration:
 
 1. **Confirm seed source.** Usually an existing iteration under `product/iterations/YYYY-MM-DD-{iteration-slug}`. Clone with `iteration-setup --from-seed <path>` into a new dated slug.
-2. **Skip `framework-setup` and `interview-management`.** `product/context/`, the product-level OST, and the cloned interviews are already in place.
+2. **Skip `framework-setup` and `interview-management`.** `product/`, the product-level OST, and the cloned interviews are already in place.
 3. **Open the OST on Miro first.** Start by showing the living OST. `opportunity-tree` (refresh mode) if needed to project the current tree onto a board.
 4. **Run the selection moment.** `opportunity-tree analyze` — run the selection analysis.
 5. **Begin the iteration by handing off to the `discovery` skill for synthesis.** `discovery` returns the synthesis + inbox-candidate paths.
 6. **Proceed through the rest of the loop.**
 
-When starting empty, run from the selection moment if the OST is populated; from `framework-setup` if `context/` is empty.
+When starting empty, run from the selection moment if the OST is populated; from `framework-setup` if `product/` has no durable context yet.
 
 ## Workshop loop (live session)
 
@@ -151,5 +151,5 @@ As the live workshop router, this skill is usually the *initiator* of cross-agen
 
 - `CLAUDE.md` — project-level instructions and scope.
 - `product/README.md` — product tree orientation.
-- `product/context/opportunity-solution-tree/README.md` — OST orientation.
+- `product/opportunity-solution-tree/README.md` — OST orientation.
 - `skills/README.md` — skill inventory and adaptation notes.

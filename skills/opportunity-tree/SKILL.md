@@ -27,7 +27,7 @@ Six modes: **seed**, **create**, **refresh**, **absorb**, **analyze**, **promote
 
 - Official Miro MCP at `mcp.miro.com`: `mcp__miro-official__layout_get_dsl` (load the DSL grammar **once** per run, then reuse — a prerequisite of `layout_create`), `mcp__miro-official__layout_create` (build the board + nodes + tree edges), `mcp__miro-official__layout_read` (round-trip read for absorb — returns shapes **and** `CONNECTOR` lines), `mcp__miro-official__layout_update` (refresh-mode node moves / content / fill, and connector rewiring), `mcp__miro-official__context_get` (board metadata).
 - Tree edges are native DSL `CONNECTOR` items — the layout DSL has a first-class `CONNECTOR` type, so connectors are created, read, and rewired through the same MCP as the nodes. One credential (the MCP's OAuth-at-connect), no separate connector token.
-- Filesystem access to `product/context/opportunity-solution-tree/` and its sidecar `miro-metadata.json`.
+- Filesystem access to `product/opportunity-solution-tree/` and its sidecar `miro-metadata.json`.
 
 **Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`discovery`) spawns the worker, the worker loads this skill. The `seed`, `analyze`, and `promote-from-inbox` modes are file-side only (no board mutation) and run without a board worker — `seed` fans out `opportunity-writer` workers; the others run in the main thread. See the canonical write forms in `reference/create-ost.md` and `reference/interpret-changes.md` so create output is diff-stable against `layout_read`.
 
@@ -43,10 +43,10 @@ Invoke when the user asks to:
 
 ## Repo conventions
 
-OST data lives at **product-level**, under `product/context/opportunity-solution-tree/`:
+OST data lives at **product-level**, under `product/opportunity-solution-tree/`:
 
 ```
-product/context/opportunity-solution-tree/
+product/opportunity-solution-tree/
   README.md                   # orientation — what this tree is, how it grows
   outcomes/
     outcome-{NN}-{slug}.md
@@ -117,7 +117,7 @@ product/platform it serves}
 - ASSUMPTION-{NNN}: {one-line description}   # populated after the Status: Committed flip materializes assumption files
 ```
 
-**Status lifecycle and the commitment trigger.** A solution lands on the OST at `Status: Proposed` (created when the PM promotes a candidate from synthesis or branches via OST absorb). Flipping to `Status: Committed` is the team's commitment to pursue. **That flip is also the materialization trigger for assumption files**: read the inline assumptions for this solution in `{shaped-by-iteration}/synthesis.md` (`### SOL-candidate-*` block) and write each one as `product/context/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md`, then list them under `## Tests` here. After materialization, the next `/assumption-map create from SOL-{NN}` renders the 2×2 cleanly. Other transitions (`Testing` → `Shipped` / `Rejected`) do not materialize new files; see `assumption-map` SKILL for downstream behavior.
+**Status lifecycle and the commitment trigger.** A solution lands on the OST at `Status: Proposed` (created when the PM promotes a candidate from synthesis or branches via OST absorb). Flipping to `Status: Committed` is the team's commitment to pursue. **That flip is also the materialization trigger for assumption files**: read the inline assumptions for this solution in `{shaped-by-iteration}/synthesis.md` (`### SOL-candidate-*` block) and write each one as `product/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md`, then list them under `## Tests` here. After materialization, the next `/assumption-map create from SOL-{NN}` renders the 2×2 cleanly. Other transitions (`Testing` → `Shipped` / `Rejected`) do not materialize new files; see `assumption-map` SKILL for downstream behavior.
 
 **assumption-{NNN}-{slug}.md** (in `assumptions/`)
 ```
@@ -159,7 +159,7 @@ Every project gets exactly one OST board — the OST is product-level, not itera
 
 `{project}` is derived from `basename "$(git rev-parse --show-toplevel)"`. Override by placing a single-line file at `.claude/project-name.txt` in the host repo if a different display name is wanted.
 
-**Cardinality:** singleton. Refresh in place; never duplicate. The board ID is recorded in the sidecar `miro-metadata.json` at `product/context/opportunity-solution-tree/`.
+**Cardinality:** singleton. Refresh in place; never duplicate. The board ID is recorded in the sidecar `miro-metadata.json` at `product/opportunity-solution-tree/`.
 
 **Location:** if the host's Miro account uses team folders, place the board in the folder matching `{project}`. Otherwise leave at account root. The skill does not create folders — it expects the PM to set folder structure once per project.
 
@@ -267,11 +267,11 @@ Returns **2–3 ranked candidate opportunities** for "what to pursue next." For 
 
 The PM decides. The skill's output is advisory — it does not commit a choice or open an iteration.
 
-Output format: a markdown summary shown in chat, plus optionally written to `product/context/opportunity-solution-tree/analyze-{YYYY-MM-DD}.md` when the PM asks for a durable record.
+Output format: a markdown summary shown in chat, plus optionally written to `product/opportunity-solution-tree/analyze-{YYYY-MM-DD}.md` when the PM asks for a durable record.
 
 ### 6. Promote-from-inbox mode
 
-Reads `product/context/opportunity-solution-tree/inbox/*-candidates.md` and walks the PM through each candidate interactively. For each candidate, offer three resolutions; default is **new opportunity**:
+Reads `product/opportunity-solution-tree/inbox/*-candidates.md` and walks the PM through each candidate interactively. For each candidate, offer three resolutions; default is **new opportunity**:
 
 **(a) New opportunity** — the candidate becomes its own node in the tree:
 

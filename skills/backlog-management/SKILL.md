@@ -7,7 +7,7 @@ description: Manage product backlog including adding stories, removing stories, 
 
 ## Purpose
 
-This skill manages the product backlog stored in `product/context/backlog.md`. It supports adding new stories, removing obsolete stories, viewing/filtering the backlog, and updating story priorities. Stories carry optional `epic:` frontmatter — the backlog surfaces this as a filter and as a group-by-epic render toggle (no structural change to the backlog file itself).
+This skill manages the product backlog stored in `product/backlog.md`. It supports adding new stories, removing obsolete stories, viewing/filtering the backlog, and updating story priorities. Stories carry optional `epic:` frontmatter — the backlog surfaces this as a filter and as a group-by-epic render toggle (no structural change to the backlog file itself).
 
 ## Modes
 
@@ -16,7 +16,7 @@ This skill manages the product backlog stored in `product/context/backlog.md`. I
 Add a new story to the backlog.
 
 **Workflow:**
-1. Read current backlog: `product/context/backlog.md`
+1. Read current backlog: `product/backlog.md`
 2. Validate story has required fields:
    - Story ID (STORY-XXX format)
    - Title
@@ -39,7 +39,7 @@ Add a new story to the backlog.
 Remove a story from the backlog.
 
 **Workflow:**
-1. Read current backlog: `product/context/backlog.md`
+1. Read current backlog: `product/backlog.md`
 2. Find story by ID or title
 3. Confirm story details before removal
 4. Remove story from backlog
@@ -55,7 +55,7 @@ Remove a story from the backlog.
 View backlog with optional filtering.
 
 **Workflow:**
-1. Read current backlog: `product/context/backlog.md`
+1. Read current backlog: `product/backlog.md`
 2. Apply filters if specified:
    - By priority (P0, P1, P2, P3 — or Critical/High/Medium/Low if the backlog uses named priorities)
    - By status (Backlog, In Progress, Blocked)
@@ -75,7 +75,7 @@ View backlog with optional filtering.
 Change priority of existing story.
 
 **Workflow:**
-1. Read current backlog: `product/context/backlog.md`
+1. Read current backlog: `product/backlog.md`
 2. Find story by ID
 3. Confirm current priority
 4. Update to new priority
@@ -121,7 +121,7 @@ Change priority of existing story.
 ## File Structure
 
 **Primary File:**
-- `product/context/backlog.md` - Master backlog file (cross-iteration product state)
+- `product/backlog.md` - Master backlog file (cross-iteration product state)
 
 **Related Files:**
 - `product/iterations/{slug}/stories/story-*.md` - Source story files (authoritative for `epic:` and `prototype_refs:` fields)

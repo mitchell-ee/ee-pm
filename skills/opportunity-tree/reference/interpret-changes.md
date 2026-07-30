@@ -1,6 +1,6 @@
 # Absorbing OST changes — diff format and detection rules
 
-This is the canonical spec for `opportunity-tree` **absorb mode**. The skill reads a board that a PM has edited, compares it to the sidecar at `product/context/opportunity-solution-tree/miro-metadata.json`, and emits a structured diff describing what changed. The PM reviews; only on approval does the skill update repo files.
+This is the canonical spec for `opportunity-tree` **absorb mode**. The skill reads a board that a PM has edited, compares it to the sidecar at `product/opportunity-solution-tree/miro-metadata.json`, and emits a structured diff describing what changed. The PM reviews; only on approval does the skill update repo files.
 
 The rules below define what counts as a change, what the diff looks like, and what gets flagged for human review. Every absorb run produces output in the format in §3.
 
@@ -14,7 +14,7 @@ The rules below define what counts as a change, what the diff looks like, and wh
 
 Sidecar nodes carry `ref_id`. Board shapes carry `miro_id`. The link is the `miro_id` recorded in the sidecar plus the ref_id segment parsed from the shape's content — both must agree, and disagreement is a flag (§4).
 
-**Guiding principle.** The MD files in `product/context/opportunity-solution-tree/` are the source of truth. Absorb's only job is to keep MD files in sync with the board. Anything on the board that does not impact MD content (titles, parent-child structure) is noise and is silently ignored — never reported, never flagged, never counted. That includes: fill color, border color, size, position, font, text-align, HTML wrapper variations around the canonical content, whitespace normalization, and entity encoding (`&#39;` vs `'`).
+**Guiding principle.** The MD files in `product/opportunity-solution-tree/` are the source of truth. Absorb's only job is to keep MD files in sync with the board. Anything on the board that does not impact MD content (titles, parent-child structure) is noise and is silently ignored — never reported, never flagged, never counted. That includes: fill color, border color, size, position, font, text-align, HTML wrapper variations around the canonical content, whitespace normalization, and entity encoding (`&#39;` vs `'`).
 
 ## 1.5 Tree membership: reachability from the root shape
 
@@ -131,7 +131,7 @@ Two distinct outcomes for a sidecar node that no longer behaves like an active t
 A sidecar node whose `miro_id` is absent from the current board read. The PM has explicitly removed the shape; intent is unambiguous.
 
 - Reported as: `Deleted nodes: {ref_id} (was under {parent_ref}; descendants in sidecar: [...])`.
-- Absorb does NOT delete repo files. On approval, the file is moved to `product/context/opportunity-solution-tree/_archive/{ref_id}-{slug}.md` with frontmatter `deleted_on: {date}`, `deleted_from_board: {board_id}`. The archive exists so the PM can resurrect prior work (see §4 "Possible duplicate" flow).
+- Absorb does NOT delete repo files. On approval, the file is moved to `product/opportunity-solution-tree/_archive/{ref_id}-{slug}.md` with frontmatter `deleted_on: {date}`, `deleted_from_board: {board_id}`. The archive exists so the PM can resurrect prior work (see §4 "Possible duplicate" flow).
 - **Cascade — descendants whose shapes are also gone.** Each missing descendant is its own deletion entry (recursive). No nesting; each entry lists its own former children under `descendants in sidecar: [...]`.
 - **Cascade — descendants whose shapes remain on the board.** These shapes lose their connector path to root when the ancestor's shape is removed (Miro auto-deletes the touching connectors). They are now **detached**, not deleted — handled by §2.4b. No flag, no resolution prompt. Their sidecar entries flip `attached: false`; their files stay.
 

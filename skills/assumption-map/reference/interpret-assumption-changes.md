@@ -171,7 +171,7 @@ PROPOSED NEW ASSUMPTION
   Hypothesis ("If we ___, then ___") and Method when accepting?
 ```
 
-Ask: **accept / edit / reject**. On accept, create `product/context/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md` from the SKILL.md file template and add the sticky to the sidecar's `stickies` block.
+Ask: **accept / edit / reject**. On accept, create `product/opportunity-solution-tree/assumptions/assumption-{NNN}-{slug}.md` from the SKILL.md file template and add the sticky to the sidecar's `stickies` block.
 
 ### Task E — Missing sticky → deletion warning (phase-3)
 
@@ -237,7 +237,7 @@ Clean reads emit the no-op shape from `read-board-state.md` Step 9 — no semant
 
 ## Cross-skill seams
 
-The skill never writes outside its own surface (`product/context/assumption-maps/`). If absorb surfaces signals relevant to neighboring skills, route them:
+The skill never writes outside its own surface (`product/assumption-maps/`). If absorb surfaces signals relevant to neighboring skills, route them:
 
 - **A new sticky on the assumption map that reads more like an opportunity than an assumption** → flag for `opportunity-tree` inbox. Do not write to OST.
 - **A retitle that suggests the parent solution has changed scope** → surface the question, but the solution-shape edit happens in the OST, not here.

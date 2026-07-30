@@ -16,7 +16,7 @@
 #
 # The layout is flat (see iteration-setup/SKILL.md step 4): there is no
 # discovery/ subtree and no per-iteration opportunity-tree/ or design/ folder.
-# The OST is product-level (product/context/opportunity-solution-tree/).
+# The OST is product-level (product/opportunity-solution-tree/).
 
 set -e
 

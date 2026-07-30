@@ -19,7 +19,7 @@ Before creating any stories, determine the next available number:
 
 1. **Scan ALL iterations**: Check `product/iterations/*/stories/` across every iteration
 2. **Find highest number**: Identify the maximum STORY-XXX in use
-3. **Cross-check backlog**: Verify against `product/context/backlog.md`
+3. **Cross-check backlog**: Verify against `product/backlog.md`
 4. **Start at next**: New stories begin at (highest + 1)
 
 ### Using the Script

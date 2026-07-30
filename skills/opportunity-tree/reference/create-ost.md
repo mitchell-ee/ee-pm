@@ -138,7 +138,7 @@ A connector references its endpoints by the node aliases in the same batch (`fro
 
 ## 6. Sidecar contract
 
-After every render, write the full layout to `product/context/opportunity-solution-tree/miro-metadata.json`. Required keys:
+After every render, write the full layout to `product/opportunity-solution-tree/miro-metadata.json`. Required keys:
 
 ```json
 {

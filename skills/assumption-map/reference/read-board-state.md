@@ -6,8 +6,8 @@ Mirrors `story-map/reference/read-board-state.md` and `opportunity-tree/referenc
 
 ## Inputs
 
-- `product/context/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` — sidecar with recorded item IDs (chrome + stickies blocks).
-- Assumption files under `product/context/opportunity-solution-tree/assumptions/assumption-*.md` filtered by `Parent Solution: SOL-{NN}`.
+- `product/assumption-maps/SOL-{NN}-{slug}/miro-metadata.json` — sidecar with recorded item IDs (chrome + stickies blocks).
+- Assumption files under `product/opportunity-solution-tree/assumptions/assumption-*.md` filtered by `Parent Solution: SOL-{NN}`.
 - Live Miro board, read via `mcp__miro-official__layout_read`.
 
 ## Step 1: Load the sidecar

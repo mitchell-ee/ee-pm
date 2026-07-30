@@ -53,7 +53,7 @@ After the loop, confirm with the PM, then walk the diff sections. Ordering withi
 
 For each entry `{ref_id}: title "..." → "..."`:
 
-- Read the existing MD file at `product/context/opportunity-solution-tree/{type}s/{type}-{NN}-{slug}.md`.
+- Read the existing MD file at `product/opportunity-solution-tree/{type}s/{type}-{NN}-{slug}.md`.
 - Update the `# Type: {title}` H1.
 - Save under the **existing filename** — do not rename even if the new title would produce a different slug. Rationale: repo-internal hyperlinks (other context docs, prototype specs, ticket descriptions, archive cross-references) cite by path. Ref_id is the stable identity; slug drift in the filename is acceptable and expected over a node's lifetime.
 
@@ -79,7 +79,7 @@ For each entry `{ref_id}: title "..." → "..."`:
 - For new opportunities whose depth exceeds the sidecar's `max_opportunity_depth`, bump `max_opportunity_depth`. Next refresh will re-flow the solution column.
 
 **Deleted nodes `{ref_id} (was under {parent_ref}; descendants in sidecar: [...])`:**
-- Move the MD file to `product/context/opportunity-solution-tree/_archive/{ref_id}-{slug}.md`.
+- Move the MD file to `product/opportunity-solution-tree/_archive/{ref_id}-{slug}.md`.
 - **Add** YAML frontmatter at the top of the archived file: `deleted_on: {YYYY-MM-DD}` and `deleted_from_board: {board_id}`. Note: live MD files don't have frontmatter (per `SKILL.md` §"File formats"); this block is introduced *on archive* and exists only in `_archive/`.
 - Drop the sidecar entry.
 - Do NOT recursively archive descendants whose shapes are also gone — each deleted node is its own diff entry per §2.4a cascade rule. Walk them in order.
@@ -94,7 +94,7 @@ For each `Detached: {ref_id}`:
 ### 3.4 Sidecar finalization
 
 - `last_synced`: set to **`now()` at end of phase 3**, after all repo writes succeed. Rationale: future `--diff-against` runs against the *new* `last_synced` skip any phase-2 board mutations the skill itself made (those mutations' `modified_at` is ≤ `now()`), so subsequent absorbs aren't perpetually re-reading skill-touched shapes. The in-loop self-edit set in §2 handles within-invocation re-reads; `last_synced` handles between-invocation reads. They are separate concerns.
-- Write the sidecar back to `product/context/opportunity-solution-tree/miro-metadata.json` atomically: write to a sibling `.tmp` file, then `rename`. This single write is the only atomic boundary in phase 3.
+- Write the sidecar back to `product/opportunity-solution-tree/miro-metadata.json` atomically: write to a sibling `.tmp` file, then `rename`. This single write is the only atomic boundary in phase 3.
 
 ## 3a. Underspecified-state rule — ask, don't invent
 
@@ -135,7 +135,7 @@ Accept-mode tests live in `product/_test/ost-absorb/phase-5-accept/` (continuing
 
 The harness drives "accept" via scripted inputs because the conversational flow doesn't expose a non-interactive accept entrypoint. The scripted-answers file lives next to `target.md` as `answers.md`.
 
-**Repo-root override.** Tests must not write to `product/context/opportunity-solution-tree/`. The skill accepts a `--repo-root <path>` argument that redirects all MD reads and writes (including `_archive/` and the sidecar) to the given path. Production callers do not pass this flag; it exists for test isolation only.
+**Repo-root override.** Tests must not write to `product/opportunity-solution-tree/`. The skill accepts a `--repo-root <path>` argument that redirects all MD reads and writes (including `_archive/` and the sidecar) to the given path. Production callers do not pass this flag; it exists for test isolation only.
 
 ## 6. Thin-slice scope for first bring-up
 

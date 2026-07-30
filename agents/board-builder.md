@@ -29,7 +29,7 @@ Materializes a Miro board from repo state. Reads the repo (story files, OST node
 
 Spawned by the main thread (typically while executing one of the router skills: `discovery`, `story-shaping`, `prototyping`, or `workshop-facilitator`) with **all preconditions resolved in the prompt**. The caller has already:
 
-- Confirmed the iteration slug (or `product/context` scope for the product-level OST).
+- Confirmed the iteration slug (or `product/` scope for the product-level OST).
 - Picked the skill (`opportunity-tree`, `story-map`, etc.).
 - Decided whether this is a fresh create or a refresh against an existing board.
 - Resolved any naming, team, or space choices that need a human in the loop.

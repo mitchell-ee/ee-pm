@@ -37,7 +37,7 @@ Create a new user story from scratch or from a feature description.
    - **Human Developer**: Detailed, explicit requirements
 
 4. **Gather Story Details**
-   - Who is the user? (Use general personas from `product/context/personas.md`)
+   - Who is the user? (Use general personas from `product/personas.md`)
    - What do they want to do?
    - Why? (business value, user benefit)
    - Which iteration and chosen solution does it trace to?
@@ -68,7 +68,7 @@ Create a new user story from scratch or from a feature description.
    Save to: `product/iterations/{iteration}/stories/story-{number}-{slug}.md`
 
 9. **Update Backlog**
-   Add story to `product/context/backlog.md`
+   Add story to `product/backlog.md`
 
 ### Mode 2: Refine Existing Story
 
@@ -169,7 +169,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
 3. **Determine sources**
    - If the invocation names sources ("create stories from the solution brief and synthesis", "finalize stories against the converged map"), use them.
    - Otherwise ask the user which to use (AskUserQuestion), offering the candidates that exist for the iteration:
-     - Chosen solution: `product/context/opportunity-solution-tree/solutions/solution-{NN}-{slug}.md`
+     - Chosen solution: `product/opportunity-solution-tree/solutions/solution-{NN}-{slug}.md`
      - `product/iterations/{slug}/synthesis.md`
      - Linked OST opportunity (for traceability)
      - Converged story map under `product/iterations/{slug}/story-maps/`
@@ -203,7 +203,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
    - **No matching story exists** → create a stub for it.
    - **A matching story exists** → (finalize path only) update it to align (re-derive AC, priority, traceability) rather than duplicating. **Never silently overwrite** — propose the diff before applying (consistent with Mode 2's "propose changes before making them"). In seed there are no existing stories to reconcile against — every capability is a new stub.
    - Apply the granularity setting **to the stub list** — granularity decides how many stubs, not how verbose each one is.
-   - Use "As a [persona], I want [action], so that [benefit]" framing for the stub's `intent` — general personas matching `product/context/personas.md`.
+   - Use "As a [persona], I want [action], so that [benefit]" framing for the stub's `intent` — general personas matching `product/personas.md`.
    - Maintain traceability: every stub records its solution + opportunity + source theme (and a story-map activity once a map exists) in `source_refs`.
 
    Each stub carries exactly the fields the `story-writer` invocation contract names (`agents/story-writer.md`): `story_id`, `slug`, `title`, `personas`, `activity`, `priority`, `type`, `epic`, `intent`, `source_refs`. A stub is cheap — one to two lines of intent plus metadata — which is why the whole stub list fits in the main thread without bloat.
@@ -283,7 +283,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
 
 13. **[assemble] Maintain the stories index and backlog** (in-thread, from the receipts)
     - Create/update `product/iterations/{iteration}/stories/stories-index.md` from the worker receipts (id, title, priority, epic, size, `ac_count`) plus a priority-distribution summary — one writer building the index, not N workers racing on it. Do not re-read the story bodies; the receipts carry what the index needs.
-    - Update `product/context/backlog.md` — ID, title, priority, iteration, and epic (if any) for each story.
+    - Update `product/backlog.md` — ID, title, priority, iteration, and epic (if any) for each story.
 
 14. **[assemble] Report results**
     - Stories created vs updated, epic count (0 if flat), priority distribution, total effort estimate, duration.
