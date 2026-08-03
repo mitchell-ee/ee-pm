@@ -55,7 +55,7 @@ The origin (0, 0) is the grid center; the x-axis line runs horizontally at y=0, 
 
 ## Step 4: Normalize sticky content before comparing
 
-Stickies are authored as two `<p>` blocks: `<p>{ID}</p><p>{short title}</p>`. The Miro inline editor reshapes any touched sticky into this same form (per `reference_miro_editor_side_effects`), so freshly created and human-touched stickies share one content form — there is no "canonical vs collapsed" split to reconcile.
+Stickies are authored as two `<p>` blocks: `<p>{ID}</p><p>{short title}</p>`. The Miro inline editor reshapes any touched sticky into this same form, so freshly created and human-touched stickies share one content form — there is no "canonical vs collapsed" split to reconcile.
 
 Normalize before compare, in order:
 
@@ -75,7 +75,7 @@ A sticky whose only difference is whitespace, entity-encoding, or `<p>`-wrapper 
 - **Stickies:** `color={palette_name}` — `light_yellow`, `light_blue`, `light_green`, `light_pink`, `violet`, `gray`. Compare directly against `fill_color` in the sidecar.
 - **SHAPE items (legend swatches, axis lines):** `fill={hex}` — `#fff9b1`, `#cce8fc`, `#d5f692`, `#fbd5d8`, `#c9b6f5`, `#d0d0d0`. If you need a name, lookup via the canonical hex table in `SKILL.md` §"Color legend (right side)".
 
-This asymmetry is a Miro DSL quirk recorded in `reference_miro_dsl_gotchas`. For sticky comparison in absorb, only the palette-name form matters — the hex form is only relevant when verifying chrome integrity (legend swatches).
+This asymmetry is a Miro DSL quirk: the write form and the read form differ. For sticky comparison in absorb, only the palette-name form matters — the hex form is only relevant when verifying chrome integrity (legend swatches).
 
 ## Step 6: Classify each board item
 
@@ -143,7 +143,7 @@ Produce a structured object:
   "changes": [
     {
       "state": "moved_quadrant",
-      "item_id": "3458764672162294121",
+      "item_id": "{miro_item_id}",
       "assumption_id": "ASSUMPTION-0006",
       "from": "investigate_later",
       "to": "test_first",

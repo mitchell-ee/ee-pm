@@ -57,7 +57,8 @@ View backlog with optional filtering.
 **Workflow:**
 1. Read current backlog: `product/backlog.md`
 2. Apply filters if specified:
-   - By priority (P0, P1, P2, P3 — or Critical/High/Medium/Low if the backlog uses named priorities)
+   - By priority (P0, P1, P2, P3). A backlog still using the legacy Critical/High/Medium/Low words
+     has not been migrated — filter on them if present, and tell the PM to run `/ee-pm:setup`.
    - By status (Backlog, In Progress, Blocked)
    - By epic (reads the `epic:` frontmatter field on each story)
    - By iteration
@@ -122,6 +123,17 @@ Change priority of existing story.
 
 **Primary File:**
 - `product/backlog.md` - Master backlog file (cross-iteration product state)
+
+**Template:**
+- `templates/backlog-template.md` (alongside this skill) - the required structure for
+  `product/backlog.md`. Use it when creating the backlog for the first time, and follow its
+  column order when adding rows.
+
+**Priority scale:**
+- P0–P3, defined once in
+  [`story-management/reference/priority-scale.md`](../story-management/reference/priority-scale.md).
+  That file also carries the MoSCoW mapping and the story-map swim-lane mapping. Never restate the
+  scale locally.
 
 **Related Files:**
 - `product/iterations/{slug}/stories/story-*.md` - Source story files (authoritative for `epic:` and `prototype_refs:` fields)

@@ -62,7 +62,7 @@ Create a new user story from scratch or from a feature description.
 
 7. **Assign Priority**
    Use [reference/priority-scale.md](reference/priority-scale.md):
-   - Critical, High, Medium, or Low
+   - P0, P1, P2, or P3
 
 8. **Save Story**
    Save to: `product/iterations/{iteration}/stories/story-{number}-{slug}.md`
@@ -272,7 +272,7 @@ The phase tags below (**[plan]** / **[fan-out]** / **[assemble]**) apply to the 
     epic: epic-{NNNN}-{slug}      # optional — only when >8 stories
     prototype_refs:              # optional — only when prototypes exist
       - prototypes/{file}.png
-    priority: Critical | High | Medium | Low
+    priority: P0 | P1 | P2 | P3
     size: XS | S | M | L | XL
     ---
     ```

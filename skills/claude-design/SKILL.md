@@ -1,14 +1,26 @@
 ---
 name: claude-design
-description: Round-trip workflow between repo-resident prototype specs and Claude Design projects on claude.ai. Brief CD with a per-screen spec, ingest your design system as a linked reference (e.g. Equal Experts' Kuat), hand off the result back to the repo via "Handoff to Claude Code" or zip download. Use when a PM asks to prototype a feature, refresh a prototype after spec changes, or import CD output into an iteration's prototypes/ directory.
-tags: [product-management, prototyping, claude-design, kuat]
+description: Round-trip workflow between repo-resident prototype specs and Claude Design projects on claude.ai. Brief CD with a per-screen spec, ground it in your design system (synced separately by the built-in /design-sync), hand off the result back to the repo via "Handoff to Claude Code" or zip download. Use when a PM asks to prototype a feature, refresh a prototype after spec changes, or import CD output into an iteration's prototypes/ directory.
+tags: [product-management, prototyping, claude-design]
 ---
 
 # Claude Design Skill
 
-Round-trip workflow between repo-resident prototype specs and Claude Design (claude.ai/design). The skill encodes the four-piece pattern (sidecar markdown spec, create on the surface, absorb back, accept-flow discipline) on a non-MCP surface.
+Round-trip workflow between repo-resident prototype specs and Claude Design (claude.ai/design). The skill encodes the four-piece pattern (sidecar markdown spec, create on the surface, absorb back, accept-flow discipline) on a surface whose feature-prototype loop is human-mediated rather than MCP-driven.
 
-This is the *adapted-shape* instantiation of the EE PM Workflow pattern — same shape as `story-map` and `opportunity-tree`, different mechanics (no MCP, manual project setup in the browser, handoff via CD's built-in features).
+This is the *adapted-shape* instantiation of the EE PM Workflow pattern — same shape as `story-map` and `opportunity-tree`, different mechanics (the feature-prototype loop is browser-mediated; handoff via CD's built-in features).
+
+**Scope boundary — read this first.** Claude Code ships a first-class `DesignSync` tool and a bundled **`/design-sync`** skill that own the *design-system* half of Claude Design end to end. This skill does **not** reimplement any of it. The split:
+
+| | `/design-sync` (built-in) | `claude-design` (this skill) |
+|---|---|---|
+| Artifact | Your **design system** — the component library | A **feature prototype** — screens for one feature |
+| Direction | Push: repo `.tsx` → CD design-system project | Round-trip: brief → CD → back into `prototypes/` |
+| Mechanism | `DesignSync` tool; converter builds, validates, uploads | Brief composed here; iteration happens in the CD project |
+| Owns | Component cards, tokens, `conventions.md`, re-syncs | Per-screen specs, briefs, import, story references |
+| Run from | The design-system repo | The product repo |
+
+Never hand-build, hand-upload, or hand-author previews for a design system from this skill — **run `/design-sync`**. If a step below sounds like design-system work, it belongs to `/design-sync`.
 
 ## When to use this skill
 
@@ -23,20 +35,26 @@ If unsure which mode, ask: "Are we kicking off a new prototype, refreshing an ex
 
 ## Required environment
 
-- Access to claude.ai/design with a workspace that contains **your design-system project** (e.g. Equal Experts' "Kuat Design System"). Set this up once; collaborators need to be invited.
+- Access to claude.ai/design.
+- **Optional — a design-system project**, if this product has a design system. Prototypes are grounded in it when present.
+  - **If the design system lives in a repo you control, do not set this up by hand — run `/design-sync` from that repo.** It builds the library, compiles previews from the real `.tsx`, validates renders, and uploads the project. It also owns re-syncs when the library changes.
+  - If someone else maintains it, you need read access to their design-system project; ask the owner.
+  - If the product has no design system, brief without one — UI choices are made in the prototyping surface. This plugin does not create or supply design systems.
 - Filesystem access to the iteration's `product/iterations/{cycle}/prototypes/` directory.
-- Optional: a local checkout of your design system's package (e.g. `node_modules` containing `@equal-experts/kuat-core` for Kuat) so Claude Code can pick up the bundled agent docs after handoff.
+- Optional: a local checkout of the design system's package, so Claude Code can pick up its bundled agent docs after handoff.
 
-## Why this isn't MCP-driven
+## How the pieces map
 
-Claude Design is a research-preview surface inside claude.ai. There is no API or MCP. The skill therefore produces *instructions and briefs* the user follows in the browser, not direct tool calls. The four-piece pattern still holds:
+The four-piece pattern still holds; only the *create* leg is browser-mediated, and the design-system prerequisite is now tool-driven:
 
 | Piece | Miro-pattern (story-map, OST) | This skill (claude-design) |
 |---|---|---|
 | Sidecar | Markdown story / opportunity files | Per-screen markdown specs in `prototypes/` |
-| Create | `mcp__miro__*` calls | Brief pasted into a new CD project; user runs CD |
+| Create | `mcp__miro__*` calls | Brief pasted into a CD project; user runs CD |
 | Absorb | `mcp__miro__get-board-items` + diff | "Handoff to Claude Code" / zip download / file copy |
 | Accept-flow | Propose changes, PM approves | Identical — PM accepts/edits/rejects CD output before it lands in repo |
+
+The design-system *prerequisite* is not part of this table — it is a `DesignSync` tool call sequence owned by `/design-sync`.
 
 ## Modes
 
@@ -60,8 +78,9 @@ A prototype almost always extends or sits adjacent to a screen the product alrea
 
 **Output:** a single markdown brief the user pastes into a new CD project, plus step-by-step setup instructions:
 
+0. **Confirm the design-system project is current.** If the design system is repo-resident and has changed since the last sync, run **`/design-sync`** from the design-system repo before briefing — prototypes briefed against a stale component set will reference components that no longer match the code. This skill never performs that sync itself.
 1. **In claude.ai/design, create a new project** for this feature. One project per feature — do not pile prototypes into the design-system project or into a previous feature's project.
-2. **Import your design-system project as a linked reference** (e.g. Equal Experts' "Kuat Design System"). From the new project's Import menu → "Link another project" → pick your design system's project. This gives CD read access to the rules, tokens, kits, and assets without duplicating them.
+2. **If the product has a design system, import its project as a linked reference.** From the new project's Import menu → "Link another project" → pick the design-system project. This gives CD read access to the rules, tokens, kits, and assets without duplicating them. The project on the other end of that link is the one `/design-sync` publishes. Skip this step if there is no design system.
 3. **Paste the brief** the skill produced. The brief includes:
    - Frontmatter: `baseline_screen:` or `adjacent_existing_screen:` pointing at the discovered `product/screens/{file}.md` (from Step 0), plus `stories`, `solution`, `persona`, `surface`.
    - Feature summary (what it does, who uses it, the surface)
@@ -170,9 +189,9 @@ Recommended sections:
 
 | | claude-design | magic-patterns |
 |---|---|---|
-| Surface | claude.ai/design (research preview) | magicpatterns.com |
-| Mechanism | Browser; no API/MCP | API-driven; programmatic |
-| Design-system ingestion | Native (linked project) | Per-prompt context injection |
+| Surface | claude.ai/design | magicpatterns.com |
+| Mechanism | Feature loop browser-mediated; design system tool-driven (`DesignSync` / `/design-sync`) | API-driven; programmatic |
+| Design-system ingestion | Native (linked project, published by `/design-sync`) | Per-prompt context injection |
 | Output | React/HTML preview, PPTX, zip, Handoff to Claude Code | React/HTML, Figma export |
 | Cost | Foundation-LLM tokens already approved | Specialty-tool subscription |
 | Role | Primary prototyping surface | Stretch second-path comparison |
@@ -181,13 +200,15 @@ The pattern is the same in both cases (sidecar + create + absorb + accept-flow).
 
 ## Error handling
 
-- User has no claude.ai/design access → tell the user how to request access from the workspace owner; stop cleanly.
-- Your design-system project (e.g. Equal Experts' "Kuat Design System") not visible to the user → tell them which workspace it lives in; stop cleanly.
+- User has no claude.ai/design access → tell the user how to request access from the workspace owner; stop cleanly. (`/design-login` authorizes design-system access for the tool path.)
+- A design-system project the product expects is not visible to the user → if the design system is repo-resident and simply hasn't been published yet, point them at **`/design-sync`** from that repo rather than treating it as an access problem. Otherwise tell them which workspace it lives in; stop cleanly.
+- Design system exists but its components are out of date vs. the repo → **`/design-sync`** re-sync, not a manual re-upload from here.
 - Import zip extraction overwrites existing files → always show diff and require approval before write.
 - Spec file missing for a target screen → offer to scaffold one from `templates/screen-spec.md` (when added).
 
 ## Related skills
 
+- **`/design-sync` (built-in, not part of this repo)** — publishes the design system this skill briefs against. Owns the converter, preview authoring, validation, upload, and re-sync. Run it from the design-system repo whenever the library changes.
 - `story-map` — same four-piece pattern, Miro+MCP surface, grid topology.
 - `opportunity-tree` — same four-piece pattern, Miro+MCP surface, tree topology.
 - `magic-patterns` — alternate prototyping surface; stretch second-path comparison.
@@ -198,11 +219,11 @@ The pattern is the same in both cases (sidecar + create + absorb + accept-flow).
 First real round-trip: **{screen-name}** (2026-05-18, iteration `YYYY-MM-DD-{iteration-slug}`). Findings for the next briefer:
 
 - **Paste-friendliness.** Brief mode's setup blockquote (CD-project setup instructions for the human) must be either at the **bottom** of the file or in a separate `_briefs/SETUP.md` — selecting "everything below the H1" or "everything except this last block" is fragile. Default: put setup at the bottom; the brief itself begins at the H1.
-- **Output README becomes the design source-of-truth.** CD's handoff README is consistently *richer* than the input brief — it documents chosen-variation rationale, full state spec, drift-cascade behaviours we didn't ask for, Kuat-gap recommendations, AC-checklist back-references. The brief's spec is the *input* artifact; the imported README is the *output* artifact and the spec engineering reads. Reference mode should point story `Prototype refs` at the **output README**, not the input spec. The input spec should carry a header note acknowledging the output is authoritative.
-- **What to explicitly request in the brief's "What we want back from CD" section.** First-run output produced — without being asked — variation comparison, all-states-rendered, Kuat-gap surfacing, AC-checklist back-reference. Make these explicit in future briefs so they're guaranteed, not lucky:
+- **Output README becomes the design source-of-truth.** CD's handoff README is consistently *richer* than the input brief — it documents chosen-variation rationale, full state spec, drift-cascade behaviours we didn't ask for, design-system-gap recommendations, AC-checklist back-references. The brief's spec is the *input* artifact; the imported README is the *output* artifact and the spec engineering reads. Reference mode should point story `Prototype refs` at the **output README**, not the input spec. The input spec should carry a header note acknowledging the output is authoritative.
+- **What to explicitly request in the brief's "What we want back from CD" section.** First-run output produced — without being asked — variation comparison, all-states-rendered, design-system-gap surfacing, AC-checklist back-reference. Make these explicit in future briefs so they're guaranteed, not lucky:
   - 2–3 variations with a *chosen* one and one-line rejection rationale for the others
   - All listed states rendered (PNG per state in `screenshots/`)
-  - Kuat selection-order audit, with gaps named as `KuatX` upstream candidates
+  - Design-system selection-order audit (when one is linked), with gaps named as upstream candidates
   - AC checklist back-reference (the brief's binding behaviours checked off, one line each)
 - **Zip handoff is the right default for first round-trips.** Inspectable before anything lands; `import` mode extracts → proposes → user accepts. "Handoff to Claude Code" is slicker for demo but skips the inspection step.
 - **`cd-metadata.json` first-write shape.** Record `chosen_variation` and `states_rendered` alongside the spec'd fields — useful provenance for future refresh-mode diffs.

@@ -52,7 +52,7 @@ Two layers, distinguishable by shape:
 | Story | Sticky | type-color (see below) | Body cards. Persona indicated via emoji prefix on content (one emoji per persona for multi-actor stories). |
 | Release horizon | Thin rectangle (`total_width × 12`, `#222222`) | n/a | Horizontal line separating NOW / NEXT / LATER, spanning the full map width. Three per map (NOW/NEXT, NEXT/LATER, LATER end). |
 | Swim-lane label | Text, bold, `font_size 72` | n/a | One per slice (NOW, NEXT, LATER), placed to the left of the map and vertically centered in the lane. NOW label is the left-edge bounds landmark. |
-| **Opportunity** (Torres-unified: problem / pain / need / desire) | Rounded rectangle | n/a | **Dormant** (2026-05-14 decision). An opportunity relates to an *outcome* (the OST's job), not an *activity* — nothing renders, classifies, or forwards opportunities on the story map today. Kept as a spec placeholder for the future cross-board linkage release. |
+| **Opportunity** (Torres-unified: problem / pain / need / desire) | Rounded rectangle | n/a | **Dormant** by design. An opportunity relates to an *outcome* (the OST's job), not an *activity* — nothing renders, classifies, or forwards opportunities on the story map today. Kept as a spec placeholder for the future cross-board linkage release. |
 | **Assumption** | Rounded rectangle | Miro `light_green` | Things we're treating as true but haven't verified. Placed **beside the story it questions**, not in a band. Absorb detects and surfaces these as informational `ASSUMPTION_CAPTURED` notices — no forward, no linkage today. Disambiguated from a `light_green` Refactor sticky by **shape**. |
 | Persona legend | Rectangle shape with HTML content | `#f5f5f5` | One shape (not a frame, not stacked text items) right of the map, text at `size 24`. HTML `<p>` per persona, `<strong>`-wrapped emoji + slug. Right-edge bounds landmark. |
 | Shape legend | Heading text + 3 copyable sample shapes | sample fills | Below the persona legend. Real copyable samples — a `light_yellow` story sticky, a `dark_blue` activity sticky, a `light_green` assumption rounded rectangle — each labelled in its own content. Off-map chrome; recorded in the sidecar so absorb doesn't misread the samples as orphans. |
@@ -114,7 +114,7 @@ Refresh also **re-canonicalizes** any sticky a human has touched on the board: t
 
 Pull Miro → repo. This is the green-field capability at the center of the round-trip. Two passes, run in order.
 
-**Inputs:** iteration slug. Operates against the sidecar at `story-maps/miro-metadata.json`. New stories surfaced by absorb get added to the iteration's `stories/` directory after PM approval. New assumptions surfaced by absorb are **detected and surfaced** as informational `ASSUMPTION_CAPTURED` notices recorded in the sidecar — not forwarded, not absorbed, no repo write (2026-05-14 decision; cross-board linkage is a later release).
+**Inputs:** iteration slug. Operates against the sidecar at `story-maps/miro-metadata.json`. New stories surfaced by absorb get added to the iteration's `stories/` directory after PM approval. New assumptions surfaced by absorb are **detected and surfaced** as informational `ASSUMPTION_CAPTURED` notices recorded in the sidecar — not forwarded, not absorbed, no repo write (cross-board linkage is a later release).
 
 - **Structural diff pass** — see `reference/read-board-state.md`. Classifies every board item against the sidecar; produces a structured list of moves, adds, removes, content changes. No interpretation.
 - **Semantic interpretation pass** — see `reference/interpret-changes.md`. Takes the structural diff and reasons about what the human edits *mean* (new story, rescope, backbone promotion, deprecation), and surfaces captured assumptions informationally. Always proposes; the PM decides.
@@ -150,7 +150,7 @@ Header metadata (parsed by this skill):
 ```
 **Story ID**: {NNNN}
 **Epic**: EPIC-{NNNN} - {epic title}
-**Priority**: Critical | High | Medium | Low
+**Priority**: P0 | P1 | P2 | P3
 **Type**: Regular | Infrastructure | Spike | Quality | Risk | Bug | Refactor | Doc (optional; defaults to Regular)
 **Status**: Draft | Ready | In Progress | Built | Done
 **Personas**: {persona-slug} (optionally comma-separated for stories that span actors)
@@ -246,5 +246,5 @@ See `reference/create-story-map.md` for the full coordinate specification. Summa
 
 ## Related skills
 
-- `opportunity-tree` — same round-trip pattern, tree topology. Story-map ↔ OST linkage is **deferred** (2026-05-14 decision) — opportunities on the story map are dormant; the OST owns opportunities.
+- `opportunity-tree` — same round-trip pattern, tree topology. Story-map ↔ OST linkage is **deferred** — opportunities on the story map are dormant; the OST owns opportunities.
 - `assumption-map` — Torres assumption-mapping. Assumptions surfaced on a story map are **captured and surfaced informationally** for the PM to route by hand; absorb does not forward them to the assumption-map or OST today (cross-board linkage is a later release).

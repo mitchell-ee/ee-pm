@@ -15,7 +15,7 @@ Called from `absorb` mode whenever `read-board-state.md` produces any of:
 - **content_changed** items (board edit on a known sticky)
 - **moved** items that cross an activity column
 - **orphan_assumption** (new discovery-layer item — `orphan_opportunity`
-  is dormant per the 2026-05-14 decision; see Task E)
+  is dormant by design; see Task E)
 - **discovery_moved** or **discovery_content_changed** items (assumptions)
 - Clusters of changes in the same region of the board
 - **`missing` cluster that includes an activity header** — a deleted
@@ -31,7 +31,7 @@ For each `orphan_sticky` in the delivery layer:
 - **Location.** Which activity column and swim lane is it in? The column implies the activity; the emoji prefix implies the persona. The swim lane constrains priority but does **not** determine it — see the priority note below.
 - **Color.** Did the human use the type-color scheme? Cyan suggests infrastructure; violet suggests a spike; light_blue suggests quality.
 
-**Priority is ambiguous from a board read.** A sticky in the NOW lane is Critical *or* High — the lane does not disambiguate. Follow the same rule `read-board-state.md` Step 6 applies to moved stories: default a NOW landing to **High** and flag it for the PM to confirm or raise to Critical. NEXT → Medium, LATER → Low, same flag. Do not assert Critical from lane position alone.
+**Priority is ambiguous from a board read.** A sticky in the NOW lane is P0 *or* P1 — the lane does not disambiguate. Follow the same rule `read-board-state.md` Step 6 applies to moved stories: default a NOW landing to **P1** and flag it for the PM to confirm or raise to P0. NEXT → P2, LATER → P3, same flag. Do not assert P0 from lane position alone.
 
 Produce a proposed story draft:
 
@@ -39,8 +39,8 @@ Produce a proposed story draft:
 PROPOSED NEW STORY
   Suggested ID:  STORY-0015 (next available)
   Activity:      Courier picks up
-  Priority:      High (NOW lane — Critical/High ambiguous on a board read;
-                 defaulted to High per read-board-state.md Step 6, flag for
+  Priority:      P1 (NOW lane — P0/P1 ambiguous on a board read;
+                 defaulted to P1 per read-board-state.md Step 6, flag for
                  PM to confirm or raise)
   Type:          Regular (because light_yellow sticky)
   Personas:      courier (from 🛵 emoji prefix)
@@ -165,7 +165,7 @@ PROPOSED CONTENT UPDATE
 
 Ask: **accept / edit / reject**.
 
-### Task E — Orphan opportunity → OST inbox *(DEFERRED — dormant per 2026-05-14 decision)*
+### Task E — Orphan opportunity → OST inbox *(DEFERRED — dormant by design)*
 
 > **Deferred.** Opportunities on the story map are dormant: nothing
 > renders, classifies, or forwards them today. The story map is not an
@@ -189,7 +189,7 @@ For each `orphan_assumption` (rounded rectangle, Miro fill color
 `light_green`, anywhere on the map — classified by shape + color, not by
 band membership):
 
-Per the 2026-05-14 decision, **there is no story-map ↔ OST linkage
+By design, **there is no story-map ↔ OST linkage
 today.** The story map is a legitimate place assumptions surface during
 mapping, but absorb does NOT forward them anywhere, does NOT propose a
 repo change, and does NOT write to the repo. It **detects** the
@@ -248,7 +248,7 @@ Propose the structural change (PM-approved; **never** automatic):
 ```
 PROPOSED BACKBONE CONTRACTION
   The "Disputes resolve" column is no longer on the board:
-    - Missing activity header: "Disputes resolve" (sidecar id 3458764671405697781)
+    - Missing activity header: "Disputes resolve" (sidecar id {miro_item_id})
     - Co-missing stories from that column: STORY-0006, STORY-0014
 
   Rationale: The column header and 2 of its 2 stories were removed
@@ -317,7 +317,7 @@ Separately, for each orphan or moved assumption, output an informational
 ASSUMPTION_CAPTURED notice (content, nearest_story, activity column). This
 is NOT a proposal — it carries no accept/edit/reject and triggers no repo
 write. Opportunity types (OPPORTUNITY_FORWARD, ASSUMPTION_FORWARD) are
-dormant per the 2026-05-14 decision and are not emitted today.
+dormant by design and are not emitted today.
 ```
 
 Always return concrete, reviewable proposals. Never apply without the PM's approval.
@@ -348,4 +348,4 @@ Reply with: "accept 1,3" or "accept all" or "reject 2" or edit-per-item.
 (Informational notices take no reply — they are surfaced, not proposed.)
 ```
 
-The PM's response drives the final repo writes. This skill never writes outside `product/iterations/{iteration-slug}/`. Cross-board forwards to other skills (`opportunity-tree`, `assumption-map`) are deferred per the 2026-05-14 decision — captured assumptions are surfaced for the PM to route by hand, not forwarded. When the linkage release ships, those forwards return as separate skill invocations after PM approval.
+The PM's response drives the final repo writes. This skill never writes outside `product/iterations/{iteration-slug}/`. Cross-board forwards to other skills (`opportunity-tree`, `assumption-map`) are deferred by design — captured assumptions are surfaced for the PM to route by hand, not forwarded. When the linkage release ships, those forwards return as separate skill invocations after PM approval.

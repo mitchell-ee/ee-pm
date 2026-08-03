@@ -1,4 +1,4 @@
-<!-- BEGIN ee-pm -->
+<!-- BEGIN ee-pm v{{VERSION}} -->
 # EE PM Workflow — workflow conventions
 
 This project uses the **EE PM Workflow** plugin (`ee-pm`) — a portable workflow for AI-assisted, human-led product management across discovery and delivery. The conventions below tell the LLM how to work within it. The skills and worker agents are provided by the plugin and invoked as `/ee-pm:<skill>`.
@@ -22,6 +22,29 @@ Router skills:
 
 Worker agents: `board-builder`, `absorb-interpreter`, `board-writer`, `synthesis-worker`, `story-writer`.
 
+## Schema version — check before operating on `product/`
+
+The marker at the top of this block (`<!-- BEGIN ee-pm v{{VERSION}} -->`) records the **schema
+version this project's artifacts are written in**.
+
+**Every ee-pm skill checks it before reading or writing anything under `product/`:**
+
+1. Read the version from the marker above. No version on the marker means the project predates
+   the convention — treat it as `0.5.0`.
+2. Compare to the plugin's `version` in `.claude-plugin/plugin.json`.
+3. **If the project's version is older, stop.** Say which version the project is on and which the
+   plugin is, and tell the PM to run `/ee-pm:setup` to migrate. Do not read or write `product/`
+   artifacts in the meantime.
+
+This exists because a plugin cannot run anything when it is updated. Without the check, an
+updated plugin writes new-convention data into a project full of old-convention data and the
+mismatch surfaces later as corrupted artifacts — a stale Miro sidecar reads as "every node is
+new", which silently proposes recreating a board that already exists. Stopping loudly is the
+whole point; a skill that quietly operates on stale data is the failure this prevents.
+
+`/ee-pm:setup` is exempt — migrating is its job. Skills that touch nothing under `product/` are
+also exempt.
+
 ## Artifact storage convention
 
 PM artifacts live under `product/`:
@@ -32,15 +55,16 @@ There is **no `product/context/` layer** — durable context sits directly under
 
 Each Miro artifact keeps its own sidecar (`miro-metadata.json`) recording the board ID and the shape/connector IDs the absorb pass diffs against. Sidecars are per artifact, never nested.
 
-## Design system
+## Design system (optional)
 
-The prototyping skills (`prototyping`, `claude-design`) reference a design system for **any** UI decision — color, typography, spacing, layout, component selection. This is a deliberate guardrail: the LLM should never improvise UI when the design system covers it.
+**If this project has a design system**, the prototyping skills (`prototyping`, `claude-design`) reference it for UI decisions — color, typography, spacing, layout, component selection — rather than improvising. Record where it lives:
 
-The skills ship with **Equal Experts' Kuat** as a concrete worked example, but the design system is **swappable**. To use your own:
-- **Local rules (spec authoring):** point the skills at your design system's rules/tokens directory or a design-guidelines doc.
-- **Claude Design (browser):** link *your* design system's project in claude.ai/design, the same way the example links the "Kuat Design System" project.
+- **Local rules (spec authoring):** path to the design system's rules/tokens directory or a design-guidelines doc.
+- **Claude Design:** the linked design-system project in claude.ai/design, if one is published. Publishing a repo-resident design system is `/design-sync`'s job, not this plugin's.
 
-If a UI need isn't covered by your loaded design-system rules, ask before improvising.
+If a UI need isn't covered by the loaded rules, ask before improvising.
+
+**If this project has no design system**, the prototyping skills still work — specs describe intent, and UI choices are made in the prototyping surface. Creating a design system is out of scope for this plugin.
 
 ## Working style
 

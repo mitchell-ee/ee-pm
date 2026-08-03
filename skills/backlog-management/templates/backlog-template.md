@@ -4,31 +4,28 @@
 
 ## Overview
 
-Master index of all stories that have been created but not yet built. Stories are added when created via `/req` and removed when released via `/rel`.
+Master index of all stories that have been created but not yet built. Stories are added when
+`story-management` creates them and removed once they are built and released.
 
 ## Backlog
 
 | ID | Title | Priority | Iteration |
 |----|-------|----------|-----------|
-| STORY-NNNN | [Story title] | [Priority] | [iteration-name] |
-| STORY-YYY | [Story title] | [Priority] | [iteration-name] |
+| STORY-NNNN | [Story title] | [P0-P3] | [iteration-name] |
+| STORY-NNNN | [Story title] | [P0-P3] | [iteration-name] |
 
 ---
 
 ## Priority Scale
 
-| Priority | Description |
-|----------|-------------|
-| Critical | Core functionality, blocks release |
-| High | Important, strong business value |
-| Medium | Nice to have, lower urgency |
-| Low | Deferred, may not be built |
+P0–P3; see [`story-management/reference/priority-scale.md`](../../story-management/reference/priority-scale.md)
+for the level definitions, the MoSCoW mapping, and how priorities map to story-map swim lanes.
+Do not restate the scale here — one definition, referenced everywhere.
 
 ---
 
 ## Notes
 
-- Stories are added to backlog when created via `/req`
-- Stories are removed from backlog when built and released via `/rel`
-- Full story details (acceptance criteria, estimates, etc.) are in the story files
-- Iteration reflects where discovery/specification happened, not when it will be built
+- Stories enter the backlog when created and leave it when built and released.
+- Full story details (acceptance criteria, estimates, etc.) live in the story files.
+- Iteration reflects where discovery/specification happened, not when it will be built.

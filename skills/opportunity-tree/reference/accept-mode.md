@@ -37,7 +37,7 @@ Walk flags in the order they appear in `actual-diff.md`. For each:
 
 **Stale-prefix → new-node hand-off.** When a stale-prefix flag's fix strips the prefix from a new shape, the node remains in `## Structural — New nodes` and is processed by §3.2 in phase 3. The board fix in phase 2 only rewrites the shape content; the node's classification doesn't change.
 
-*Known wastefulness.* Phase 2's strip-and-assign writes a next-available ref_id to the board at fix time, but §3.2 re-derives ref_ids fresh against the live sidecar in `temp_id` order. If a sibling new-node with a lower `temp_id` claims the value phase 2 picked, phase 3 will overwrite the board content a second time. Final state is consistent; the extra write is harmless but visible. Two refinements are tracked but out of thin-slice scope: (a) phase 2 writes a temporary marker (`NEW-{n}`) and phase 3 assigns the real ref_id; (b) phase 2 coordinates with phase-3 `temp_id` ordering so the value it writes is the one phase 3 will honor.
+*Known wastefulness.* Phase 2's strip-and-assign writes a next-available ref_id to the board at fix time, but §3.2 re-derives ref_ids fresh against the live sidecar in `temp_id` order. If a sibling new-node with a lower `temp_id` claims the value phase 2 picked, phase 3 will overwrite the board content a second time. Final state is consistent; the extra write is harmless but visible. Two refinements are possible but not implemented: (a) phase 2 writes a temporary marker (`NEW-{n}`) and phase 3 assigns the real ref_id; (b) phase 2 coordinates with phase-3 `temp_id` ordering so the value it writes is the one phase 3 will honor.
 
 If the PM says "leave it for now" for a flag, record it as **deferred** in the diff. Deferred flags do not block phase 3 — the relevant node simply doesn't get its sidecar/MD entry updated this round, and the same flag will resurface on the next absorb.
 
@@ -124,22 +124,9 @@ Distinction from §4 documented flags: documented flags are *predictable* ambigu
 
 **Sidecar write fails** (disk error, race): MD files from phase 3 are already on disk. Surface clearly: "Repo updated, sidecar write failed. Re-run accept after resolving {error}." The next absorb run will diff the board against the *old* sidecar — phase 3's MD writes will appear briefly out of sync (e.g., a new MD file with a ref_id the sidecar doesn't know about), but the next absorb will treat the corresponding shape as a new-node candidate, propose the same ref_id (or next available), and converge.
 
-## 5. Test harness expectations
+## 5. Supported diff entry types
 
-Accept-mode tests live in `product/_test/ost-absorb/phase-5-accept/` (continuing the existing numbering — phase-1..4 are propose-only cohorts). Each test:
-
-1. Sets up its own throwaway Miro board, built fresh from the canonical repo state via the normal create flow (`board_create` for an empty board, then `layout_create` to render the tree into it). Tests do not chain off prior propose-only test boards — schema and state assumptions are too entangled (phase-1..3 working sidecars predate the multi-tier schema; reuse would require migration).
-2. Records `expected-after.md` — the MD files + sidecar diff that accept *should* produce.
-3. Runs the skill in accept mode against a scripted PM-answer transcript for any flag prompts.
-4. Compares the on-disk MD files and sidecar after accept against `expected-after.md`.
-
-The harness drives "accept" via scripted inputs because the conversational flow doesn't expose a non-interactive accept entrypoint. The scripted-answers file lives next to `target.md` as `answers.md`.
-
-**Repo-root override.** Tests must not write to `product/opportunity-solution-tree/`. The skill accepts a `--repo-root <path>` argument that redirects all MD reads and writes (including `_archive/` and the sidecar) to the given path. Production callers do not pass this flag; it exists for test isolation only.
-
-## 6. Thin-slice scope for first bring-up
-
-Initial accept-mode validation covers these diff entry types, in order:
+Accept mode writes each diff entry type differently. These are the supported types and the write each one performs:
 
 1. **Content edit (no flag)** — write MD title change, finalize sidecar.
 2. **Real deletion (no flag)** — archive MD + drop sidecar entry.
@@ -147,4 +134,4 @@ Initial accept-mode validation covers these diff entry types, in order:
 4. **Detachment (no flag)** — sidecar flip only.
 5. **Stale-prefix flag** — most common copy-paste leftover; PM confirms "strip and assign next ref_id," skill rewrites shape content, then proceeds as new-node.
 
-Deferred to a later cohort: type-ambiguous, solution-on-non-leaf, multiple-parent, ref-collision, possible-duplicate, identity-break, content-malformed, skip-level, column-mismatch. These have richer prompts and are designed after the thin slice proves the I/O pattern.
+Not yet supported: type-ambiguous, solution-on-non-leaf, multiple-parent, ref-collision, possible-duplicate, identity-break, content-malformed, skip-level, column-mismatch. Each needs a richer prompt than the types above.

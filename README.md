@@ -2,7 +2,7 @@
 
 A repeatable, portable set of skills and agents for **AI-assisted, human-led product management** across discovery and delivery. It lets a PM and an LLM work together end to end — interviews and synthesis, opportunity solution trees, assumption maps, story maps and stories, backlog, prototypes, and live workshop facilitation — with the human leading and the LLM doing the heavy, mechanical, and synthesis-shaped work. Several of these artifacts are visual surfaces (Miro boards, Claude Design prototypes) the PM and LLM round-trip together.
 
-This is **not a product or a packaged tool.** It's a set of conventions, prompts, and small scripts you adopt into your own LLM coding environment. The design goal is portability: bring your own LLM, your own Miro account, your own design system.
+This is **not a product or a packaged tool.** It's a set of conventions, prompts, and small scripts you adopt into your own LLM coding environment. The design goal is portability: bring your own LLM, your own Miro account, and — if your project has one — your own design system.
 
 ## What it does
 
@@ -68,7 +68,7 @@ This repo is a **Claude Code plugin** (`ee-pm`). Skills install namespaced as `/
 1. **Install the plugin.** Point your Claude Code at this repo — `claude --plugin-dir /path/to/ee-pm` for local use, or install it from a marketplace. (The skills and conventions are the portable core; if you use a different LLM coding environment, adapt the harness glue — agent frontmatter, MCP registration — to your tool.)
 2. **Scaffold your project.** Run `/ee-pm:setup` once. It creates the `product/` artifact tree and adds the workflow conventions to your project's `CLAUDE.md`. It's non-destructive and safe to run in an existing repo — it reports what it'll do and never overwrites your files.
 3. **Connect Miro.** See [`docs/miro-setup.md`](docs/miro-setup.md) — the board workers use the official hosted Miro MCP (OAuth at connect); it covers boards and connectors alike, so there's a single credential and no scripts to install.
-4. **Bring your design system.** The prototyping skills reference a design system for any UI decision. They ship with Equal Experts' Kuat as a worked example; point them at your own design-system rules and your own Claude Design linked project.
+4. **Point at your design system, if you have one.** The prototyping skills will reference it for UI decisions instead of improvising. Record its rules path and, if published, its Claude Design project in your `CLAUDE.md`. Optional — the skills work without one, and this plugin doesn't create or supply a design system.
 5. **Work iteratively.** Run `/ee-pm:framework-setup` once to establish product context, then `/ee-pm:iteration-setup` per iteration. Your PM artifacts live under `product/`.
 
 ## Plugin layout
@@ -92,6 +92,6 @@ To add a fourth Miro board type (beyond opportunity tree, assumption map, and st
 ## What's portable, what you swap
 
 - **Portable as-is:** the skills, worker agents, conventions, the absorb/diff logic.
-- **You provide:** your LLM environment, your Miro account + OAuth, your design system (rules + Claude Design project).
+- **You provide:** your LLM environment, your Miro account + OAuth, and optionally a design system (rules + Claude Design project) if your project has one.
 
 No custom MCP server, no library or SDK. Small scripts are bundled inside skills only where determinism requires them.

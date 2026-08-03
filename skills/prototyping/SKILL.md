@@ -5,13 +5,14 @@ description: Router skill for per-screen prototypes round-tripped between repo s
 
 # Prototyping (router skill)
 
-Provides visual confirmation of stories. Takes per-screen specs from `product/iterations/<slug>/prototypes/` and runs them through an external prototyping surface, then ingests the surface's handoff back into the repo. Same four-piece pattern as the Miro skills (brief → external work → handoff → absorb), but on a non-MCP surface — the human moves bits between Claude Code and the prototyping surface manually.
+Provides visual confirmation of stories. Takes per-screen specs from `product/iterations/<slug>/prototypes/` and runs them through an external prototyping surface, then ingests the surface's handoff back into the repo. Same four-piece pattern as the Miro skills (brief → external work → handoff → absorb), but without an MCP round-trip — the human moves bits between Claude Code and the prototyping surface manually. (Publishing the *design system* those prototypes are built from is tool-driven and belongs to `/design-sync`; see Surfaces.)
 
 These are instructions loaded into the main thread's context. The main thread follows this routing guide; it does not run as a separate subagent.
 
 ## Surfaces
 
-- **Primary: Claude Design** (`claude-design` skill). Browser-driven on claude.ai/design. Ingests your design system as a linked reference (e.g. Equal Experts' Kuat). Handoff via CD's "Handoff to Claude Code" or zip download.
+- **Primary: Claude Design** (`claude-design` skill). Feature prototypes on claude.ai/design, briefed from the repo and imported back. Ingests the product's design system as a linked reference, when it has one. Handoff via CD's "Handoff to Claude Code" or zip download.
+- **Prerequisite, not a prototyping surface: `/design-sync`** (built-in Claude Code skill, not in this repo). Publishes the *design system itself* to a claude.ai/design design-system project via the `DesignSync` tool. Run it from the design-system repo before briefing if the library has changed. Neither skill below reimplements it.
 - **Stretch: Magic Patterns** (`magic-patterns` skill). Programmatic / API-driven specialty tool. Used only as second-path comparison to demonstrate the pattern generalizes across surfaces. Do not invoke unless explicitly asked for the comparison run.
 
 ## The loop
@@ -43,7 +44,7 @@ The prototype loop is a requirement-surfacing activity like story-mapping — it
 
 ## Worker spawns
 
-None. The prototyping surfaces are non-MCP and human-mediated; the `claude-design` and `magic-patterns` skills run inline in the main thread's context. There is no Miro round-trip and no transcript-scale ingestion that warrants backgrounded workers.
+None. The feature-prototype loop is human-mediated rather than MCP-driven; the `claude-design` and `magic-patterns` skills run inline in the main thread's context. There is no Miro round-trip and no transcript-scale ingestion that warrants backgrounded workers.
 
 ## Phase routing table
 
@@ -58,12 +59,13 @@ None. The prototyping surfaces are non-MCP and human-mediated; the `claude-desig
 ## Rules
 
 1. **Claude Design is the primary surface.** Default there unless the user explicitly asks for Magic Patterns.
-2. **Always reference your design system for any UI decision.** Load your design system's rules/tokens directory (or a design-guidelines doc) before authoring per-screen specs or making color/typography/spacing choices — e.g. if using Equal Experts' Kuat, `node_modules/@equal-experts/kuat-core/agent-docs/`. CD ingests the design system at project creation; Claude Code uses the locally available rules.
+2. **If the product has a design system, reference it for every UI decision.** Load its rules/tokens directory (or a design-guidelines doc — the path is recorded in `CLAUDE.md`) before authoring per-screen specs or making color/typography/spacing choices. CD ingests the design system at project creation; Claude Code uses the locally available rules. When the product has no design system, say so plainly in the brief and let the prototyping surface make UI choices — do not invent a design system to fill the gap.
 3. **Specs live in the repo,** prototypes are external. The repo is the source of truth for intent; the surface is the source of truth for visual output until ingested.
 4. **Ingest before re-briefing.** If the surface has produced output that hasn't been absorbed, ingest first so the next brief reflects the converged state.
 5. **Magic Patterns only on explicit request.** It exists as comparison evidence for the "lowest-level capable tool" point; it is not part of the default loop.
 6. **Preconditions are caller-passed.** Iteration slug, target screen list, chosen surface, and any human-in-the-loop choices must be resolved before following this skill. If a required precondition is missing, ask the PM the specific question rather than guessing defaults.
-7. **Surface skills run inline; no worker delegation.** `claude-design` and `magic-patterns` are skills invoked directly by the main thread — there is no equivalent of `board-builder` here, because the surfaces are human-mediated rather than MCP-driven.
+7. **Surface skills run inline; no worker delegation.** `claude-design` and `magic-patterns` are skills invoked directly by the main thread — there is no equivalent of `board-builder` here, because the feature-prototype loop is human-mediated rather than MCP-driven.
+8. **Never hand-roll design-system publishing.** Building, converting, validating, or uploading a component library to claude.ai/design belongs to `/design-sync`. If prototyping work stalls because the design-system project is missing or stale, run that skill from the design-system repo — do not improvise the upload from here.
 
 ## Handoff payload
 
@@ -77,19 +79,20 @@ Schema: `agents/README.md` § "Cross-agent handoff payload".
 **Emits** (back to `story-shaping` or caller):
 - `artifacts.ingested_handoff_dirs` — one entry per screen ingested
 
-No `boards.*` fields apply (non-MCP surface).
+No `boards.*` fields apply (no Miro board behind this surface).
 
 ## What this skill does NOT route to
 
 - Story writing or AC refinement — hand off to `story-shaping`.
 - Discovery work — hand off to `discovery`.
-- Programmatic interaction with the prototyping surface beyond what the skill does. Browser handoff is human-mediated.
+- **Design-system publishing — route to `/design-sync`,** not to anything here.
+- Programmatic interaction with the *feature-prototype* loop beyond what the skill does. That handoff stays human-mediated, even though design-system publishing is now tool-driven.
 - Improvised UI when the design system's coverage is unclear — ask before deviating from the design system.
 
 ## Related resources
 
-- `CLAUDE.md` — your design system's rules entrypoints and component-selection order (e.g. Equal Experts' Kuat).
+- `CLAUDE.md` — the design system's rules entrypoints and component-selection order, if the product has one.
 - `agents/README.md` — why prototyping is its own router (and the fallback collapse path if legibility forces three).
 - `skills/claude-design/SKILL.md` — primary surface.
 - `skills/magic-patterns/SKILL.md` — stretch comparison surface.
-- your design system's rules/tokens directory — e.g. if using Equal Experts' Kuat, `node_modules/@equal-experts/kuat-core/agent-docs/README.md` (the Kuat bundle index).
+- the design system's rules/tokens directory, at the path recorded in `CLAUDE.md` (omit when the product has none).

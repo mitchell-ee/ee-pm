@@ -42,7 +42,7 @@ read board → propose-only diff → flag-walk loop → PM "accept" → repo + s
   (`interpret-changes.md`), write `actual-diff.md`. No mutations of any
   kind.
 - **Phase 2 — flag-walk loop.** For each flagged proposal, ask the PM
-  the resolution prompt in §6, record the answer. Story-mapping's flags
+  the resolution prompt for its type (§5), record the answer. Story-mapping's flags
   are **value-supply** prompts (confirm a defaulted Priority, supply a
   Labels value) — not board-fix prompts. No board or repo write happens
   in the loop. Loop until the flag set is empty or the PM defers a flag
@@ -73,7 +73,7 @@ copy-pastes.
 Walk flags in the order they appear in `actual-diff.md`. For each:
 
 1. Surface the flag's one-line reason to the PM with the relevant prompt
-   from §6's resolution table.
+   from §5's per-type rules.
 2. Record the PM's answer in memory (and in `actual-diff.md` for audit).
    No board or repo write happens here.
 3. Mark the flag resolved. Move to the next.
@@ -82,7 +82,7 @@ If the PM says "leave it for now" for a flag, record it as **deferred**
 in the diff. A deferred flag does not block phase 3 — the relevant
 proposal simply isn't applied this round, and the same flag resurfaces
 on the next absorb. For a deferred NEW_STORY Priority flag, the safe
-default still applies (the proposal carries **High** per
+default still applies (the proposal carries **P1** per
 `read-board-state.md` Step 6); "leave it for now" means the PM accepts
 that default rather than that the story is skipped.
 
@@ -126,7 +126,7 @@ or recolored the sticky — the board is already canonical).
   `priority` to `{new}`.
 - A NOW landing whose new priority is ambiguous (moved in from NEXT or
   LATER) arrives here already flagged and resolved — the value written
-  is whatever the PM confirmed in the §2 loop (default **High**).
+  is whatever the PM confirmed in the §2 loop (default **P1**).
 
 **`PROPOSED TYPE UPDATE` — `{story_id}: fill {old} → {new}`:**
 - Read the story file. Add or replace the `**Type**: {Type}` header
@@ -142,23 +142,22 @@ or recolored the sticky — the board is already canonical).
   parsed short title. (The short title is the content key for the
   structural pass — it is not reverse-derivable from the file, so the
   sidecar must carry it; see `read-board-state.md` Step 1.) **This is
-  the only write CONTENT_UPDATE makes in the thin slice.**
+  the only write CONTENT_UPDATE makes.**
 - **The story file is not touched.** The board sticky carries the
   *short* title; the story file's `# Story: {title}` H1 is the *full*
   title (e.g. sticky "Handoff PIN displays at arrival" vs file H1
   "Handoff PIN displays on courier app at arrival"). The two are
   distinct fields — the full H1 is **not** mechanically derivable from
   an abbreviated board edit, and absorb must never silently overwrite a
-  PM-authored full H1 with a board short string. This matches the
-  phase-1 test 1.1 precedent: CONTENT_UPDATE accept updates the working
-  sidecar only.
+  PM-authored full H1 with a board short string. CONTENT_UPDATE accept
+  updates the sidecar only.
 - The §3.6 pass writes the new short title onto the board sticky in its
   canonical two-`<p>` form.
 
-> Deferred (later cohort): a `STORY FILE REVIEW` flag that, when the
+> Deferred: a `STORY FILE REVIEW` flag that, when the
 > board short title changes, asks the PM whether the story file H1 /
 > body needs a corresponding edit — and applies the PM-supplied full
-> title. The thin slice proves only the mechanical sidecar write.
+> title. Accept performs only the mechanical sidecar write.
 
 **`NEW_STORY` — Task A, one per accepted `orphan_sticky`:**
 - **Re-derive the Story ID at write time.** Scan the live sidecar for
@@ -170,7 +169,7 @@ or recolored the sticky — the board is already canonical).
 - Write `story-{NNNN}-{slug}.md` from `templates/story.md`. Fill in:
   - `**Story ID**: {NNNN}`
   - `**Priority**: {value}` — the value the PM confirmed in the §2 loop
-    (default **High** for a NOW landing, per `read-board-state.md`
+    (default **P1** for a NOW landing, per `read-board-state.md`
     Step 6).
   - `**Type**: {Type}` — the deterministic mapping of the orphan's fill
     color. Per `templates/story.md`, **omit this line entirely when the
@@ -217,10 +216,10 @@ story removed does that through a separate, explicit deletion — never as
 an absorb side effect. This holds in accept mode exactly as in
 propose-only mode.
 
-> Deferred (later cohort): a `## Removed` diff section that, on explicit
+> Deferred: a `## Removed` diff section that, on explicit
 > PM approval, grays out the sticky and prepends "(Removed)" per
 > `SKILL.md` refresh-mode rules. Even then it never deletes the file.
-> The thin slice proves only that `missing` is inert in accept mode.
+> `missing` is inert in accept mode.
 
 ### 3.4 Informational notices — sidecar-only
 
@@ -229,11 +228,11 @@ no sidecar record) carries no accept/edit/reject. On a sidecar refresh
 accept mode records the assumption under `items.assumptions` with its
 `nearest_story` and content — "seen, surfaced" — so it isn't
 re-surfaced. No story file is written; no forward happens (cross-board
-linkage is deferred per the 2026-05-14 decision). This is part of the
+linkage is deferred by design). This is part of the
 normal sidecar finalize, not a PM-approved write.
 
-> Deferred (later cohort): the thin slice in §6 does not exercise
-> `ASSUMPTION_CAPTURED`. Listed here so the contract is complete.
+> Deferred: `ASSUMPTION_CAPTURED` is not among the supported types in
+> §5. Listed here so the contract is complete.
 
 ### 3.5 Sidecar finalization
 
@@ -310,7 +309,7 @@ already in use on disk) is high enough that interrupting the PM is
 always cheaper. Frame the prompt as a flag the PM sees alongside any
 other flagged ambiguities.
 
-Distinction from §6 documented flags: documented flags are *predictable*
+Distinction from §5's documented flags: documented flags are *predictable*
 ambiguities the spec already anticipated (the NOW-priority flag). This
 rule covers *unanticipated* states — bugs, drift, or scenarios the spec
 hasn't yet handled. Unanticipated flags should be recorded post-test as
@@ -354,67 +353,30 @@ of sync (e.g. a new story file with a `STORY-NNNN` the sidecar doesn't
 know), but the next absorb treats the corresponding sticky as a
 candidate, proposes the same id (or next available), and converges.
 
-## 5. Test harness expectations
+## 5. Supported diff entry types
 
-Accept-mode tests live in `product/_test/story-map/phase-5-accept/`
-(continuing the numbering — phases 1–4 are propose-only cohorts). The
-cohort:
-
-1. Uses **one** throwaway Miro board, built fresh from the canonical repo
-   state via the normal create flow (`board_create` for an empty board, then
-   `layout_create` to render the map into it), recorded in `board_id.txt`.
-   Tests run as per-test edits on that board, mirroring phase-1's per-test
-   protocol — accept mode mutates one story file per test, so batching would
-   entangle the expected-after states.
-2. Points the skill at a `working-repo/` copy of the iteration
-   directory, made at phase setup. Tests write there, **never** the real
-   `product/iterations/{iteration-slug}/`. The `working-repo/` and its
-   sidecar mutate forward across the cohort — later tests start from the
-   state earlier tests left behind.
-3. Records `expected-after.md` per test — the MD file + sidecar diff
-   accept *should* produce.
-4. Runs the skill in accept mode against a scripted PM-answer transcript
-   (`answers.md`) for any flag prompts.
-5. Compares the on-disk `working-repo/` MD files and sidecar after
-   accept against `expected-after.md`, writes `verdict.md`.
-
-**Repo-root override.** Tests must not write to
-`product/iterations/{iteration-slug}/`. The skill accepts a
-`--repo-root <path>` argument that redirects all MD reads and writes
-(stories, `stories-index.md`, `story-maps/activities/`, the iteration
-README, and the sidecar) to the given path. Production callers do not pass this flag; it exists for
-test isolation only.
-
-## 6. Thin-slice scope for first bring-up
-
-Initial accept-mode validation covers these diff entry types, in order.
-Each maps directly to a proposal type phases 1–4 already proved in
-propose-only mode:
+Accept mode writes each diff entry type differently. These are the
+supported types and the write each one performs:
 
 1. **CONTENT_UPDATE (no flag)** — Task D. Update the sidecar
    `sticky_short_title` only; the story file is not touched (§3.2). The
    §3.6 pass is a no-op here — the PM already typed the new short title
    on the board and the sticky still carries its `STORY-NNNN` label, so
-   the board content is already canonical. (Proved propose-side by
-   phase-1 test 1.1, phase-4 test 4.1.)
+   the board content is already canonical.
 2. **Structural Priority update (no flag)** — a swim-lane move into NEXT
    or LATER, where the reverse mapping is unambiguous. Update the
-   `**Priority**` line + sidecar `swim_lane` / `priority`. (Proved
-   propose-side by phase-1 test 1.2, phase-4 tests 4.1 / 4.2 / 4.3.)
+   `**Priority**` line + sidecar `swim_lane` / `priority`.
 3. **Structural Type update (no flag)** — a recolor. Update / insert the
-   `**Type**` line + sidecar `fill_color`. (Proved propose-side by
-   phase-1 test 1.4, phase-4 test 4.2.)
+   `**Type**` line + sidecar `fill_color`.
 4. **NEW_STORY (Priority flag)** — Task A. Flag-walk the NOW-ambiguity
-   Priority (PM confirms High or raises to Critical), re-derive the
+   Priority (PM confirms P1 or raises to P0), re-derive the
    `STORY-NNNN`, write the story file, rewrite the board sticky to
    canonical form, add the sidecar entry, append to `stories-index.md`.
-   (Proved propose-side by phase-2 test 2.1, phase-4 tests 4.1 / 4.3.)
 5. **Missing item (warning, no write)** — confirm the no-cascade
    guarantee holds in accept mode: a `missing` story produces a warning
-   and zero repo / sidecar / board writes. (Proved propose-side by
-   phase-3 tests 3.1 / 3.2 / 3.3, phase-4 test 4.1.)
+   and zero repo / sidecar / board writes.
 
-Deferred to a later cohort, each with a richer prompt or a multi-file
+Not yet supported — each needs a richer prompt or a multi-file
 write:
 - **RESCOPE** (Task B, cross-column move) — needs the PM-supplied Labels
   value and a `## Sync History` note; the Labels rewrite is not
@@ -424,26 +386,23 @@ write:
   *and* a sidecar `activity_header` entry (with its `activity_ref`) in
   one accept.
 - **`moved_and_changed` compound accept** — applying a Priority, a Type,
-  and a CONTENT_UPDATE proposal to one story file in a single accept
-  (phase-4 test 4.2's propose-side output).
+  and a CONTENT_UPDATE proposal to one story file in a single accept.
 - **`ASSUMPTION_CAPTURED` sidecar write** — recording an assumption
   under `items.assumptions` (§3.4).
 - **`## Removed` gray-out** — the explicit-approval deprecation path
   (§3.3 deferred note).
 
-**Every thin-slice test also verifies the §3.6 board label-normalization
-pass.** The pass is content-only — it writes the canonical `STORY-NNNN`
-label onto a sticky that lacks it and touches nothing else. So each
-test's `expected-after.md` records two things about the board: (a) the
-sticky positions, fills, and sizes are **byte-identical to the PM's
-edit** — accept moved nothing; (b) for test 4 (new story) only, the
-orphan sticky's content is rewritten to canonical
-`<p>{emoji} STORY-NNNN</p><p>{short title}</p>`. Tests 1–3 and 5 expect
-**zero** board writes (their stickies already carry canonical labels).
-`verdict.md` compares a post-accept `layout_read` against this.
+**Board-write invariant.** Across every supported type, the §3.6
+label-normalization pass is the *only* board write accept makes, and it is
+content-only. After an accept:
 
-These are designed after the thin slice proves the I/O pattern: that
-accept mode reads `working-repo/`, applies the four write-producing
-proposal types, leaves `missing` inert, finalizes the sidecar
-atomically, and writes the new story's identity label to the board
-without disturbing the PM's arrangement.
+- Sticky positions, fills, and sizes are **byte-identical to the PM's
+  edit** — accept moved nothing.
+- Only a sticky lacking its canonical label is rewritten, to
+  `<p>{emoji} STORY-NNNN</p><p>{short title}</p>`. In practice that is
+  the new-story case; a sticky that already carries a canonical label
+  takes **zero** board writes.
+
+A post-accept `layout_read` that shows any position, fill, or size change
+means accept overstepped — the arrangement is the PM's, and accept
+preserves it.

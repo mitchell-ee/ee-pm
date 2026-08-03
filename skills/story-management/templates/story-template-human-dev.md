@@ -7,7 +7,7 @@ description: Detailed stories with explicit UI components, data requirements, bu
 
 **Story ID**: [Number]
 **Iteration**: [iteration-name]
-**Priority**: [Critical/High/Medium/Low]
+**Priority**: [P0/P1/P2/P3]
 **Status**: [Draft/Ready/Built]
 **Labels**: [iteration-name], [persona-name], [feature-area], [human-dev]
 
@@ -29,7 +29,7 @@ So that [benefit/outcome].
 *(Include this section if design artifacts exist)*
 
 **Screenshots**:
-- [Path to relevant screenshot, e.g., `product/design/2025-11-12-mvp/screenshots/01-welcome-screen.png`]
+- [Path to relevant screenshot, e.g., `product/iterations/2025-11-12-mvp/prototypes/welcome/01-welcome-screen.png`]
 - [Additional screenshots as needed]
 
 **Design Notes**:

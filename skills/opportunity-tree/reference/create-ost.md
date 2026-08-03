@@ -174,7 +174,8 @@ After every render, write the full layout to `product/opportunity-solution-tree/
     "title": { "miro_id": "...", "type": "text", "font_size": 96, "bold": true, "x": 0, "y": -360 }
   },
   "nodes": [
-    { "ref_id": "OUTCOME-0001", "type": "outcome", "miro_id": "...", "parent_ref": "PRODUCT-CRUMBS", "x": 480, "y": 0 },
+    { "ref_id": "PRODUCT-{SLUG}", "type": "root", "miro_id": "...", "parent_ref": null, "x": 0, "y": 0 },
+    { "ref_id": "OUTCOME-0001", "type": "outcome", "miro_id": "...", "parent_ref": "PRODUCT-{SLUG}", "x": 480, "y": 0 },
     { "ref_id": "OPP-0001", "type": "opportunity", "miro_id": "...", "parent_ref": "OUTCOME-0001", "x": 960, "y": 0, "opportunity_depth": 1 },
     { "ref_id": "OPP-0012", "type": "opportunity", "miro_id": "...", "parent_ref": "OPP-0001", "x": 1280, "y": 0, "opportunity_depth": 2 },
     { "ref_id": "SOL-0001", "type": "solution", "miro_id": "...", "parent_ref": "OPP-0012", "x": 1760, "y": 0 }

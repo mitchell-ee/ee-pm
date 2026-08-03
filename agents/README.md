@@ -10,7 +10,7 @@ Agents are personas + tool allowlists + system prompts that the main Claude thre
 
 **Skills are organized by capability. Agents are organized by how a PM adopts them.** This workflow applies the four-piece visual-collaboration pattern across surfaces (Miro, Claude Design); the agents organize the same skills by *PM phase*, because that is how a PM will pick up the work on Monday.
 
-Story-writing is intentionally **not** bundled inside discovery. A large slice of the EE ICP audience does little or no discovery — for them, story-writing is the job. Naming an agent for work the viewer doesn't do causes them to skip past the part that's actually relevant. The discovery/story-shaping seam is where Torres draws her line, and it matches audience reality.
+Story-writing is intentionally **not** bundled inside discovery. The discovery/story-shaping seam is where Torres draws her line, and story-shaping is standalone-usable: many teams do little or no discovery, and for them story-writing *is* the job. Naming an agent for work the viewer doesn't do causes them to skip past the part that's actually relevant.
 
 ## Phases
 

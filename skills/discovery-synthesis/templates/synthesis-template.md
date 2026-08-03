@@ -82,38 +82,6 @@
 
 ---
 
-## Proposed Features
-
-### Feature 1: [Name]
-
-**User Story**: As a [persona], I want [capability] so that [benefit]
-
-**Addresses**:
-- Theme: [Theme name]
-- Pain Points: [Pain point numbers]
-- User Needs: [Need numbers]
-
-**Estimated Effort**: [S/M/L/XL]
-
-**Priority**: [Critical / High / Medium / Low]
-
----
-
-### Feature 2: [Name]
-
-**User Story**: As a [persona], I want [capability] so that [benefit]
-
-**Addresses**:
-- Theme: [Theme name]
-- Pain Points: [Pain point numbers]
-- User Needs: [Need numbers]
-
-**Estimated Effort**: [S/M/L/XL]
-
-**Priority**: [Critical / High / Medium / Low]
-
----
-
 ## Cross-Iteration References
 
 **Related Previous Work**:

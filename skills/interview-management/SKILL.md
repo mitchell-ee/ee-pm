@@ -1,7 +1,6 @@
 ---
 name: interview-management
 description: Conduct user/stakeholder interviews and format transcripts into structured insights
-version: 1.0.0
 category: product-management
 ---
 
@@ -94,7 +93,7 @@ Extract and organize:
 Direct quotes that capture important insights or user voice
 ```markdown
 > "I waste 20 minutes every day just trying to find the right report"
-> — Sarah, Operations Manager, 2025-12-10
+> — Operations Manager, 2025-12-10
 ```
 
 **Themes**
@@ -118,7 +117,7 @@ Tag insights by:
 - Priority (high/medium/low signal)
 
 ### 4. Output Format
-Create structured markdown file in `/knowledge/interviews/`:
+Create a structured markdown file in `product/iterations/{iteration-slug}/interviews/`:
 
 ```markdown
 # Interview: [Participant Role] - [Date]
@@ -183,15 +182,15 @@ Suggest connections to existing product context:
 - [ ] Themes are specific (not generic)
 - [ ] Insights are actionable
 - [ ] Categories/tags are consistent with existing framework
-- [ ] File saved in `/knowledge/interviews/` with clear naming
+- [ ] File saved in `product/iterations/{iteration-slug}/interviews/` with clear naming
 - [ ] Connections to personas/journeys are explicit
 - [ ] New questions are captured for future research
 
 ## Templates
 
-Use templates from `/templates/product/` if available:
-- `interview-guide-template.md`
-- `interview-transcript-template.md`
+`templates/interview-template.md` (alongside this skill) is the required structure for a captured
+interview. Read it before writing one and follow its section order — it is what makes transcripts
+comparable across interviews, which is what `discovery-synthesis` depends on when it reads a batch.
 
 ## Notes
 

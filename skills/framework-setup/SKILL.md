@@ -1,7 +1,6 @@
 ---
 name: framework-setup
 description: Initialize product context by creating foundational product management files (personas, glossary, principles, journey maps)
-version: 1.0.0
 category: product-management
 ---
 
@@ -179,13 +178,9 @@ Before completing:
 
 ## Templates
 
-Use templates from `/templates/product/` if they exist:
-- `persona-template.md`
-- `glossary-template.md`
-- `design-principles-template.md`
-- `journey-map-template.md`
-
-If templates don't exist, create well-structured markdown files following standard product management formats.
+This skill ships no artifact templates — `product/` documents are written directly, following the
+structures specified in this file (personas carry the frontmatter in §Personas; the rest follow
+standard product-management formats).
 
 ## Notes
 

@@ -27,6 +27,23 @@ The skill pack for the EE PM Workflow workflow. Each skill is self-contained. **
 | `claude-design` | Round-trip per-screen prototype specs to a Claude Design project (primary prototyping surface) |
 | `magic-patterns` | Second-path prototyping comparison (stretch) |
 
+## Schema version — a rule every skill follows
+
+A skill that reads or writes `product/` **must check the project's schema version before doing
+so**, and stop if the project is behind the plugin. The rule is stated once, in the workflow
+conventions block that `setup` writes into the project's `CLAUDE.md` — see
+`setup/templates/claude-md-block.md` § "Schema version". That block is in context whenever a
+skill runs, so the rule is not repeated in each `SKILL.md`.
+
+It exists because a plugin cannot run anything when it is updated (no install hook). Without the
+check, an updated plugin writes new-convention data into a project holding old-convention data,
+and the mismatch surfaces later as corrupted artifacts. Migrations live in `setup/migrations/`;
+`setup` §7 runs them.
+
+**Writing a new skill that touches `product/`:** you inherit the check — don't restate it, but do
+respect it. **Changing a convention that existing project data depends on:** add a migration; see
+`setup/migrations/README.md`.
+
 ## The Miro three-piece pattern
 
 `opportunity-tree`, `assumption-map`, and `story-map` all follow the same build → collaborate → read-back → interpret loop. Each goes entirely through the official Miro MCP (`mcp__miro-official__*`) — board build, read, and connector wiring all via its layout DSL — so each board skill is independently liftable, with no shared scripts and no skill depending on another. See `docs/miro-setup.md` for the Miro auth path.

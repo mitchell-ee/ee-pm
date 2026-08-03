@@ -10,8 +10,6 @@ Round-trip workflow between repo-resident assumption-test files and a Miro assum
 
 This is the **third Miro instantiation** of the EE PM Workflow four-piece pattern (sidecar + create + absorb + accept-flow), after `story-map` and `opportunity-tree`. Together with those two, this skill is evidence that the same three-piece visual pattern generalizes across Miro artifacts: same shape, three artifact types.
 
-> **Status note (2026-05-17).** Native-toolchain spike PASSED — coordinate math, sticky colors, the axis-line-as-rectangle technique, axis-tip labels, title positioning, and the right-side legend all validated end-to-end on a native-toolchain spike board (see `product/_test/assumption-map/native-spike/findings.md` for the spike record and the 4 DSL gaps it surfaced). What remains: the per-phase absorb harness (mirroring `product/_test/{story-map,ost-absorb}/`) — until that lands, the absorb-mode interpretation rules in this file are still paper.
-
 ## When to use this skill
 
 Invoke when the user asks to:
@@ -111,7 +109,7 @@ Existing assumption-test files in this repo encode **one assumption plus its tes
 
 ## Miro layout
 
-A 2×2 grid with drawn axis lines, four axis-tip labels, a board title, a right-side color legend, and the assumption stickies. The board is *not* viewport-bound — stickies land inside their quadrant; the board scrolls. Layout validated end-to-end on the native toolchain via `product/_test/assumption-map/native-spike/`.
+A 2×2 grid with drawn axis lines, four axis-tip labels, a board title, a right-side color legend, and the assumption stickies. The board is *not* viewport-bound — stickies land inside their quadrant; the board scrolls. The layout has been validated end-to-end against the live Miro MCP.
 
 ### Coordinate system
 
@@ -206,7 +204,7 @@ Optional: thin curved connectors from each sticky back to its parent solution st
 
 ## Known DSL limitations and canonical write forms
 
-Validated against the official `mcp.miro.com` MCP during the native-toolchain spike (see `product/_test/assumption-map/native-spike/findings.md`). Treat the canonical write forms as load-bearing: the diff stability of refresh-mode `layout_update` depends on the write DSL matching what `layout_read` returns.
+Validated against the official `mcp.miro.com` MCP. Treat the canonical write forms as load-bearing: the diff stability of refresh-mode `layout_update` depends on the write DSL matching what `layout_read` returns.
 
 - **No `rotation` property** on any item type (TEXT, SHAPE, STICKY). The 4-axis-tip-label pattern above avoids needing rotation; do not introduce designs that require it.
 - **`border_width=0` is rejected** by DSL validation ("must be greater than 0"). For visually borderless shapes, write `border_width=1` with `border_color` equal to `fill`. Visually identical at any zoom.
@@ -221,8 +219,8 @@ Each map gets its own standalone sidecar at `product/assumption-maps/SOL-{NNNN}-
 ```json
 {
   "solution_ref": "SOL-0009",
-  "board_id": "uXjVOqr...",
-  "board_url": "https://miro.com/app/board/uXjVOqr.../",
+  "board_id": "{board_id}",
+  "board_url": "https://miro.com/app/board/{board_id}/",
   "last_synced_at": "2026-04-29T...",
   "chrome": {
     "title_id": "...",

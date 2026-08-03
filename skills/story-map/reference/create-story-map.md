@@ -13,7 +13,7 @@ Read from `product/iterations/{iteration-slug}/` (plus the product-level persona
 3. **`product/personas/*.md`** — one file per persona; `slug`, `name`, and optional `emoji` from each one's frontmatter build the persona legend rectangle and resolve emoji prefixes.
 4. **`stories/story-{NNNN}-{slug}.md`** — all story files. Each contains header metadata:
    - `Story ID`, `Priority`, `Status`, `Personas`, `Labels`, optional `Type`
-5. **Optional** `assumptions.md` (or whatever the iteration uses) — surfaces assumption items to render as `light_green` rounded rectangles placed *beside the story each assumption questions* (per the 2026-05-14 decision — no separate discovery band). If absent, skip. Opportunities on the story map are **dormant**: even if a source file exists, nothing renders today (opportunities relate to outcomes, which the OST owns, not to activities).
+5. **Optional** `assumptions.md` (or whatever the iteration uses) — surfaces assumption items to render as `light_green` rounded rectangles placed *beside the story each assumption questions* (by design — no separate discovery band). If absent, skip. Opportunities on the story map are **dormant**: even if a source file exists, nothing renders today (opportunities relate to outcomes, which the OST owns, not to activities).
 
 ## Step 1: Parse structural sources
 
@@ -41,9 +41,9 @@ For each story file:
 - Resolve `Personas` field to emoji prefix(es) via the persona map.
 - Assign activity column by analyzing story content + labels against the backbone names. If ambiguous, fall back to alphabetical assignment within the closest matching activity and emit a warning.
 - Assign swim lane by priority:
-  - Critical / High → NOW
-  - Medium → NEXT
-  - Low → LATER
+  - P0 / P1 → NOW
+  - P2 → NEXT
+  - P3 → LATER
 
 ## Step 2: Create the Miro board
 
@@ -290,11 +290,11 @@ layout_create STICKY item:
 
 **Author sticky content as two `<p>` blocks: `<p>{emoji_prefix} STORY-{NNNN}</p><p>{abbreviated_title}</p>`.** This is the same HTML shape Miro's inline editor produces the first time a human touches a sticky, so a freshly rendered sticky and a human-touched one are byte-identical — there is no "canonical vs collapsed" split for absorb to reconcile. It also sidesteps a `layout_update` bug: literal `\n` in sticky content makes the official MCP's whole-board DSL re-serialization unparseable, failing *every* `layout_update` on that board. The `<p>` form round-trips through the DSL as a single clean line. See `read-board-state.md` "Known limitation — `layout_update` and sticky newlines."
 
-Priority is *not* rendered on the sticky. Priority stays story-file-authoritative; on the board it is reflected only by which swim lane the sticky sits in (Critical/High → NOW, Medium → NEXT, Low → LATER). Earlier versions rendered a third `{Priority}` block — it was display-only, lossy in reverse (NOW collapses Critical and High), and Miro's inline editor drops or inlines it the first time a human touches the sticky. Dropping it removes a whole class of false-positive content diffs in absorb mode. See `read-board-state.md` "Sticky-content parser" for how absorb tolerates legacy stickies that still carry the block.
+Priority is *not* rendered on the sticky. Priority stays story-file-authoritative; on the board it is reflected only by which swim lane the sticky sits in (P0/P1 → NOW, P2 → NEXT, P3 → LATER). Earlier versions rendered a third `{Priority}` block — it was display-only, lossy in reverse (NOW collapses P0 and P1), and Miro's inline editor drops or inlines it the first time a human touches the sticky. Dropping it removes a whole class of false-positive content diffs in absorb mode. See `read-board-state.md` "Sticky-content parser" for how absorb tolerates legacy stickies that still carry the block.
 
 ### 4.5 Assumptions — beside the related story
 
-Per the 2026-05-14 decision, there is **no separate discovery band**. An
+By design, there is **no separate discovery band**. An
 assumption is placed next to the story it questions — that placement
 *is* the linkage, and a band would sever it.
 
@@ -533,7 +533,7 @@ Write `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`:
 ```
 
 `opportunities` stays empty — opportunities on the story map are dormant
-(2026-05-14 decision). `assumptions` records `nearest_story` (the story
+(by design). `assumptions` records `nearest_story` (the story
 the rounded rectangle sits beside), not a band position.
 
 The sidecar is a **pure index**: every entry references its `.md` home by

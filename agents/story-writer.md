@@ -28,7 +28,7 @@ slug:        {kebab-slug}
 title:       {one-line title}
 personas:    {persona-slug}[, {persona-slug}...]
 activity:    {backbone activity this story sits under, if known}
-priority:    Critical | High | Medium | Low
+priority:    P0 | P1 | P2 | P3
 type:        Regular | Infrastructure | Spike | Quality | Risk | Bug | Refactor | Doc
 epic:        epic-{NNNN}-{slug} | null
 intent:      {1–2 line statement of what this story delivers and why}

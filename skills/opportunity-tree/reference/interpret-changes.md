@@ -18,7 +18,7 @@ Sidecar nodes carry `ref_id`. Board shapes carry `miro_id`. The link is the `mir
 
 ## 1.5 Tree membership: reachability from the root shape
 
-The board is both a structured OST and a brainstorming surface. The spec separates these by *reachability from the root shape* (`PRODUCT-CRUMBS` in the sidecar) via the connector graph. Three states are possible for any shape on the board:
+The board is both a structured OST and a brainstorming surface. The spec separates these by *reachability from the root shape* — the node whose `type` is `root` in the sidecar, conventionally `PRODUCT-{SLUG}` — via the connector graph. Identify it by type, never by name. Three states are possible for any shape on the board:
 
 | State | Sidecar entry? | Reachable from root? | Absorb treatment |
 |---|---|---|---|
@@ -42,7 +42,7 @@ Sidecar shape (additions):
 {
   "ref_id": "SOL-0008",
   "type": "solution",
-  "miro_id": "3458764670883863934",
+  "miro_id": "{miro_item_id}",
   "parent_ref": "OPP-0017",          // last-known parent before detachment, preserved
   "x": 1440, "y": 3290,
   "attached": false,                // NEW; default true if omitted
@@ -85,7 +85,7 @@ What is silently ignored (never appears in the diff):
 - Multiple internal whitespace characters once collapsed.
 
 ### 2.2 Structural changes
-The connector graph defines parenthood. For every node, the parent is the *other endpoint* of the unique tree-edge connector touching it whose other endpoint is **closer to root in the connector graph** (one step shallower on any path back to `PRODUCT-CRUMBS`). For fixed-column types (root, outcome, solution, assumption_test) this collapses to "one column to the left." For opportunities, where columns are depth-dependent, the parent may be either an outcome (depth 1) or another opportunity (depth ≥ 2); see §2.8.
+The connector graph defines parenthood. For every node, the parent is the *other endpoint* of the unique tree-edge connector touching it whose other endpoint is **closer to root in the connector graph** (one step shallower on any path back to the root node). For fixed-column types (root, outcome, solution, assumption_test) this collapses to "one column to the left." For opportunities, where columns are depth-dependent, the parent may be either an outcome (depth 1) or another opportunity (depth ≥ 2); see §2.8.
 
 - **Re-parented:** node N's connector-derived parent ref ≠ sidecar `parent_ref`, **and** N is still reachable from the root (active per §1.5). Goes in `## Structural` as `Re-parented: {ref_id}: {old_parent_ref} → {new_parent_ref}`.
 - **Moved subtree (implicit):** when N is re-parented, its descendants follow by virtue of their connectors to N being unchanged. Absorb does **not** report descendants as re-parented; the move on N is sufficient.
@@ -253,7 +253,7 @@ Flags block silent absorption of the affected node only. The rest of the diff is
 
 ## 5. Modes
 
-- **Propose-only (default):** read the board, write `actual-diff.md`, do not modify repo files or the sidecar. Used by the test harness in `product/_test/ost-absorb/` and as the default surface for absorb mode generally.
+- **Propose-only (default):** read the board, write `actual-diff.md`, do not modify repo files or the sidecar. This is the default surface for absorb mode — the PM sees what would change before anything is written.
 - **Accept:** after PM review and resolution of any flags (§6), apply the diff. Write/edit repo files. Update the sidecar's `nodes` array, `last_synced`, and any layout fields that changed. Move real deletions (§2.4a) to `_archive/`. Flip `attached: false` / `detached_on` on detached nodes (§2.4b). Clear those fields on reattachments (§2.7). Full runbook: `accept-mode.md`.
 
 The skill always runs propose-only first and asks before accepting. There is no single-shot absorb-and-write path. Accept always runs inside the same invocation as propose-only — see `accept-mode.md` §1 for the procedural shape.
@@ -295,6 +295,6 @@ The PM's mental model is "the board is the canvas." If absorb only ever reads, e
 
 ## 7. Open questions (revise as tests reveal answers)
 
-- ~~Does color encode status?~~ **Closed 2026-05-08.** No. Color is purely visual. If status needs to be encoded (e.g., `Descoped`, `Validated`), it will live in MD frontmatter and optionally be reflected in the title prefix (`[descoped] {title}`), not in fill color. Color changes are silently ignored under all circumstances.
+- ~~Does color encode status?~~ **Closed.** No. Color is purely visual. If status needs to be encoded (e.g., `Descoped`, `Validated`), it will live in MD frontmatter and optionally be reflected in the title prefix (`[descoped] {title}`), not in fill color. Color changes are silently ignored under all circumstances.
 - How does absorb behave with non-OST stickies/text on the board (workshop notes, parking lot)? Current rule: shapes that are not `round_rectangle` are ignored entirely. Stickies and text frames don't enter the diff.
 - How are connectors with intermediate waypoints handled? Current rule: only endpoints matter; waypoints ignored.

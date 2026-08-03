@@ -119,7 +119,7 @@ the orphan states.
 Stickies are authored as two `<p>` blocks —
 `<p>{emoji_prefix} STORY-{NNNN}</p><p>{short title}</p>` — which is the
 same HTML shape Miro's inline editor produces when a human touches a
-sticky (see `reference_miro_editor_side_effects`). So freshly rendered
+sticky. So freshly rendered
 and human-touched stickies share one content form; there is no
 "canonical vs collapsed" split to reconcile. Two legacy variants still
 turn up and the parser tolerates them: stickies rendered before the
@@ -141,8 +141,11 @@ Normalization steps, in order:
    `STORY-\d+` token. Everything after the id token is the
    **short-title remainder**.
 3. **Strip a trailing priority token.** If the remainder ends with a
-   bare `Critical` / `High` / `Medium` / `Low` word (a legacy
-   priority block), drop it. Priority is not part of the sticky
+   bare `P0` / `P1` / `P2` / `P3` token, or a legacy
+   `Critical` / `High` / `Medium` / `Low` word, drop it. **Both
+   spellings must stay recognized** — boards built before the P0–P3
+   change still carry the old words, and the sticky is not migrated
+   when the story file is. Priority is not part of the sticky
    content model — it lives in the story file and is reflected only
    by swim lane. Collapse internal runs of whitespace to single
    spaces and trim.
@@ -208,7 +211,7 @@ field; the parsed activity name seeds its `#` title (Task C).
 
 ### Discovery layer (rounded rectangles)
 
-8. **orphan_opportunity** — *dormant.* Per the 2026-05-14 decision,
+8. **orphan_opportunity** — *dormant.* By design,
    opportunities on the story map are out of scope: absorb does not
    classify, surface, or forward opportunity-colored shapes today. The
    state is kept named so a future cross-board-linkage release can
@@ -302,8 +305,8 @@ Produce a structured object the user (and `interpret-changes.md`) can read:
 `nearest_story` for a discovery-layer shape is the story sticky whose
 center is closest to the shape's center — it records which story the
 assumption was placed beside. The interpretation pass surfaces it so the
-PM can see the assumption-to-story relationship; per the 2026-05-14
-decision absorb does not forward it anywhere.
+PM can see the assumption-to-story relationship; by design, absorb does
+not forward it anywhere.
 
 ## Step 6: Present the diff to the user
 
@@ -334,9 +337,9 @@ Then ask: "Apply structural changes (moves, recolors) to the repo? Run semantic 
 
 On approval for structural-only changes: update the affected story markdown headers (`Priority` for swim-lane moves, `Type` for recolors) and update sidecar `expected_*` fields. Do NOT auto-apply content changes or discovery-layer changes — those always route through `interpret-changes.md`.
 
-**Swim lane → priority is lossy.** The forward mapping collapses two priorities into NOW: Critical→NOW, High→NOW, Medium→NEXT, Low→LATER. Reversing it, NEXT→Medium and LATER→Low are unambiguous, but NOW could be either Critical or High. Resolve a story that landed in NOW this way:
-- If the story's current `Priority` is already Critical or High, leave it unchanged — a move within or into NOW carries no signal to change it.
-- If it moved into NOW from NEXT or LATER (so its priority was Medium or Low), default the new priority to **High** and flag it in the diff summary, so the PM can promote it to Critical if that's what they meant.
+**Swim lane → priority is lossy.** The forward mapping collapses two priorities into NOW: P0→NOW, P1→NOW, P2→NEXT, P3→LATER. Reversing it, NEXT→P2 and LATER→P3 are unambiguous, but NOW could be either P0 or P1. Resolve a story that landed in NOW this way:
+- If the story's current `Priority` is already P0 or P1, leave it unchanged — a move within or into NOW carries no signal to change it.
+- If it moved into NOW from NEXT or LATER (so its priority was P2 or P3), default the new priority to **P1** and flag it in the diff summary, so the PM can promote it to P0 if that's what they meant.
 
 **Recolor → Type is deterministic.** A `recolored` sticky is a story-`Type` reclassification. Map the new fill color to a `Type` via the `create-story-map.md` color table — `light_yellow`→Regular, `cyan`→Infrastructure, `violet`→Spike, `light_blue`→Quality, `light_orange`→Risk, `red`→Bug, `light_green`→Refactor, `gray`→Doc — and propose the story-file edit:
 

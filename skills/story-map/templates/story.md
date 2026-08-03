@@ -2,7 +2,7 @@
 
 **Story ID**: {NNNN}
 **Epic**: EPIC-{NNNN} - {Epic Title}
-**Priority**: Critical | High | Medium | Low
+**Priority**: P0 | P1 | P2 | P3
 **Type**: Regular | Infrastructure | Spike | Quality | Risk | Bug | Refactor | Doc (optional; omit for Regular)
 **Status**: Draft | Ready | In Progress | Built | Done
 **Personas**: {persona-slug} (comma-separated if the story spans actors)
@@ -14,8 +14,8 @@ I want to {capability},
 So that {outcome}.
 
 ## Source
-**Discovery Cycle**: {cycle}
-**Synthesis Reference**: `product/discovery/{cycle}/synthesis-{date}.md`
+**Iteration**: {iteration-slug}
+**Synthesis Reference**: `product/iterations/{iteration-slug}/synthesis.md`
 **User Need**: {need title}
 **Supporting Evidence**:
 - {quote or reference}
@@ -23,7 +23,7 @@ So that {outcome}.
 
 ## Design Reference
 **Screenshots**:
-- `product/design/{cycle}/screenshots/{file}.png`
+- `product/iterations/{iteration-slug}/prototypes/{screen}/{file}.png`
 
 **Design Notes**:
 - {brief design notes}
