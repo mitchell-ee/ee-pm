@@ -108,7 +108,8 @@ Read all files in `product/iterations/{iteration}/interviews/` except template f
 
 ### 8. Format output — primary
 
-`templates/synthesis-template.md` (alongside this skill) carries the full section order and the
+`${CLAUDE_PLUGIN_ROOT}/skills/discovery-synthesis/templates/synthesis-template.md` (ships with the
+plugin, not in the user's project) carries the full section order and the
 per-section scaffolding; the structure below is the authoritative shape. They agree — where the
 template is more detailed, follow it; if they ever diverge, this section wins and the template is
 the bug.

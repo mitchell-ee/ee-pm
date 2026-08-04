@@ -31,7 +31,9 @@ version this project's artifacts are written in**.
 
 1. Read the version from the marker above. No version on the marker means the project predates
    the convention — treat it as `0.5.0`.
-2. Compare to the plugin's `version` in `.claude-plugin/plugin.json`.
+2. Compare to the plugin's `version` in `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`.
+   That file ships **with the plugin**, not in this project — resolve it under
+   `${CLAUDE_PLUGIN_ROOT}` (the plugin's install directory), never against the project root.
 3. **If the project's version is older, stop.** Say which version the project is on and which the
    plugin is, and tell the PM to run `/ee-pm:setup` to migrate. Do not read or write `product/`
    artifacts in the meantime.

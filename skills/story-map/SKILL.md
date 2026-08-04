@@ -23,7 +23,13 @@ If unsure which mode, ask: "Are we pushing repo → board, pulling board → rep
 - Official Miro MCP at `mcp.miro.com`: `mcp__miro-official__layout_get_dsl` (load the DSL grammar **once** per run, then reuse — a prerequisite of `layout_create`), `mcp__miro-official__layout_create` (build the board + items), `mcp__miro-official__layout_read` (round-trip read for absorb), `mcp__miro-official__layout_update` (refresh-mode mutations), `mcp__miro-official__context_get` (board metadata). Story maps carry no connectors, so none is needed (release horizons are thin rectangles, not edges) — though the DSL does have a first-class `CONNECTOR` type available if a future map variant wants one.
 - Filesystem access to the iteration's `stories/` and `story-maps/activities/` directories, the product-level persona files at `product/personas/*.md`, and the iteration's sidecar at `product/iterations/{iteration-slug}/story-maps/miro-metadata.json`.
 
-**Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`story-shaping`) spawns the worker, the worker loads this skill. The official MCP renders stickies, shapes (including rounded rectangles), and text — the primitives this spec uses. See the canonical write forms in `reference/create-story-map.md` and `reference/read-board-state.md` (explicit defaults, matching-color borders) so create output is diff-stable against `layout_read`.
+**Where this skill's own files live.** Paths below written as `<skill>/…` mean
+`${CLAUDE_PLUGIN_ROOT}/skills/story-map/…` — the plugin's versioned install directory, **not** the
+user's project. Reference docs and templates ship with the plugin; only `product/` paths refer to
+the project. Resolve `<skill>` before reading, and never conclude a bundled file is missing from a
+search of the project.
+
+**Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`story-shaping`) spawns the worker, the worker loads this skill. The official MCP renders stickies, shapes (including rounded rectangles), and text — the primitives this spec uses. See the canonical write forms in `<skill>/reference/create-story-map.md` and `<skill>/reference/read-board-state.md` (explicit defaults, matching-color borders) so create output is diff-stable against `layout_read`.
 
 ## Board naming and location
 
@@ -81,7 +87,7 @@ A story or activity may name **more than one persona** (the `Personas:` field is
 
 ### 1. Create mode
 
-Push repo → Miro. Follow `reference/create-story-map.md` end-to-end.
+Push repo → Miro. Follow `<skill>/reference/create-story-map.md` end-to-end.
 
 **Inputs:** iteration slug. All stories under `product/iterations/{iteration-slug}/stories/`, the backbone from `story-maps/activities/*.md` (one file per activity, ordered by `Order`), the persona legend derived from `product/personas/*.md`, plus an optional `assumptions.md` file (or whatever the iteration uses). An `opportunities.md` file, if present, is ignored — opportunities on the story map are dormant.
 
@@ -108,7 +114,7 @@ Push repo → Miro, preserving the existing board.
    - **Added / renamed** activity (a new `activities/*.md` file, or a title change in an existing one) → create or re-content the dark_blue header sticky, recompute spans, and update the sidecar entry keyed by `activity_ref`.
 4. Save `last_synced_at` in the sidecar.
 
-Refresh also **re-canonicalizes** any sticky a human has touched on the board: the Miro inline editor collapses two-line sticky content to a single `<p>` line on first click-into-edit (see `reference/read-board-state.md` "Sticky-content parser"). Re-rendering the sticky content from the story file restores the canonical `{emoji} STORY-NNNN\n{short title}` form. Run refresh after an absorb if the board has visually drifted.
+Refresh also **re-canonicalizes** any sticky a human has touched on the board: the Miro inline editor collapses two-line sticky content to a single `<p>` line on first click-into-edit (see `<skill>/reference/read-board-state.md` "Sticky-content parser"). Re-rendering the sticky content from the story file restores the canonical `{emoji} STORY-NNNN\n{short title}` form. Run refresh after an absorb if the board has visually drifted.
 
 ### 3. Absorb mode (two-pass: structural diff, then semantic interpretation)
 
@@ -116,14 +122,14 @@ Pull Miro → repo. This is the green-field capability at the center of the roun
 
 **Inputs:** iteration slug. Operates against the sidecar at `story-maps/miro-metadata.json`. New stories surfaced by absorb get added to the iteration's `stories/` directory after PM approval. New assumptions surfaced by absorb are **detected and surfaced** as informational `ASSUMPTION_CAPTURED` notices recorded in the sidecar — not forwarded, not absorbed, no repo write (cross-board linkage is a later release).
 
-- **Structural diff pass** — see `reference/read-board-state.md`. Classifies every board item against the sidecar; produces a structured list of moves, adds, removes, content changes. No interpretation.
-- **Semantic interpretation pass** — see `reference/interpret-changes.md`. Takes the structural diff and reasons about what the human edits *mean* (new story, rescope, backbone promotion, deprecation), and surfaces captured assumptions informationally. Always proposes; the PM decides.
+- **Structural diff pass** — see `<skill>/reference/read-board-state.md`. Classifies every board item against the sidecar; produces a structured list of moves, adds, removes, content changes. No interpretation.
+- **Semantic interpretation pass** — see `<skill>/reference/interpret-changes.md`. Takes the structural diff and reasons about what the human edits *mean* (new story, rescope, backbone promotion, deprecation), and surfaces captured assumptions informationally. Always proposes; the PM decides.
 
 This two-pass split maps to established practice in tree-diff theory — see graphtage and Diff/TS for prior art on the structural-vs-semantic distinction.
 
 **High-level flow:**
 
-1. **Fetch** board state via `mcp__miro-official__layout_read` (see `reference/read-board-state.md`).
+1. **Fetch** board state via `mcp__miro-official__layout_read` (see `<skill>/reference/read-board-state.md`).
 2. **Structural diff pass:** using the sidecar as a map, classify every observed board item as:
    - Known item, unchanged
    - Known item, moved (new swim lane / new activity column) → repo update
@@ -132,7 +138,7 @@ This two-pass split maps to established practice in tree-diff theory — see gra
    - New sticky with no sidecar record → candidate new story
    - New rounded rectangle with Miro `light_green` fill → orphan assumption (classified by shape + color, anywhere on the map) → surfaced informationally
    - Missing item (in sidecar, not on board) → warn, keep repo unchanged
-3. **Semantic interpretation pass:** for each candidate, run the interpretation prompt in `reference/interpret-changes.md` to decide:
+3. **Semantic interpretation pass:** for each candidate, run the interpretation prompt in `<skill>/reference/interpret-changes.md` to decide:
    - New story? Suggest ID, activity, priority, draft title, persona prefix.
    - New activity column? Propose a new `activities/activity-{NNNN}-{slug}.md` (backbone extension — parallel to a new story).
    - Re-slicing of releases? Propose the new slice boundaries.
@@ -157,11 +163,11 @@ Header metadata (parsed by this skill):
 **Labels**: {iteration-slug}, {area}
 ```
 
-`Type` drives the sticky fill color (see `reference/create-story-map.md` Step 1's color table). It is optional — absent means Regular. Absorb mode's `recolored` state proposes adding or updating this line when a human changes a sticky's color on the board.
+`Type` drives the sticky fill color (see `<skill>/reference/create-story-map.md` Step 1's color table). It is optional — absent means Regular. Absorb mode's `recolored` state proposes adding or updating this line when a human changes a sticky's color on the board.
 
 The skill renders persona as an emoji prefix — one emoji per persona named in the comma-separated `Personas:` field, in the order written. Persona-emoji mapping comes from each persona file's `emoji` frontmatter key (`product/personas/{slug}.md`) and is reproduced on the board's persona legend rectangle.
 
-Body follows with user story, acceptance criteria, design references, etc. See `templates/story.md`.
+Body follows with user story, acceptance criteria, design references, etc. See `<skill>/templates/story.md`.
 
 ## Activity files
 
@@ -223,7 +229,7 @@ No authoritative *content* is duplicated into the sidecar: backbone order and ac
 
 ## Activity × release layout (canonical)
 
-See `reference/create-story-map.md` for the full coordinate specification. Summary:
+See `<skill>/reference/create-story-map.md` for the full coordinate specification. Summary:
 
 - Iteration title (bold, font_size 96) at the top (y=-1230), content `{iteration title} — Story Map`. Top-edge bounds landmark.
 - Activity headers (dark_blue stickies) at y=-600. Each activity owns a horizontal **span**, not a fixed column — the span runs from its header's left edge to the next header's left edge (last activity owns everything to its right). Header is left-aligned to its span. Span width = sub-columns needed × 600 px; the whole map is centered around x=0. Stories under an activity fill a grid within the span (down a sub-column to the lane's row limit — NOW 5, NEXT/LATER 3 — then wrap right).

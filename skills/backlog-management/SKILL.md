@@ -125,7 +125,7 @@ Change priority of existing story.
 - `product/backlog.md` - Master backlog file (cross-iteration product state)
 
 **Template:**
-- `templates/backlog-template.md` (alongside this skill) - the required structure for
+- `${CLAUDE_PLUGIN_ROOT}/skills/backlog-management/templates/backlog-template.md` (ships with the plugin, not in the user's project) - the required structure for
   `product/backlog.md`. Use it when creating the backlog for the first time, and follow its
   column order when adding rows.
 

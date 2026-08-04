@@ -10,9 +10,9 @@ Prepares the current project to use the EE PM Workflow. It creates the `product/
 
 This skill is **non-destructive and idempotent**. It never overwrites existing files or existing `CLAUDE.md` content, and it is safe to run more than once or in a repo that already has its own `CLAUDE.md` and directories. It always reports what it will do and asks for confirmation before writing anything.
 
-The conventions and scaffold templates live alongside this skill:
-- `templates/claude-md-block.md` — the delimited workflow-conventions block to add to `CLAUDE.md`.
-- `templates/product-README.md` — the `product/` scaffold README.
+The conventions and scaffold templates ship with the plugin (see `<plugin>` in "Procedure" below):
+- `<plugin>/skills/setup/templates/claude-md-block.md` — the delimited workflow-conventions block to add to `CLAUDE.md`.
+- `<plugin>/skills/setup/templates/product-README.md` — the `product/` scaffold README.
 
 ## When to use
 
@@ -21,7 +21,18 @@ The conventions and scaffold templates live alongside this skill:
 
 ## Procedure
 
-Work against the **user's project root** — `${CLAUDE_PROJECT_DIR}` if set, otherwise the current working directory. Refer to it as `<root>` below.
+Two directories matter here, and confusing them is the classic failure. Refer to them as:
+
+- **`<root>`** — the **user's project root**: `${CLAUDE_PROJECT_DIR}` if set, otherwise the current
+  working directory. Everything this skill *writes* goes here.
+- **`<plugin>`** — the **installed plugin directory**: `${CLAUDE_PLUGIN_ROOT}`. Everything this
+  skill *reads from itself* — templates, migrations, docs — lives here, **not** in the user's
+  project. `<plugin>` is a versioned install path such as
+  `~/.claude/plugins/cache/{marketplace}/ee-pm/{version}`; never assume it is `<root>`.
+
+**A bare relative path like `migrations/` is ambiguous and has caused a real misdiagnosis** — an
+agent resolved it against `<root>`, found nothing, and reported the migrations as missing from the
+plugin when they were installed correctly all along. Always write the anchor explicitly.
 
 ### 1. Detect current state
 
@@ -31,7 +42,7 @@ Check, without modifying anything:
   - If it exists, does it contain a `<!-- BEGIN ee-pm` marker? If so, the conventions block is already installed.
   - **Read the schema version off the marker** — `<!-- BEGIN ee-pm v0.7.0 -->`. A bare
     `<!-- BEGIN ee-pm -->` with no version predates this convention; treat it as **0.5.0**.
-    Compare against `.claude-plugin/plugin.json`'s `version`. A gap means migrations are pending
+    Compare against `<plugin>/.claude-plugin/plugin.json`'s `version`. A gap means migrations are pending
     (§7). Report it; don't act on it yet.
 - Does `<root>/product/` exist? If so, what's already in it — is it the empty scaffold, or does it hold real content (files/subdirs other than `iterations/` and `README.md`)?
 - Does `<root>/product/iterations/` exist?
@@ -47,12 +58,12 @@ Check, without modifying anything:
 Build a plan from the detection results and **print it to the PM before writing anything**. For each item state the action: **create**, **append**, **skip (already present)**, or **ask first**.
 
 - **`product/` tree:**
-  - Missing → plan to create `product/`, `product/iterations/`, and `product/README.md` (from `templates/product-README.md`).
+  - Missing → plan to create `product/`, `product/iterations/`, and `product/README.md` (from `<plugin>/skills/setup/templates/product-README.md`).
   - Exists but missing some subdirs → plan to create only the missing subdirs / README; skip what exists.
   - Exists and holds unrelated content (not just the scaffold) → **ask first**: tell the PM what's already there and confirm it's the right place to add `iterations/` before touching it. Never overwrite existing files.
 - **Legacy `product/context/`** (if detected in §1) → **ask first**, never automatic. See §7.
 - **`CLAUDE.md`:**
-  - Missing → plan to create it with the conventions block (`templates/claude-md-block.md`).
+  - Missing → plan to create it with the conventions block (`<plugin>/skills/setup/templates/claude-md-block.md`).
   - Exists, already contains a `<!-- BEGIN ee-pm` marker → **skip** the block itself (idempotent). Mention it's already installed, and — if §1 found a version gap — that migrations are pending in §7.
   - Exists, no block → plan to **append** the conventions block. Show the PM the exact block that will be appended (it's delimited by `<!-- BEGIN ee-pm v{version} -->` / `<!-- END ee-pm -->`, so it can be found and removed later). Never modify their existing content.
 - **Pending migrations** (if §1 found a version gap) → list them and note they'll be dry-run first in §7. Never automatic.
@@ -74,9 +85,9 @@ On approval, perform exactly the planned actions:
   - Append the template block (with a blank line before it) if the file exists without the block.
   - Do nothing if the block is already present — **except** to stamp its version marker in §7.3.
 
-  **Stamp the version when writing the block.** `templates/claude-md-block.md` opens with
+  **Stamp the version when writing the block.** `<plugin>/skills/setup/templates/claude-md-block.md` opens with
   `<!-- BEGIN ee-pm v{{VERSION}} -->`; replace `{{VERSION}}` with the `version` from
-  `.claude-plugin/plugin.json` (e.g. `<!-- BEGIN ee-pm v0.7.0 -->`). A block written without a
+  `<plugin>/.claude-plugin/plugin.json` (e.g. `<!-- BEGIN ee-pm v0.7.0 -->`). A block written without a
   version is indistinguishable from a pre-0.6.0 project and will re-run every migration on the
   next setup.
 
@@ -96,9 +107,9 @@ Skip this step if §1 detected `miro-official` is already configured.
 
 Auth is **OAuth-at-connect**: the first time the MCP connects, Miro runs its consent flow in the browser (the PM's own Miro account; nothing stored in the repo). The grant is resolved at `claude` process startup and reused by later background/agent sessions. §7 walks the PM through authorizing it.
 
-> **Optional advanced optimization (not enabled by default).** Registering the MCP at project level loads its tool schemas onto the **main interactive thread** every turn, which costs context tokens. There's a way to keep the MCP *only* inside the board workers (off the main thread): copy the three board-worker agents into `<root>/.claude/agents/` and uncomment the inline `mcpServers:` block in each. This is **not** done by setup, because Claude Code strips inline `mcpServers` from *plugin-provided* agents for security — the block only takes effect on *project-local* copies — and the resulting local copies stop auto-updating with the plugin, plus the auth/runtime workflow gets more fiddly (you must spawn the bare-named local agents, restart after copying, etc.). The commented block and a fuller explanation live in each agent file (`agents/board-builder.md`) and in `docs/miro-setup.md`. Only reach for it if main-thread token cost is a real concern for you.
+> **Optional advanced optimization (not enabled by default).** Registering the MCP at project level loads its tool schemas onto the **main interactive thread** every turn, which costs context tokens. There's a way to keep the MCP *only* inside the board workers (off the main thread): copy the three board-worker agents into `<root>/.claude/agents/` and uncomment the inline `mcpServers:` block in each. This is **not** done by setup, because Claude Code strips inline `mcpServers` from *plugin-provided* agents for security — the block only takes effect on *project-local* copies — and the resulting local copies stop auto-updating with the plugin, plus the auth/runtime workflow gets more fiddly (you must spawn the bare-named local agents, restart after copying, etc.). The commented block and a fuller explanation live in each agent file (`<plugin>/agents/board-builder.md`) and in `<plugin>/docs/miro-setup.md`. Only reach for it if main-thread token cost is a real concern for you.
 
-There is a single auth path (`docs/miro-setup.md`): the hosted MCP's OAuth-at-connect. It covers boards and connectors alike — no second credential to wire. The next step verifies it.
+There is a single auth path (`<plugin>/docs/miro-setup.md`): the hosted MCP's OAuth-at-connect. It covers boards and connectors alike — no second credential to wire. The next step verifies it.
 
 ### 6. Verify Miro MCP auth
 
@@ -134,16 +145,22 @@ From the `CLAUDE.md` block marker: `<!-- BEGIN ee-pm v{X.Y.Z} -->`.
   one's guard decides what actually runs.
 - **No block at all** but `product/` exists → same as above; the project predates the block.
 
-Compare against the plugin's version in `.claude-plugin/plugin.json`. This tells you whether to
+Compare against the plugin's version in `<plugin>/.claude-plugin/plugin.json`. This tells you whether to
 *expect* work — but it does **not** decide what runs. See §7.2.
 
 #### 7.2 Select and run
 
-**Run every migration in `migrations/`, in version order — including ones at or below the
+**Run every migration in `<plugin>/skills/setup/migrations/`, in version order — including ones at or below the
 project's recorded version.** Do not filter by version, and do not reason about which ones
 "already ran": that is what the guards are for. Each migration inspects the data, acts only if
 the old shape is present, and is a no-op otherwise, so re-running an already-applied migration is
-safe and expected. See `migrations/README.md` for the contract every migration honors.
+safe and expected. See `<plugin>/skills/setup/migrations/README.md` for the contract every migration honors.
+
+**The migrations ship with the plugin.** They are never in the user's project. If
+`<plugin>/skills/setup/migrations/` appears to be empty or missing, that is a path-resolution
+problem, not a packaging one — re-resolve `${CLAUDE_PLUGIN_ROOT}` and list it again before
+concluding anything. Do not report migrations as unshipped on the strength of a search that
+looked in the project.
 
 Running the full set — rather than only what's newer — is deliberate. It is what makes two
 otherwise-broken cases work:
@@ -164,9 +181,11 @@ setup. It is not the thing that selects migrations.
 | `0.7.0-persona-frontmatter.md` | prose | a `product/personas/*.md` lacks `type`/`slug`/`name` | `0.6.0-context-collapse.md` |
 | `0.7.0-priority-p0p3.sh` | script | any `Priority:`/`priority:` field uses Critical/High/Medium/Low | — |
 
-*(This table grows as migrations are added. A migration's version is when the **convention**
-changed, not when the migration was written — one added late for an already-released version
-still applies, because selection is by data shape, not version arithmetic.)*
+*(Filenames in the first column are relative to `<plugin>/skills/setup/migrations/`; the paths in
+"Applies when" are project data, relative to `<root>`. This table grows as migrations are added. A
+migration's version is when the **convention** changed, not when the migration was written — one
+added late for an already-released version still applies, because selection is by data shape, not
+version arithmetic.)*
 
 **Order by dependency first, then by version.** A migration may declare `Requires:` in its header
 naming migrations that must run before it. Version order alone is not sufficient: a migration can
@@ -224,12 +243,26 @@ This is the step that makes the framework honest about its own gaps. If a conven
 no migration exists for it yet, the matching check fails, the project stays unstamped, and the
 gap is visible — instead of being stamped away.
 
+**A failed check does not diagnose its own cause.** "The data is still in the old shape" is the
+finding; *why* is a separate question with three very different answers:
+
+1. **The migration ran and the guard found nothing** — it reported a no-op (§7.2 step 5 requires
+   saying so out loud). Trust that report.
+2. **The PM declined it** — expected; say so and leave the marker.
+3. **The migration never ran** — before concluding it doesn't exist, list
+   `<plugin>/skills/setup/migrations/` by its resolved absolute path. If §7.2's dry run for it is
+   missing from this session's output, the migration was skipped, not absent.
+
+Never report a migration as missing or unshipped on the strength of a failed §7.3 check plus a
+search that looked in the user's project. That inverts a lookup error into a false packaging bug,
+and it has happened. Say what the data shows and what you actually ran.
+
 ### 8. Report and next steps
 
 Summarize what was created, appended, or skipped. Then tell the PM the next steps:
 
 1. **Restart if the MCP was newly registered** — if §5 wrote `.mcp.json` this run, restart the session first (see §6.5) before any board work.
-2. **Connect Miro** — see `docs/miro-setup.md` in the plugin. The board workers reach the official hosted Miro MCP via the `miro-official` server registered in §5 (`<root>/.mcp.json`). Authorize Miro via `/mcp` → Authenticate `miro-official` in the main session, then (if just added) **exit and restart `claude` once** so the grant loads (see §6); background runs reuse the grant. This single OAuth grant covers boards **and** connectors — there is no second credential to configure. If §5 was skipped, the workers can't reach Miro until you re-run `/ee-pm:setup` and register the MCP.
+2. **Connect Miro** — see `<plugin>/docs/miro-setup.md`. The board workers reach the official hosted Miro MCP via the `miro-official` server registered in §5 (`<root>/.mcp.json`). Authorize Miro via `/mcp` → Authenticate `miro-official` in the main session, then (if just added) **exit and restart `claude` once** so the grant loads (see §6); background runs reuse the grant. This single OAuth grant covers boards **and** connectors — there is no second credential to configure. If §5 was skipped, the workers can't reach Miro until you re-run `/ee-pm:setup` and register the MCP.
 3. **Point at a design system if the project has one** — record its rules path in `CLAUDE.md` so the prototyping skills reference it instead of improvising UI. Optional; skip if there isn't one.
 4. **Establish product context** — run `/ee-pm:framework-setup` once.
 5. **Start an iteration** — run `/ee-pm:iteration-setup` per iteration.

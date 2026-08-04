@@ -49,11 +49,13 @@ Two modes:
 
 ### 4. Create the directory structure
 
-Invoke `scripts/create-iteration-dirs.sh`:
+Invoke `${CLAUDE_PLUGIN_ROOT}/skills/iteration-setup/scripts/create-iteration-dirs.sh`. The script
+ships **with the plugin**, not in the user's project — call it by that absolute path, from the
+project root so its relative output lands in the project:
 
 ```
-./scripts/create-iteration-dirs.sh <iteration-slug>
-./scripts/create-iteration-dirs.sh <iteration-slug> --from-seed <seed-iteration-path>
+"${CLAUDE_PLUGIN_ROOT}/skills/iteration-setup/scripts/create-iteration-dirs.sh" <iteration-slug>
+"${CLAUDE_PLUGIN_ROOT}/skills/iteration-setup/scripts/create-iteration-dirs.sh" <iteration-slug> --from-seed <seed-iteration-path>
 ```
 
 The script creates:

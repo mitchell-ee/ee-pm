@@ -188,7 +188,8 @@ Suggest connections to existing product context:
 
 ## Templates
 
-`templates/interview-template.md` (alongside this skill) is the required structure for a captured
+`${CLAUDE_PLUGIN_ROOT}/skills/interview-management/templates/interview-template.md` (ships with the
+plugin, not in the user's project) is the required structure for a captured
 interview. Read it before writing one and follow its section order — it is what makes transcripts
 comparable across interviews, which is what `discovery-synthesis` depends on when it reads a batch.
 

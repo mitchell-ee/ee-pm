@@ -124,7 +124,7 @@ Origin at the grid's center. Each quadrant is 1200×800 with 80 px gutters betwe
 
 ### Axes (drawn lines, story-map swim-lane technique)
 
-Two thin black rectangles cross at the origin. No connectors; no rotation. Mirrors the release-horizon technique in `story-map/reference/create-story-map.md` §4.3.
+Two thin black rectangles cross at the origin. No connectors; no rotation. Mirrors the release-horizon technique in `${CLAUDE_PLUGIN_ROOT}/skills/story-map/reference/create-story-map.md` §4.3.
 
 | Axis | Center (x, y) | Size (w × h) | Style |
 |---|---|---|---|
@@ -271,7 +271,7 @@ Push repo → Miro for one solution.
 5. Save the sidecar at `product/assumption-maps/SOL-{NNNN}-{slug}/miro-metadata.json` including the full `chrome` block (item IDs of every chrome item) and the `stickies` block.
 6. Summarize to the user with the board URL and counts per quadrant. Flag if `test_first` is empty (suggests the team thinks they have nothing risky to validate — usually wrong; ask the PM to revisit importance/evidence ratings).
 
-Reference: `reference/create-assumption-map.md` (to be written; expected to mirror `story-map/reference/create-story-map.md` in shape).
+Reference: `${CLAUDE_PLUGIN_ROOT}/skills/assumption-map/reference/create-assumption-map.md` (to be written; expected to mirror `${CLAUDE_PLUGIN_ROOT}/skills/story-map/reference/create-story-map.md` in shape).
 
 ### 2. Refresh mode
 
@@ -306,7 +306,7 @@ Pull Miro → repo. The hero move for assumption-mapping workshops, where the te
 - **Sticky title rewritten** → propose updating the file's header and hypothesis.
 - **Cluster of moves (3+ stickies repositioned together)** → ask if the team is re-rating an entire category (e.g. all desirability assumptions just got harder evidence); offer a batch update.
 
-Reference: `reference/interpret-assumption-changes.md` (to be written; expected to mirror `story-map/reference/interpret-changes.md` in shape).
+Reference: `${CLAUDE_PLUGIN_ROOT}/skills/assumption-map/reference/interpret-assumption-changes.md` (to be written; expected to mirror `${CLAUDE_PLUGIN_ROOT}/skills/story-map/reference/interpret-changes.md` in shape).
 
 **Important:** absorb mode NEVER deletes repo files without explicit approval. A removed sticky is a warning, not a cascade.
 

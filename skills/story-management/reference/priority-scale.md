@@ -54,7 +54,7 @@ When creating Miro story maps, priorities map to swim lanes:
 | LATER | P3 | Backlog for future consideration |
 
 **The mapping is lossy in reverse.** NOW collapses P0 and P1, so a board read cannot tell which a
-NOW story is. See `story-map/reference/read-board-state.md` for how absorb resolves this: a story
+NOW story is. See `${CLAUDE_PLUGIN_ROOT}/skills/story-map/reference/read-board-state.md` for how absorb resolves this: a story
 already at P0 or P1 keeps its priority, and one promoted into NOW from NEXT/LATER defaults to
 **P1** with a flag for the PM to raise it to P0.
 
@@ -62,7 +62,7 @@ already at P0 or P1 keeps its priority, and one promoted into NOW from NEXT/LATE
 
 Projects created before this scale used **Critical / High / Medium / Low**, mapping
 Critical→P0, High→P1, Medium→P2, Low→P3. `setup` §7 migrates them
-(`migrations/0.7.0-priority-p0p3.sh`); `read-board-state.md`'s sticky parser tolerates the old
+(`${CLAUDE_PLUGIN_ROOT}/skills/setup/migrations/0.7.0-priority-p0p3.sh`); `read-board-state.md`'s sticky parser tolerates the old
 words on boards built before the change.
 
 ## Usage Guidelines

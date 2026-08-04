@@ -29,7 +29,13 @@ Six modes: **seed**, **create**, **refresh**, **absorb**, **analyze**, **promote
 - Tree edges are native DSL `CONNECTOR` items — the layout DSL has a first-class `CONNECTOR` type, so connectors are created, read, and rewired through the same MCP as the nodes. One credential (the MCP's OAuth-at-connect), no separate connector token.
 - Filesystem access to `product/opportunity-solution-tree/` and its sidecar `miro-metadata.json`.
 
-**Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`discovery`) spawns the worker, the worker loads this skill. The `seed`, `analyze`, and `promote-from-inbox` modes are file-side only (no board mutation) and run without a board worker — `seed` fans out `opportunity-writer` workers; the others run in the main thread. See the canonical write forms in `reference/create-ost.md` and `reference/interpret-changes.md` so create output is diff-stable against `layout_read`.
+**Where this skill's own files live.** Paths below written as `<skill>/…` mean
+`${CLAUDE_PLUGIN_ROOT}/skills/opportunity-tree/…` — the plugin's versioned install directory,
+**not** the user's project. Reference docs ship with the plugin; only `product/` paths refer to the
+project. Resolve `<skill>` before reading, and never conclude a bundled file is missing from a
+search of the project.
+
+**Execution context:** this skill runs *inside* a board worker agent (`board-builder` for create / refresh, `absorb-interpreter` + `board-writer` for absorb), which is where the official Miro MCP is registered. The main thread never calls `mcp__miro-official__*` directly — the router (`discovery`) spawns the worker, the worker loads this skill. The `seed`, `analyze`, and `promote-from-inbox` modes are file-side only (no board mutation) and run without a board worker — `seed` fans out `opportunity-writer` workers; the others run in the main thread. See the canonical write forms in `<skill>/reference/create-ost.md` and `<skill>/reference/interpret-changes.md` so create output is diff-stable against `layout_read`.
 
 ## When to use this skill
 
@@ -174,7 +180,7 @@ Every project gets exactly one OST board — the OST is product-level, not itera
 
 ## Miro layout
 
-> **Every render must follow `reference/create-ost.md` exactly.** That file is the canonical spec for orientation, columns, node content format, the per-column pitch rule, centering, and the sidecar contract. This section summarizes the rules; the reference is authoritative when in conflict.
+> **Every render must follow `<skill>/reference/create-ost.md` exactly.** That file is the canonical spec for orientation, columns, node content format, the per-column pitch rule, centering, and the sidecar contract. This section summarizes the rules; the reference is authoritative when in conflict.
 
 An OST renders as a **left-to-right horizontal tree** in Miro. The board is not constrained to a viewport — PMs scroll around during discussion, so the layout expands vertically as needed rather than wrapping or shrinking. Horizontal node shapes (wider than tall) pack the title text on fewer lines and use the canvas more efficiently than a top-down tree.
 
@@ -188,7 +194,7 @@ An OST renders as a **left-to-right horizontal tree** in Miro. The board is not 
 
 For example: `<strong>OPP-0001</strong><br>ETA trust — the promise time drifts`. This convention applies to every node type (root, outcome, opportunity, solution, assumption test) and every mode (create, refresh, absorb, promote-from-inbox). Miro's shape `content` field accepts inline HTML; `<strong>` and `<br>` are the only tags needed.
 
-**Board title:** every board carries a bold `text` item — `<strong>{tree name} — Opportunity Solution Tree</strong>`, `font_size: 96` — at the root column (x=0), placed above the topmost node. It is board chrome: recorded in the sidecar as `items.title`, classified only `unchanged` / `missing` by absorb, never treated as a tree node. See `reference/create-ost.md` §2a.
+**Board title:** every board carries a bold `text` item — `<strong>{tree name} — Opportunity Solution Tree</strong>`, `font_size: 96` — at the root column (x=0), placed above the topmost node. It is board chrome: recorded in the sidecar as `items.title`, classified only `unchanged` / `missing` by absorb, never treated as a tree node. See `<skill>/reference/create-ost.md` §2a.
 
 **Levels (left → right):**
 
@@ -198,14 +204,14 @@ For example: `<strong>OPP-0001</strong><br>ETA trust — the promise time drifts
 - **Solutions** — next column (~220×90). Solutions attach **only to leaf opportunities** (an opportunity is a leaf when no other opportunity declares it as `Parent Opportunity`). All solutions in a tree align in a single column — the column position is derived from the deepest opportunity branch, not from each solution's own parent depth. Solutions sit at their own leaf-slot y (one solution per slot at the within-group pitch). The parent opportunity is centered on its solutions' y-range.
 - **Assumption tests** — rightmost column (~200×80). Aligned vertically with their parent solution.
 
-**Coordinate rule (see `reference/create-ost.md`):** the within/between rule applies **at every column** (opportunity, solution, assumption), not just at outcome boundaries:
+**Coordinate rule (see `<skill>/reference/create-ost.md`):** the within/between rule applies **at every column** (opportunity, solution, assumption), not just at outcome boundaries:
 
 - **Within-group pitch (same direct parent):** default **140 px** — about 30 px gap between adjacent opportunity nodes. Tight enough to stay compact, loose enough to read.
 - **Cross-group pitch (different direct parent):** default **280 px** — exactly **2× the within-group pitch**. This is the cap, not a multiplier: enough to read group boundaries, not so much that the diagram sprawls. Same value at every column boundary, regardless of which level (cross-OPP at the SOL column = cross-OUTCOME at the OPP column).
 
 **Centering and propagation:** each parent is positioned at the y-center of its children. When a parent's children are spread (e.g., a 2-solution opportunity), the parent occupies more vertical space than 140 px and the cross-pitch may be subtree-driven rather than rule-driven at higher columns — that's expected. Solve column-by-column from the rightmost leaves leftward, taking the maximum of (rule-required pitch) and (subtree-spread pitch) at each column.
 
-Default x positions: root=0, outcome=480. Opportunity x is `480 + 480 + 320 × (opportunity_depth - 1)` — depth-1 at 960, depth-2 at 1280, depth-3 at 1600. Solution x is `480 + 480 + 320 × (max_opportunity_depth - 1) + 480`; assumption_test x is `solution.x + 480`. For a single-tier tree (every opportunity at depth 1): solution=1440, assumption_test=1920 (canonical columns preserved). The solution column shifts right as opportunity branches deepen — depth-2 → solution=1760. The board auto-expands vertically. No wrapping, no shrinking. Full algorithm and sidecar schema in `reference/create-ost.md`.
+Default x positions: root=0, outcome=480. Opportunity x is `480 + 480 + 320 × (opportunity_depth - 1)` — depth-1 at 960, depth-2 at 1280, depth-3 at 1600. Solution x is `480 + 480 + 320 × (max_opportunity_depth - 1) + 480`; assumption_test x is `solution.x + 480`. For a single-tier tree (every opportunity at depth 1): solution=1440, assumption_test=1920 (canonical columns preserved). The solution column shifts right as opportunity branches deepen — depth-2 → solution=1760. The board auto-expands vertically. No wrapping, no shrinking. Full algorithm and sidecar schema in `<skill>/reference/create-ost.md`.
 
 **Color convention (fill):** root peach (`#ffd6cc`), outcomes white, opportunities blue (`#cce5ff`), solutions yellow (`#fff3cd`), assumption tests light green (`#d4edda`), rejected/descoped gray. Text color kept default.
 
@@ -231,13 +237,13 @@ If a worker returns `split_suspected` or `precondition-unresolved`, the main thr
 
 Read all outcome / opportunity / solution / test files — **they must already exist** (if starting from scratch, run seed mode first to author them). Build topology in memory. Create the Miro board; add outcomes, then opportunities with connectors, then solutions, then tests. Save the sidecar `miro-metadata.json` and emit the board URL in chat.
 
-**Follow `reference/create-ost.md` for the full layout algorithm** — orientation, columns, node content format (mandatory bold ref_id), the per-column within/cross pitch rule, centering and propagation, sidecar contract. Every render must conform; the rules in that file are non-negotiable defaults.
+**Follow `<skill>/reference/create-ost.md` for the full layout algorithm** — orientation, columns, node content format (mandatory bold ref_id), the per-column within/cross pitch rule, centering and propagation, sidecar contract. Every render must conform; the rules in that file are non-negotiable defaults.
 
 ### 3. Refresh mode
 
 Diff repo against sidecar. Add new nodes, update moved/edited ones, gray-out removed ones. Do NOT delete from Miro without approval.
 
-When recomputing positions for any new or moved node, re-run the full layout algorithm in `reference/create-ost.md` — same per-column pitch rule, same centering, same content format. Don't patch positions ad-hoc; the rule must hold globally after every refresh.
+When recomputing positions for any new or moved node, re-run the full layout algorithm in `<skill>/reference/create-ost.md` — same per-column pitch rule, same centering, same content format. Don't patch positions ad-hoc; the rule must hold globally after every refresh.
 
 ### 4. Absorb mode (two-pass: structural diff, then semantic interpretation)
 
@@ -254,7 +260,7 @@ When recomputing positions for any new or moved node, re-run the full layout alg
 - **Orphan opportunity-shaped sticky** → propose new opportunity file with draft content; ask for persona and evidence strength.
 - **Connector between two opportunities** → ask if the human is merging them or marking a relationship.
 
-See `reference/interpret-changes.md` (to be written).
+See `<skill>/reference/interpret-changes.md` (to be written).
 
 ### 5. Analyze mode
 

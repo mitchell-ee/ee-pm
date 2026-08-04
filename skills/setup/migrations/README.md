@@ -2,6 +2,13 @@
 
 One file per migration. `setup` §7 runs them; nothing else does.
 
+**These files ship with the plugin.** They live at
+`${CLAUDE_PLUGIN_ROOT}/skills/setup/migrations/` — inside the plugin's versioned install
+directory, never in the user's project. A migration is invoked by absolute path from there, and
+operates *on* the project's `product/` tree. If this directory looks empty or absent, re-resolve
+`${CLAUDE_PLUGIN_ROOT}`; searching the project for `migrations/` will always come up empty and
+that is not evidence of a packaging problem.
+
 A migration exists because **the plugin changed a convention and existing project data is now
 stale**. The plugin cannot run code when it is updated — there is no install hook — so migration
 is *lazy*: the version marker in the project's `CLAUDE.md` makes the gap visible the next time

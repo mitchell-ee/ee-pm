@@ -166,13 +166,13 @@ or recolored the sticky — the board is already canonical).
   order (sorted by the orphan's Miro item id if multiple new stories).
 - Slugify the draft title into a filename: lowercase, hyphenated,
   ASCII-only, truncate to ~40 chars at a word boundary.
-- Write `story-{NNNN}-{slug}.md` from `templates/story.md`. Fill in:
+- Write `story-{NNNN}-{slug}.md` from `${CLAUDE_PLUGIN_ROOT}/skills/story-map/templates/story.md`. Fill in:
   - `**Story ID**: {NNNN}`
   - `**Priority**: {value}` — the value the PM confirmed in the §2 loop
     (default **P1** for a NOW landing, per `read-board-state.md`
     Step 6).
   - `**Type**: {Type}` — the deterministic mapping of the orphan's fill
-    color. Per `templates/story.md`, **omit this line entirely when the
+    color. Per `${CLAUDE_PLUGIN_ROOT}/skills/story-map/templates/story.md`, **omit this line entirely when the
     mapping is `Regular`** (the default); write it only for a
     non-Regular type.
   - `**Personas**: {persona-slug}` — resolved from the emoji prefix by

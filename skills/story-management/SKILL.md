@@ -45,7 +45,8 @@ Create a new user story from scratch or from a feature description.
    - Any prototype artifacts in `product/iterations/{slug}/prototypes/` this story should reference?
 
 5. **Write Story**
-   Use selected template from `templates/`
+   Use the selected template from `${CLAUDE_PLUGIN_ROOT}/skills/story-management/templates/`
+   (ships with the plugin, not in the user's project)
    - Follow "As a [persona], I want [action], so that [benefit]"
    - Include context and source (traceability to synthesis + story-map activity)
    - Populate optional frontmatter when applicable:

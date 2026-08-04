@@ -204,7 +204,7 @@ The pattern is the same in both cases (sidecar + create + absorb + accept-flow).
 - A design-system project the product expects is not visible to the user → if the design system is repo-resident and simply hasn't been published yet, point them at **`/design-sync`** from that repo rather than treating it as an access problem. Otherwise tell them which workspace it lives in; stop cleanly.
 - Design system exists but its components are out of date vs. the repo → **`/design-sync`** re-sync, not a manual re-upload from here.
 - Import zip extraction overwrites existing files → always show diff and require approval before write.
-- Spec file missing for a target screen → offer to scaffold one from `templates/screen-spec.md` (when added).
+- Spec file missing for a target screen → offer to scaffold one from `${CLAUDE_PLUGIN_ROOT}/skills/claude-design/templates/screen-spec.md` (when added).
 
 ## Related skills
 
