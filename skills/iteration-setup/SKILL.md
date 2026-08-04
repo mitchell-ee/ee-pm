@@ -49,14 +49,24 @@ Two modes:
 
 ### 4. Create the directory structure
 
-Invoke `${CLAUDE_PLUGIN_ROOT}/skills/iteration-setup/scripts/create-iteration-dirs.sh`. The script
-ships **with the plugin**, not in the user's project — call it by that absolute path, from the
-project root so its relative output lands in the project:
+Invoke `${CLAUDE_SKILL_DIR}/scripts/create-iteration-dirs.sh`. The script ships **with the
+plugin**, not in the user's project — call it by its absolute path, from the project root so its
+relative output lands in the project:
 
 ```
-"${CLAUDE_PLUGIN_ROOT}/skills/iteration-setup/scripts/create-iteration-dirs.sh" <iteration-slug>
-"${CLAUDE_PLUGIN_ROOT}/skills/iteration-setup/scripts/create-iteration-dirs.sh" <iteration-slug> --from-seed <seed-iteration-path>
+"${CLAUDE_SKILL_DIR}/scripts/create-iteration-dirs.sh" <iteration-slug>
+"${CLAUDE_SKILL_DIR}/scripts/create-iteration-dirs.sh" <iteration-slug> --from-seed <seed-iteration-path>
 ```
+
+`${CLAUDE_SKILL_DIR}` is substituted into this text before you read it, so the paths above should
+already be absolute. **Do not paste an unexpanded `${CLAUDE_SKILL_DIR}` into a shell command** —
+the variable is *not* exported to the Bash environment, so it expands to nothing there and the
+command becomes `/scripts/create-iteration-dirs.sh`, which fails with "No such file or directory".
+
+If that happens, the script is not missing. Recover by locating it — the skill's own directory is
+stated at the top of this skill's invocation, and the plugin installs under
+`~/.claude/plugins/cache/{marketplace}/ee-pm/{version}/skills/iteration-setup/scripts/`. List it
+and use the resolved absolute path.
 
 The script creates:
 
